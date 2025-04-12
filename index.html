@@ -83,6 +83,21 @@
         .print-only {
             display: none;
         }
+		/* Styles pour le générateur repliable */
+        .generator-content {
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+            max-height: 1000px; /* Hauteur max suffisante pour le contenu déplié */
+        }
+
+        .generator-content.collapsed {
+            max-height: 0;
+            padding-top: 0; /* Optionnel: enlève le padding quand replié */
+            padding-bottom: 0; /* Optionnel: enlève le padding quand replié */
+            border-top: none; /* Assurez-vous qu'il n'y a pas de bordure visible */
+            margin-top: -1px; /* Compense une éventuelle bordure restante */
+        }
+        /* Fin des styles pour le générateur repliable */
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -111,7 +126,54 @@
             <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Calculateur de Calories Journalier</h1>
             <p class="text-gray-600 mt-2">Composez et calculez vos repas pour toute la journée</p>
         </header>
+<!-- Section Génération Automatique (Repliable) -->
+        <div class="bg-white rounded-lg shadow mb-8 no-print" id="generator-section">
+            <!-- En-tête avec bouton Toggle -->
+            <div class="flex justify-between items-center p-4 border-b border-gray-200 cursor-pointer" id="generator-header">
+                <h2 class="text-xl font-semibold text-gray-800">Génération Automatique de Menu</h2>
+                <button id="toggle-generator-btn" class="text-blue-500 hover:text-blue-700 text-xl">
+                    <i class="fas fa-chevron-up"></i> <!-- Icone initiale (déplié) -->
+                </button>
+            </div>
 
+            <!-- Contenu à masquer/afficher -->
+            <div class="p-6 generator-content" id="generator-content">
+                <!-- Champ Calories -->
+                <div class="mb-4">
+                   <label for="target-calories" class="block text-gray-700 mb-1 text-sm font-medium">Calories journalières visées :</label>
+                   <input type="number" id="target-calories" min="1000" value="2000" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <!-- Choix de l'Objectif -->
+                <div class="mb-6">
+                   <label class="block text-gray-700 mb-2 text-sm font-medium">Quel est votre objectif ?</label>
+                   <div class="flex flex-wrap gap-x-6 gap-y-2">
+                       <!-- radios... -->
+                        <div class="flex items-center">
+                            <input type="radio" id="obj-maintain" name="diet-objective" value="maintain" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" checked>
+                            <label for="obj-maintain" class="ml-2 block text-sm text-gray-900">Maintien du poids</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="obj-lose" name="diet-objective" value="loseWeight" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                            <label for="obj-lose" class="ml-2 block text-sm text-gray-900">Perte de poids</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="obj-gain" name="diet-objective" value="gainMuscle" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                            <label for="obj-gain" class="ml-2 block text-sm text-gray-900">Prise de muscle</label>
+                        </div>
+                   </div>
+                </div>
+                <!-- Bouton Générer -->
+                <div class="text-center">
+                   <button id="generate-menu-btn" class="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-5 rounded-md transition duration-200">
+                       <i class="fas fa-magic mr-2"></i>Générer le Menu
+                   </button>
+                </div>
+                <!-- Zone de Feedback -->
+                <div id="generation-feedback" class="mt-4 text-sm text-red-600"></div>
+            </div>
+             <!-- Fin Contenu -->
+        </div>
+        <!-- Fin Section Génération Automatique -->
         <!-- Onglets des repas -->
         <div class="flex flex-wrap mb-6 overflow-x-auto no-print" id="meal-tabs">
             <button class="meal-tab active px-4 py-2 mr-2 mb-2 rounded-lg text-sm font-medium" data-meal="breakfast">
@@ -139,13 +201,15 @@
                         <option value="">Sélectionnez une catégorie</option>
                         <option value="legumes">Légumes</option>
                         <option value="fruits">Fruits</option>
-                        <option value="viandes">Viandes</option>
+                        <option value="feculents">Féculents</option>
+						<option value="viandes">Viandes</option>
                         <option value="poissons">Poissons</option>
                         <option value="produits_laitiers">Produits Laitiers</option>
                         <option value="cereales">Céréales et Pains</option>
                         <option value="petit_dejeuner">Autres (Petit Déjeuner)</option>
                         <option value="boissons">Boissons</option>
-                    </select>
+                    <option value="assaisonnement">Assaisonnements</option>
+					</select>
                 </div>
                 
                 <div class="mb-4">
@@ -395,869 +459,460 @@
     <script>
         // Base de données des aliments avec leurs valeurs nutritionnelles
         const foodDatabase = {
-            legumes: {
-                "Carotte": {
-                    calories: 41,
-                    protein: 0.9,
-                    carbs: 9.6,
-                    fat: 0.2,
-                    micro: {
-                        "Vitamine A": { value: 835, unit: "µg" },
-                        "Vitamine C": { value: 5.9, unit: "mg" },
-                        "Potassium": { value: 320, unit: "mg" },
-                        "Calcium": { value: 33, unit: "mg" },
-                        "Fer": { value: 0.3, unit: "mg" }
-                    }
+                 assaisonnement: { // NOUVELLE CATEGORIE - Trié alphabétiquement
+                "Huile d'olive": {
+                    calories: 884, protein: 0.0, carbs: 0.0, fat: 100.0,
+                    micro: { "Vitamine E": { value: 14.4, unit: "mg" }, "Vitamine K": { value: 60.2, unit: "µg" }, "Gras Mono-insaturés": { value: 73, unit: "g" }, "Gras Saturés": { value: 14, unit: "g" }, "Gras Poly-insaturés": { value: 11, unit: "g" } }
                 },
-                "Brocoli": {
-                    calories: 34,
-                    protein: 2.8,
-                    carbs: 6.6,
-                    fat: 0.4,
-                    micro: {
-                        "Vitamine C": { value: 89.2, unit: "mg" },
-                        "Vitamine K": { value: 101.6, unit: "µg" },
-                        "Folate": { value: 63, unit: "µg" },
-                        "Potassium": { value: 316, unit: "mg" },
-                        "Magnésium": { value: 21, unit: "mg" }
-                    }
+                "Huile de colza": {
+                    calories: 884, protein: 0.0, carbs: 0.0, fat: 100.0,
+                    micro: { "Vitamine E": { value: 17.5, unit: "mg" }, "Vitamine K": { value: 71.3, unit: "µg" }, "Oméga-3 (ALA)": { value: 9.1, unit: "g" }, "Gras Mono-insaturés": { value: 63, unit: "g" }, "Gras Poly-insaturés": { value: 28, unit: "g" } }
                 },
-                "Épinard": {
-                    calories: 23,
-                    protein: 2.9,
-                    carbs: 3.6,
-                    fat: 0.4,
-                    micro: {
-                        "Vitamine A": { value: 469, unit: "µg" },
-                        "Vitamine C": { value: 28, unit: "mg" },
-                        "Vitamine K": { value: 483, unit: "µg" },
-                        "Calcium": { value: 99, unit: "mg" },
-                        "Fer": { value: 2.7, unit: "mg" }
-                    }
+                "Moutarde mi-forte": { // Type Dijon
+                    calories: 143, protein: 7.9, carbs: 7.9, fat: 9.6,
+                    micro: { "Sodium": { value: 2380, unit: "mg" }, "Sélénium": { value: 35.5, unit: "µg" }, "Magnésium": { value: 103, unit: "mg" }, "Calcium": { value: 162, unit: "mg" }, "Phosphore": { value: 284, unit: "mg" } }
                 },
-                "Tomate": {
-                    calories: 18,
-                    protein: 0.9,
-                    carbs: 3.9,
-                    fat: 0.2,
-                    micro: {
-                        "Vitamine C": { value: 13.7, unit: "mg" },
-                        "Potassium": { value: 237, unit: "mg" },
-                        "Vitamine A": { value: 42, unit: "µg" },
-                        "Vitamine K": { value: 7.9, unit: "µg" },
-                        "Lycopène": { value: 2573, unit: "µg" }
-                    }
+                "Sauce huitre": {
+                    calories: 51, protein: 1.4, carbs: 11.5, fat: 0.2, // Varie beaucoup, souvent sucrée
+                    micro: { "Sodium": { value: 2700, unit: "mg" }, "Sucre": { value: 8, unit: "g" }, "Calcium": { value: 23, unit: "mg" }, "Fer": { value: 0.5, unit: "mg" }, "Potassium": { value: 40, unit: "mg" } }
                 },
-                "Pomme de terre": {
-                    calories: 77,
-                    protein: 2.0,
-                    carbs: 17.5,
-                    fat: 0.1,
-                    micro: {
-                        "Vitamine C": { value: 19.7, unit: "mg" },
-                        "Potassium": { value: 421, unit: "mg" },
-                        "Vitamine B6": { value: 0.3, unit: "mg" },
-                        "Magnésium": { value: 23, unit: "mg" },
-                        "Niacine": { value: 1.1, unit: "mg" }
-                    }
+                "Sauce soja salée": {
+                    calories: 53, protein: 8.0, carbs: 5.6, fat: 0.1,
+                    micro: { "Sodium": { value: 5493, unit: "mg" }, "Manganèse": { value: 0.5, unit: "mg" }, "Magnésium": { value: 41, unit: "mg" }, "Phosphore": { value: 116, unit: "mg" }, "Fer": { value: 1.6, unit: "mg" } }
                 },
-                "Poivron rouge": {
-                    calories: 31,
-                    protein: 1.0,
-                    carbs: 6.0,
-                    fat: 0.3,
-                    micro: {
-                        "Vitamine C": { value: 128, unit: "mg" },
-                        "Vitamine A": { value: 157, unit: "µg" },
-                        "Vitamine B6": { value: 0.3, unit: "mg" },
-                        "Folate": { value: 21, unit: "µg" },
-                        "Potassium": { value: 211, unit: "mg" }
-                    }
+                "Vinaigre balsamique": {
+                    calories: 88, protein: 0.5, carbs: 17.0, fat: 0.0, // Contient des sucres du raisin
+                    micro: { "Potassium": { value: 112, unit: "mg" }, "Calcium": { value: 27, unit: "mg" }, "Manganèse": { value: 0.1, unit: "mg" }, "Fer": { value: 0.7, unit: "mg" }, "Sucre": { value: 15, unit: "g" } }
                 },
-                "Courgette": {
-                    calories: 17,
-                    protein: 1.2,
-                    carbs: 3.1,
-                    fat: 0.3,
-                    micro: {
-                        "Vitamine C": { value: 17.9, unit: "mg" },
-                        "Potassium": { value: 261, unit: "mg" },
-                        "Folate": { value: 24, unit: "µg" },
-                        "Magnésium": { value: 18, unit: "mg" },
-                        "Vitamine B6": { value: 0.2, unit: "mg" }
-                    }
+                "Vinaigre de cidre": {
+                    calories: 21, protein: 0.0, carbs: 0.9, fat: 0.0,
+                    micro: { "Potassium": { value: 73, unit: "mg" }, "Sodium": { value: 5, unit: "mg" }, "Calcium": { value: 7, unit: "mg" }, "Magnésium": { value: 5, unit: "mg" }, "Phosphore": { value: 8, unit: "mg" } }
+                },
+                "Vinaigre de vin (rouge)": {
+                    calories: 19, protein: 0.04, carbs: 0.3, fat: 0.0,
+                    micro: { "Potassium": { value: 39, unit: "mg" }, "Sodium": { value: 4, unit: "mg" }, "Calcium": { value: 6, unit: "mg" }, "Magnésium": { value: 4, unit: "mg" }, "Fer": { value: 0.4, unit: "mg" } }
+                }
+            },
+			legumes: { // Trié alphabétiquement
+                "Ail": {
+                    calories: 149, protein: 6.4, carbs: 33.1, fat: 0.5,
+                    micro: { "Vitamine C": { value: 31.2, unit: "mg" }, "Vitamine B6": { value: 1.2, unit: "mg" }, "Manganèse": { value: 1.7, unit: "mg" }, "Sélénium": { value: 14.2, unit: "µg" }, "Calcium": { value: 181, unit: "mg" } }
                 },
                 "Aubergine": {
-                    calories: 25,
-                    protein: 1.0,
-                    carbs: 6.0,
-                    fat: 0.2,
-                    micro: {
-                        "Potassium": { value: 229, unit: "mg" },
-                        "Folate": { value: 22, unit: "µg" },
-                        "Vitamine K": { value: 3.5, unit: "µg" },
-                        "Magnésium": { value: 14, unit: "mg" },
-                        "Manganèse": { value: 0.3, unit: "mg" }
-                    }
+                    calories: 25, protein: 1.0, carbs: 6.0, fat: 0.2,
+                    micro: { "Potassium": { value: 229, unit: "mg" }, "Folate": { value: 22, unit: "µg" }, "Vitamine K": { value: 3.5, unit: "µg" }, "Magnésium": { value: 14, unit: "mg" }, "Manganèse": { value: 0.3, unit: "mg" } }
+                },
+                "Betterave": {
+                    calories: 43, protein: 1.6, carbs: 9.6, fat: 0.2,
+                    micro: { "Folate": { value: 109, unit: "µg" }, "Manganèse": { value: 0.3, unit: "mg" }, "Potassium": { value: 325, unit: "mg" }, "Vitamine C": { value: 4.9, unit: "mg" }, "Magnésium": { value: 23, unit: "mg" } }
+                },
+                "Brocoli": {
+                    calories: 34, protein: 2.8, carbs: 6.6, fat: 0.4,
+                    micro: { "Vitamine C": { value: 89.2, unit: "mg" }, "Vitamine K": { value: 101.6, unit: "µg" }, "Folate": { value: 63, unit: "µg" }, "Potassium": { value: 316, unit: "mg" }, "Magnésium": { value: 21, unit: "mg" } }
+                },
+                "Carotte": {
+                    calories: 41, protein: 0.9, carbs: 9.6, fat: 0.2,
+                    micro: { "Vitamine A": { value: 835, unit: "µg" }, "Vitamine C": { value: 5.9, unit: "mg" }, "Potassium": { value: 320, unit: "mg" }, "Calcium": { value: 33, unit: "mg" }, "Fer": { value: 0.3, unit: "mg" } }
+                },
+                "Céleri (branche)": {
+                    calories: 16, protein: 0.7, carbs: 3.0, fat: 0.2,
+                    micro: { "Vitamine K": { value: 29.3, unit: "µg" }, "Potassium": { value: 260, unit: "mg" }, "Vitamine A": { value: 22, unit: "µg" }, "Folate": { value: 36, unit: "µg" }, "Vitamine C": { value: 3.1, unit: "mg" } }
                 },
                 "Champignons": {
-                    calories: 22,
-                    protein: 3.1,
-                    carbs: 3.3,
-                    fat: 0.3,
-                    micro: {
-                        "Niacine": { value: 3.6, unit: "mg" },
-                        "Riboflavine": { value: 0.4, unit: "mg" },
-                        "Cuivre": { value: 0.3, unit: "mg" },
-                        "Sélénium": { value: 9.3, unit: "µg" },
-                        "Potassium": { value: 318, unit: "mg" }
-                    }
+                    calories: 22, protein: 3.1, carbs: 3.3, fat: 0.3,
+                    micro: { "Niacine": { value: 3.6, unit: "mg" }, "Riboflavine": { value: 0.4, unit: "mg" }, "Cuivre": { value: 0.3, unit: "mg" }, "Sélénium": { value: 9.3, unit: "µg" }, "Potassium": { value: 318, unit: "mg" } }
+                },
+                "Chicorée / Endive": {
+                    calories: 17, protein: 1.3, carbs: 3.4, fat: 0.2, // Données pour Endive
+                    micro: { "Folate": { value: 142, unit: "µg" }, "Vitamine K": { value: 231, unit: "µg" }, "Vitamine A": { value: 108, unit: "µg" }, "Manganèse": { value: 0.4, unit: "mg" }, "Potassium": { value: 314, unit: "mg" } }
+                },
+                "Chou Cabus (Vert)": {
+                    calories: 25, protein: 1.3, carbs: 5.8, fat: 0.1,
+                    micro: { "Vitamine K": { value: 76, unit: "µg" }, "Vitamine C": { value: 36.6, unit: "mg" }, "Folate": { value: 43, unit: "µg" }, "Manganèse": { value: 0.2, unit: "mg" }, "Calcium": { value: 40, unit: "mg" } }
+                },
+                "Chou de Bruxelles": {
+                    calories: 43, protein: 3.4, carbs: 8.9, fat: 0.3,
+                    micro: { "Vitamine K": { value: 177, unit: "µg" }, "Vitamine C": { value: 85, unit: "mg" }, "Folate": { value: 61, unit: "µg" }, "Vitamine A": { value: 38, unit: "µg" }, "Manganèse": { value: 0.3, unit: "mg" } }
+                },
+                "Chou Kale (Frisé)": {
+                    calories: 49, protein: 4.3, carbs: 8.8, fat: 0.9,
+                    micro: { "Vitamine K": { value: 390, unit: "µg" }, "Vitamine A": { value: 241, unit: "µg" }, "Vitamine C": { value: 120, unit: "mg" }, "Manganèse": { value: 0.7, unit: "mg" }, "Calcium": { value: 150, unit: "mg" } }
+                },
+                "Chou-fleur": {
+                    calories: 25, protein: 1.9, carbs: 5.0, fat: 0.3,
+                    micro: { "Vitamine C": { value: 48.2, unit: "mg" }, "Vitamine K": { value: 15.5, unit: "µg" }, "Folate": { value: 57, unit: "µg" }, "Vitamine B6": { value: 0.2, unit: "mg" }, "Potassium": { value: 299, unit: "mg" } }
+                },
+                "Chou-rave": {
+                    calories: 27, protein: 1.7, carbs: 6.2, fat: 0.1,
+                    micro: { "Vitamine C": { value: 62, unit: "mg" }, "Potassium": { value: 350, unit: "mg" }, "Vitamine B6": { value: 0.15, unit: "mg" }, "Cuivre": { value: 0.1, unit: "mg" }, "Manganèse": { value: 0.1, unit: "mg" } }
                 },
                 "Concombre": {
-                    calories: 15,
-                    protein: 0.7,
-                    carbs: 3.6,
-                    fat: 0.1,
-                    micro: {
-                        "Vitamine K": { value: 16.4, unit: "µg" },
-                        "Potassium": { value: 147, unit: "mg" },
-                        "Vitamine C": { value: 2.8, unit: "mg" },
-                        "Magnésium": { value: 13, unit: "mg" },
-                        "Manganèse": { value: 0.1, unit: "mg" }
-                    }
+                    calories: 15, protein: 0.7, carbs: 3.6, fat: 0.1,
+                    micro: { "Vitamine K": { value: 16.4, unit: "µg" }, "Potassium": { value: 147, unit: "mg" }, "Vitamine C": { value: 2.8, unit: "mg" }, "Magnésium": { value: 13, unit: "mg" }, "Manganèse": { value: 0.1, unit: "mg" } }
+                },
+                "Courgette": {
+                    calories: 17, protein: 1.2, carbs: 3.1, fat: 0.3,
+                    micro: { "Vitamine C": { value: 17.9, unit: "mg" }, "Potassium": { value: 261, unit: "mg" }, "Folate": { value: 24, unit: "µg" }, "Magnésium": { value: 18, unit: "mg" }, "Vitamine B6": { value: 0.2, unit: "mg" } }
+                },
+                "Épinard": {
+                    calories: 23, protein: 2.9, carbs: 3.6, fat: 0.4,
+                    micro: { "Vitamine A": { value: 469, unit: "µg" }, "Vitamine C": { value: 28, unit: "mg" }, "Vitamine K": { value: 483, unit: "µg" }, "Calcium": { value: 99, unit: "mg" }, "Fer": { value: 2.7, unit: "mg" } }
+                },
+                "Fenouil (Bulbe)": {
+                    calories: 31, protein: 1.2, carbs: 7.3, fat: 0.2,
+                    micro: { "Vitamine C": { value: 12, unit: "mg" }, "Potassium": { value: 414, unit: "mg" }, "Manganèse": { value: 0.2, unit: "mg" }, "Folate": { value: 27, unit: "µg" }, "Calcium": { value: 49, unit: "mg" } }
                 },
                 "Haricots verts": {
-                    calories: 31,
-                    protein: 1.8,
-                    carbs: 7.0,
-                    fat: 0.1,
-                    micro: {
-                        "Vitamine C": { value: 12.2, unit: "mg" },
-                        "Vitamine K": { value: 48, unit: "µg" },
-                        "Folate": { value: 33, unit: "µg" },
-                        "Potassium": { value: 209, unit: "mg" },
-                        "Calcium": { value: 37, unit: "mg" }
-                    }
+                    calories: 31, protein: 1.8, carbs: 7.0, fat: 0.1,
+                    micro: { "Vitamine C": { value: 12.2, unit: "mg" }, "Vitamine K": { value: 48, unit: "µg" }, "Folate": { value: 33, unit: "µg" }, "Potassium": { value: 209, unit: "mg" }, "Calcium": { value: 37, unit: "mg" } }
+                },
+                "Laitue (Romaine)": {
+                    calories: 17, protein: 1.2, carbs: 3.3, fat: 0.3,
+                    micro: { "Vitamine K": { value: 102.5, unit: "µg" }, "Vitamine A": { value: 436, unit: "µg" }, "Folate": { value: 136, unit: "µg" }, "Vitamine C": { value: 4, unit: "mg" }, "Potassium": { value: 247, unit: "mg" } }
+                },
+                "Mâche": {
+                    calories: 21, protein: 2.0, carbs: 3.6, fat: 0.4,
+                    micro: { "Vitamine C": { value: 38.2, unit: "mg" }, "Vitamine A": { value: 355, unit: "µg" }, "Fer": { value: 2.2, unit: "mg" }, "Potassium": { value: 459, unit: "mg" }, "Vitamine B6": { value: 0.3, unit: "mg" } }
+                },
+                "Navet": {
+                    calories: 28, protein: 0.9, carbs: 6.4, fat: 0.1,
+                    micro: { "Vitamine C": { value: 21, unit: "mg" }, "Potassium": { value: 191, unit: "mg" }, "Calcium": { value: 30, unit: "mg" }, "Folate": { value: 15, unit: "µg" }, "Manganèse": { value: 0.1, unit: "mg" } }
+                },
+                "Oignon": {
+                    calories: 40, protein: 1.1, carbs: 9.3, fat: 0.1,
+                    micro: { "Vitamine C": { value: 7.4, unit: "mg" }, "Vitamine B6": { value: 0.1, unit: "mg" }, "Folate": { value: 19, unit: "µg" }, "Potassium": { value: 146, unit: "mg" }, "Manganèse": { value: 0.1, unit: "mg" } }
+                },
+                "Panais": {
+                    calories: 75, protein: 1.2, carbs: 18.0, fat: 0.3,
+                    micro: { "Vitamine C": { value: 17, unit: "mg" }, "Folate": { value: 67, unit: "µg" }, "Manganèse": { value: 0.6, unit: "mg" }, "Potassium": { value: 375, unit: "mg" }, "Vitamine K": { value: 22.5, unit: "µg" } }
+                },
+                 "Poireau": {
+                    calories: 61, protein: 1.5, carbs: 14.2, fat: 0.3,
+                    micro: { "Vitamine K": { value: 47, unit: "µg" }, "Manganèse": { value: 0.5, unit: "mg" }, "Vitamine A": { value: 83, unit: "µg" }, "Vitamine C": { value: 12, unit: "mg" }, "Folate": { value: 64, unit: "µg" } }
+                 },
+                 "Poirée / Bette": {
+                    calories: 19, protein: 1.8, carbs: 3.7, fat: 0.2,
+                    micro: { "Vitamine K": { value: 830, unit: "µg" }, "Vitamine A": { value: 306, unit: "µg" }, "Magnésium": { value: 81, unit: "mg" }, "Vitamine C": { value: 30, unit: "mg" }, "Potassium": { value: 379, unit: "mg" } }
+                },
+                "Poivron rouge": {
+                    calories: 31, protein: 1.0, carbs: 6.0, fat: 0.3,
+                    micro: { "Vitamine C": { value: 128, unit: "mg" }, "Vitamine A": { value: 157, unit: "µg" }, "Vitamine B6": { value: 0.3, unit: "mg" }, "Folate": { value: 21, unit: "µg" }, "Potassium": { value: 211, unit: "mg" } }
+                },
+                "Pomme de terre": {
+                    calories: 77, protein: 2.0, carbs: 17.5, fat: 0.1,
+                    micro: { "Vitamine C": { value: 19.7, unit: "mg" }, "Potassium": { value: 421, unit: "mg" }, "Vitamine B6": { value: 0.3, unit: "mg" }, "Magnésium": { value: 23, unit: "mg" }, "Niacine": { value: 1.1, unit: "mg" } }
+                },
+                "Radis": {
+                    calories: 16, protein: 0.7, carbs: 3.4, fat: 0.1,
+                    micro: { "Vitamine C": { value: 14.8, unit: "mg" }, "Folate": { value: 25, unit: "µg" }, "Potassium": { value: 233, unit: "mg" }, "Calcium": { value: 25, unit: "mg" }, "Magnésium": { value: 10, unit: "mg" } }
+                },
+                "Roquette": {
+                    calories: 25, protein: 2.6, carbs: 3.7, fat: 0.7,
+                    micro: { "Vitamine K": { value: 109, unit: "µg" }, "Vitamine A": { value: 119, unit: "µg" }, "Calcium": { value: 160, unit: "mg" }, "Folate": { value: 97, unit: "µg" }, "Vitamine C": { value: 15, unit: "mg" } }
+                },
+                "Tomate": {
+                    calories: 18, protein: 0.9, carbs: 3.9, fat: 0.2,
+                    micro: { "Vitamine C": { value: 13.7, unit: "mg" }, "Potassium": { value: 237, unit: "mg" }, "Vitamine A": { value: 42, unit: "µg" }, "Vitamine K": { value: 7.9, unit: "µg" }, "Lycopène": { value: 2573, unit: "µg" } }
                 }
             },
-            fruits: {
-                "Pomme": {
-                    calories: 52,
-                    protein: 0.3,
-                    carbs: 13.8,
-                    fat: 0.2,
-                    micro: {
-                        "Vitamine C": { value: 4.6, unit: "mg" },
-                        "Potassium": { value: 107, unit: "mg" },
-                        "Fibres": { value: 2.4, unit: "g" },
-                        "Vitamine K": { value: 2.2, unit: "µg" },
-                        "Manganèse": { value: 0.04, unit: "mg" }
-                    }
+            fruits: { // Trié alphabétiquement (avec ajouts)
+                "Amandes": { // NOUVEAU
+                    calories: 579, protein: 21.2, carbs: 21.6, fat: 49.9, // Valeurs pour 100g crues
+                    micro: { "Vitamine E": { value: 25.6, unit: "mg" }, "Magnésium": { value: 270, unit: "mg" }, "Calcium": { value: 269, unit: "mg" }, "Fer": { value: 3.7, unit: "mg" }, "Fibres": { value: 12.5, unit: "g" } }
                 },
                 "Banane": {
-                    calories: 89,
-                    protein: 1.1,
-                    carbs: 22.8,
-                    fat: 0.3,
-                    micro: {
-                        "Vitamine C": { value: 8.7, unit: "mg" },
-                        "Potassium": { value: 358, unit: "mg" },
-                        "Vitamine B6": { value: 0.4, unit: "mg" },
-                        "Magnésium": { value: 27, unit: "mg" },
-                        "Folate": { value: 20, unit: "µg" }
-                    }
-                },
-                "Orange": {
-                    calories: 47,
-                    protein: 0.9,
-                    carbs: 11.8,
-                    fat: 0.1,
-                    micro: {
-                        "Vitamine C": { value: 53.2, unit: "mg" },
-                        "Folate": { value: 30, unit: "µg" },
-                        "Potassium": { value: 181, unit: "mg" },
-                        "Thiamine": { value: 0.1, unit: "mg" },
-                        "Calcium": { value: 40, unit: "mg" }
-                    }
+                    calories: 89, protein: 1.1, carbs: 22.8, fat: 0.3,
+                    micro: { "Vitamine C": { value: 8.7, unit: "mg" }, "Potassium": { value: 358, unit: "mg" }, "Vitamine B6": { value: 0.4, unit: "mg" }, "Magnésium": { value: 27, unit: "mg" }, "Folate": { value: 20, unit: "µg" } }
                 },
                 "Fraise": {
-                    calories: 32,
-                    protein: 0.7,
-                    carbs: 7.7,
-                    fat: 0.3,
-                    micro: {
-                        "Vitamine C": { value: 58.8, unit: "mg" },
-                        "Manganèse": { value: 0.6, unit: "mg" },
-                        "Folate": { value: 24, unit: "µg" },
-                        "Potassium": { value: 153, unit: "mg" },
-                        "Magnésium": { value: 13, unit: "mg" }
-                    }
-                },
-                "Myrtille": {
-                    calories: 57,
-                    protein: 0.7,
-                    carbs: 14.5,
-                    fat: 0.3,
-                    micro: {
-                        "Vitamine C": { value: 9.7, unit: "mg" },
-                        "Vitamine K": { value: 19.3, unit: "µg" },
-                        "Manganèse": { value: 0.3, unit: "mg" },
-                        "Potassium": { value: 77, unit: "mg" },
-                        "Antioxydants": { value: 9621, unit: "ORAC" }
-                    }
-                },
-                "Poire": {
-                    calories: 57,
-                    protein: 0.4,
-                    carbs: 15.2,
-                    fat: 0.1,
-                    micro: {
-                        "Vitamine C": { value: 4.3, unit: "mg" },
-                        "Vitamine K": { value: 4.4, unit: "µg" },
-                        "Potassium": { value: 116, unit: "mg" },
-                        "Cuivre": { value: 0.1, unit: "mg" },
-                        "Fibres": { value: 3.1, unit: "g" }
-                    }
+                    calories: 32, protein: 0.7, carbs: 7.7, fat: 0.3,
+                    micro: { "Vitamine C": { value: 58.8, unit: "mg" }, "Manganèse": { value: 0.6, unit: "mg" }, "Folate": { value: 24, unit: "µg" }, "Potassium": { value: 153, unit: "mg" }, "Magnésium": { value: 13, unit: "mg" } }
                 },
                 "Kiwi": {
-                    calories: 61,
-                    protein: 1.1,
-                    carbs: 14.7,
-                    fat: 0.5,
-                    micro: {
-                        "Vitamine C": { value: 92.7, unit: "mg" },
-                        "Vitamine K": { value: 40.3, unit: "µg" },
-                        "Potassium": { value: 312, unit: "mg" },
-                        "Vitamine E": { value: 1.5, unit: "mg" },
-                        "Folate": { value: 25, unit: "µg" }
-                    }
+                    calories: 61, protein: 1.1, carbs: 14.7, fat: 0.5,
+                    micro: { "Vitamine C": { value: 92.7, unit: "mg" }, "Vitamine K": { value: 40.3, unit: "µg" }, "Potassium": { value: 312, unit: "mg" }, "Vitamine E": { value: 1.5, unit: "mg" }, "Folate": { value: 25, unit: "µg" } }
+                },
+                "Myrtille": {
+                    calories: 57, protein: 0.7, carbs: 14.5, fat: 0.3,
+                    micro: { "Vitamine C": { value: 9.7, unit: "mg" }, "Vitamine K": { value: 19.3, unit: "µg" }, "Manganèse": { value: 0.3, unit: "mg" }, "Potassium": { value: 77, unit: "mg" }, "Antioxydants": { value: 9621, unit: "ORAC" } }
+                },
+                "Noisettes": { // NOUVEAU
+                    calories: 628, protein: 15.0, carbs: 16.7, fat: 60.8, // Valeurs pour 100g crues
+                    micro: { "Vitamine E": { value: 15.0, unit: "mg" }, "Manganèse": { value: 6.2, unit: "mg" }, "Cuivre": { value: 1.7, unit: "mg" }, "Magnésium": { value: 163, unit: "mg" }, "Fibres": { value: 9.7, unit: "g" } }
+                },
+                "Noix": { // NOUVEAU (Noix de Grenoble)
+                    calories: 654, protein: 15.2, carbs: 13.7, fat: 65.2, // Valeurs pour 100g crues
+                    micro: { "Oméga-3 (ALA)": { value: 9.1, unit: "g" }, "Manganèse": { value: 3.4, unit: "mg" }, "Cuivre": { value: 1.6, unit: "mg" }, "Magnésium": { value: 158, unit: "mg" }, "Fibres": { value: 6.7, unit: "g" } }
+                },
+                "Orange": {
+                    calories: 47, protein: 0.9, carbs: 11.8, fat: 0.1,
+                    micro: { "Vitamine C": { value: 53.2, unit: "mg" }, "Folate": { value: 30, unit: "µg" }, "Potassium": { value: 181, unit: "mg" }, "Thiamine": { value: 0.1, unit: "mg" }, "Calcium": { value: 40, unit: "mg" } }
                 },
                 "Pêche": {
-                    calories: 39,
-                    protein: 0.9,
-                    carbs: 9.5,
-                    fat: 0.3,
-                    micro: {
-                        "Vitamine C": { value: 6.6, unit: "mg" },
-                        "Vitamine A": { value: 16, unit: "µg" },
-                        "Potassium": { value: 190, unit: "mg" },
-                        "Niacine": { value: 0.8, unit: "mg" },
-                        "Fibres": { value: 1.5, unit: "g" }
-                    }
+                    calories: 39, protein: 0.9, carbs: 9.5, fat: 0.3,
+                    micro: { "Vitamine C": { value: 6.6, unit: "mg" }, "Vitamine A": { value: 16, unit: "µg" }, "Potassium": { value: 190, unit: "mg" }, "Niacine": { value: 0.8, unit: "mg" }, "Fibres": { value: 1.5, unit: "g" } }
+                },
+                "Poire": {
+                    calories: 57, protein: 0.4, carbs: 15.2, fat: 0.1,
+                    micro: { "Vitamine C": { value: 4.3, unit: "mg" }, "Vitamine K": { value: 4.4, unit: "µg" }, "Potassium": { value: 116, unit: "mg" }, "Cuivre": { value: 0.1, unit: "mg" }, "Fibres": { value: 3.1, unit: "g" } }
+                },
+                "Pomme": {
+                    calories: 52, protein: 0.3, carbs: 13.8, fat: 0.2,
+                    micro: { "Vitamine C": { value: 4.6, unit: "mg" }, "Potassium": { value: 107, unit: "mg" }, "Fibres": { value: 2.4, unit: "g" }, "Vitamine K": { value: 2.2, unit: "µg" }, "Manganèse": { value: 0.04, unit: "mg" } }
                 }
             },
-            viandes: {
-                "Poulet (blanc)": {
-                    calories: 165,
-                    protein: 31.0,
-                    carbs: 0.0,
-                    fat: 3.6,
-                    micro: {
-                        "Niacine": { value: 13.7, unit: "mg" },
-                        "Vitamine B6": { value: 0.6, unit: "mg" },
-                        "Phosphore": { value: 228, unit: "mg" },
-                        "Sélénium": { value: 27.6, unit: "µg" },
-                        "Zinc": { value: 1.0, unit: "mg" }
-                    }
+            viandes: { // Trié alphabétiquement (avec ajouts)
+                "Agneau (côtelette)": {
+                    calories: 294, protein: 24.9, carbs: 0.0, fat: 21.0,
+                    micro: { "Vitamine B12": { value: 2.3, unit: "µg" }, "Niacine": { value: 7.9, unit: "mg" }, "Zinc": { value: 4.2, unit: "mg" }, "Fer": { value: 1.9, unit: "mg" }, "Sélénium": { value: 24.5, unit: "µg" } }
                 },
                 "Bœuf (steak)": {
-                    calories: 271,
-                    protein: 26.0,
-                    carbs: 0.0,
-                    fat: 18.0,
-                    micro: {
-                        "Fer": { value: 2.6, unit: "mg" },
-                        "Zinc": { value: 5.4, unit: "mg" },
-                        "Vitamine B12": { value: 2.6, unit: "µg" },
-                        "Niacine": { value: 6.2, unit: "mg" },
-                        "Sélénium": { value: 33.1, unit: "µg" }
-                    }
-                },
-                "Porc (côtelette)": {
-                    calories: 231,
-                    protein: 25.0,
-                    carbs: 0.0,
-                    fat: 14.0,
-                    micro: {
-                        "Thiamine": { value: 0.9, unit: "mg" },
-                        "Niacine": { value: 6.3, unit: "mg" },
-                        "Vitamine B6": { value: 0.4, unit: "mg" },
-                        "Phosphore": { value: 213, unit: "mg" },
-                        "Zinc": { value: 2.4, unit: "mg" }
-                    }
-                },
-                "Agneau (côtelette)": {
-                    calories: 294,
-                    protein: 24.9,
-                    carbs: 0.0,
-                    fat: 21.0,
-                    micro: {
-                        "Vitamine B12": { value: 2.3, unit: "µg" },
-                        "Niacine": { value: 7.9, unit: "mg" },
-                        "Zinc": { value: 4.2, unit: "mg" },
-                        "Fer": { value: 1.9, unit: "mg" },
-                        "Sélénium": { value: 24.5, unit: "µg" }
-                    }
-                },
-                "Dinde (blanc)": {
-                    calories: 135,
-                    protein: 29.9,
-                    carbs: 0.0,
-                    fat: 1.0,
-                    micro: {
-                        "Niacine": { value: 7.1, unit: "mg" },
-                        "Vitamine B6": { value: 0.6, unit: "mg" },
-                        "Phosphore": { value: 229, unit: "mg" },
-                        "Sélénium": { value: 30.7, unit: "µg" },
-                        "Zinc": { value: 1.3, unit: "mg" }
-                    }
-                },
-                "Lapin": {
-                    calories: 173,
-                    protein: 33.0,
-                    carbs: 0.0,
-                    fat: 3.5,
-                    micro: {
-                        "Vitamine B12": { value: 6.8, unit: "µg" },
-                        "Niacine": { value: 12.8, unit: "mg" },
-                        "Potassium": { value: 380, unit: "mg" },
-                        "Phosphore": { value: 240, unit: "mg" },
-                        "Sélénium": { value: 23.7, unit: "µg" }
-                    }
-                },
-                "Veau (escalope)": {
-                    calories: 172,
-                    protein: 30.9,
-                    carbs: 0.0,
-                    fat: 5.1,
-                    micro: {
-                        "Vitamine B12": { value: 1.3, unit: "µg" },
-                        "Zinc": { value: 3.1, unit: "mg" },
-                        "Fer": { value: 1.1, unit: "mg" },
-                        "Phosphore": { value: 253, unit: "mg" },
-                        "Sélénium": { value: 9.8, unit: "µg" }
-                    }
+                    calories: 271, protein: 26.0, carbs: 0.0, fat: 18.0,
+                    micro: { "Fer": { value: 2.6, unit: "mg" }, "Zinc": { value: 5.4, unit: "mg" }, "Vitamine B12": { value: 2.6, unit: "µg" }, "Niacine": { value: 6.2, unit: "mg" }, "Sélénium": { value: 33.1, unit: "µg" } }
                 },
                 "Bœuf haché (15% MG)": {
-                    calories: 250,
-                    protein: 26.1,
-                    carbs: 0.0,
-                    fat: 15.0,
-                    micro: {
-                        "Fer": { value: 2.7, unit: "mg" },
-                        "Zinc": { value: 6.0, unit: "mg" },
-                        "Vitamine B12": { value: 2.3, unit: "µg" },
-                        "Niacine": { value: 5.4, unit: "mg" },
-                        "Vitamine B6": { value: 0.4, unit: "mg" }
-                    }
+                    calories: 250, protein: 26.1, carbs: 0.0, fat: 15.0,
+                    micro: { "Fer": { value: 2.7, unit: "mg" }, "Zinc": { value: 6.0, unit: "mg" }, "Vitamine B12": { value: 2.3, unit: "µg" }, "Niacine": { value: 5.4, unit: "mg" }, "Vitamine B6": { value: 0.4, unit: "mg" } }
+                },
+                "Dinde (blanc)": { // Blanc de dinde nature, pas le jambon de dinde transformé
+                    calories: 135, protein: 29.9, carbs: 0.0, fat: 1.0,
+                    micro: { "Niacine": { value: 7.1, unit: "mg" }, "Vitamine B6": { value: 0.6, unit: "mg" }, "Phosphore": { value: 229, unit: "mg" }, "Sélénium": { value: 30.7, unit: "µg" }, "Zinc": { value: 1.3, unit: "mg" } }
+                },
+                "Jambon blanc (cuit, découenné, dégraissé)": { // NOUVEAU
+                    calories: 120, protein: 21.0, carbs: 0.5, fat: 4.0,
+                    micro: { "Sodium": { value: 1100, unit: "mg" }, "Phosphore": { value: 220, unit: "mg" }, "Sélénium": { value: 35, unit: "µg" }, "Zinc": { value: 2.0, unit: "mg" }, "Niacine": { value: 6.0, unit: "mg" } }
+                },
+                 "Jambon cru (type Serrano/Parme)": { // NOUVEAU
+                    calories: 250, protein: 26.0, carbs: 0.5, fat: 16.0,
+                    micro: { "Sodium": { value: 2000, unit: "mg" }, "Phosphore": { value: 200, unit: "mg" }, "Zinc": { value: 2.5, unit: "mg" }, "Niacine": { value: 7.0, unit: "mg" }, "Sélénium": { value: 40, unit: "µg" } }
+                },
+                "Jambon de dinde": { // NOUVEAU (Produit transformé)
+                    calories: 115, protein: 19.0, carbs: 1.5, fat: 3.5,
+                    micro: { "Sodium": { value: 1050, unit: "mg" }, "Phosphore": { value: 200, unit: "mg" }, "Sélénium": { value: 30, unit: "µg" }, "Niacine": { value: 8.0, unit: "mg" }, "Zinc": { value: 1.0, unit: "mg" } }
+                },
+                "Jambon de poulet": { // NOUVEAU (Produit transformé)
+                    calories: 110, protein: 22.0, carbs: 0.5, fat: 2.0,
+                    micro: { "Sodium": { value: 1000, unit: "mg" }, "Phosphore": { value: 250, unit: "mg" }, "Sélénium": { value: 25, unit: "µg" }, "Niacine": { value: 10.0, unit: "mg" }, "Vitamine B6": { value: 0.5, unit: "mg" } }
+                },
+                "Lapin": {
+                    calories: 173, protein: 33.0, carbs: 0.0, fat: 3.5,
+                    micro: { "Vitamine B12": { value: 6.8, unit: "µg" }, "Niacine": { value: 12.8, unit: "mg" }, "Potassium": { value: 380, unit: "mg" }, "Phosphore": { value: 240, unit: "mg" }, "Sélénium": { value: 23.7, unit: "µg" } }
+                },
+                "Porc (côtelette)": {
+                    calories: 231, protein: 25.0, carbs: 0.0, fat: 14.0,
+                    micro: { "Thiamine": { value: 0.9, unit: "mg" }, "Niacine": { value: 6.3, unit: "mg" }, "Vitamine B6": { value: 0.4, unit: "mg" }, "Phosphore": { value: 213, unit: "mg" }, "Zinc": { value: 2.4, unit: "mg" } }
+                },
+                "Poulet (blanc)": {
+                    calories: 165, protein: 31.0, carbs: 0.0, fat: 3.6,
+                    micro: { "Niacine": { value: 13.7, unit: "mg" }, "Vitamine B6": { value: 0.6, unit: "mg" }, "Phosphore": { value: 228, unit: "mg" }, "Sélénium": { value: 27.6, unit: "µg" }, "Zinc": { value: 1.0, unit: "mg" } }
+                },
+                 "Rôti de porc (longe, cuit)": { // NOUVEAU
+                    calories: 200, protein: 30.0, carbs: 0.0, fat: 8.0,
+                    micro: { "Thiamine": { value: 0.9, unit: "mg" }, "Sélénium": { value: 45, unit: "µg" }, "Phosphore": { value: 280, unit: "mg" }, "Niacine": { value: 9.0, unit: "mg" }, "Zinc": { value: 2.5, unit: "mg" } }
+                },
+                "Veau (escalope)": {
+                    calories: 172, protein: 30.9, carbs: 0.0, fat: 5.1,
+                    micro: { "Vitamine B12": { value: 1.3, unit: "µg" }, "Zinc": { value: 3.1, unit: "mg" }, "Fer": { value: 1.1, unit: "mg" }, "Phosphore": { value: 253, unit: "mg" }, "Sélénium": { value: 9.8, unit: "µg" } }
                 }
             },
-            poissons: {
-                "Saumon": {
-                    calories: 208,
-                    protein: 20.0,
-                    carbs: 0.0,
-                    fat: 13.0,
-                    micro: {
-                        "Vitamine D": { value: 11.0, unit: "µg" },
-                        "Vitamine B12": { value: 2.6, unit: "µg" },
-                        "Oméga-3": { value: 2.3, unit: "g" },
-                        "Sélénium": { value: 36.5, unit: "µg" },
-                        "Potassium": { value: 363, unit: "mg" }
-                    }
-                },
-                "Thon": {
-                    calories: 144,
-                    protein: 30.0,
-                    carbs: 0.0,
-                    fat: 1.0,
-                    micro: {
-                        "Vitamine B12": { value: 2.5, unit: "µg" },
-                        "Niacine": { value: 11.3, unit: "mg" },
-                        "Sélénium": { value: 65.7, unit: "µg" },
-                        "Potassium": { value: 441, unit: "mg" },
-                        "Phosphore": { value: 267, unit: "mg" }
-                    }
+            poissons: { // Trié alphabétiquement
+                "Bar (loup de mer)": {
+                    calories: 124, protein: 24.0, carbs: 0.0, fat: 2.5,
+                    micro: { "Vitamine B12": { value: 3.6, unit: "µg" }, "Potassium": { value: 256, unit: "mg" }, "Phosphore": { value: 201, unit: "mg" }, "Sélénium": { value: 36.5, unit: "µg" }, "Magnésium": { value: 31, unit: "mg" } }
                 },
                 "Cabillaud": {
-                    calories: 82,
-                    protein: 18.0,
-                    carbs: 0.0,
-                    fat: 0.7,
-                    micro: {
-                        "Vitamine B12": { value: 1.0, unit: "µg" },
-                        "Vitamine B6": { value: 0.3, unit: "mg" },
-                        "Phosphore": { value: 203, unit: "mg" },
-                        "Sélénium": { value: 33.1, unit: "µg" },
-                        "Potassium": { value: 321, unit: "mg" }
-                    }
-                },
-                "Sardine": {
-                    calories: 208,
-                    protein: 24.6,
-                    carbs: 0.0,
-                    fat: 11.5,
-                    micro: {
-                        "Vitamine D": { value: 4.8, unit: "µg" },
-                        "Calcium": { value: 382, unit: "mg" },
-                        "Vitamine B12": { value: 8.9, unit: "µg" },
-                        "Fer": { value: 2.9, unit: "mg" },
-                        "Oméga-3": { value: 1.4, unit: "g" }
-                    }
-                },
-                "Truite": {
-                    calories: 141,
-                    protein: 19.9,
-                    carbs: 0.0,
-                    fat: 6.2,
-                    micro: {
-                        "Vitamine B12": { value: 3.5, unit: "µg" },
-                        "Niacine": { value: 5.4, unit: "mg" },
-                        "Potassium": { value: 375, unit: "mg" },
-                        "Phosphore": { value: 226, unit: "mg" },
-                        "Vitamine D": { value: 7.5, unit: "µg" }
-                    }
+                    calories: 82, protein: 18.0, carbs: 0.0, fat: 0.7,
+                    micro: { "Vitamine B12": { value: 1.0, unit: "µg" }, "Vitamine B6": { value: 0.3, unit: "mg" }, "Phosphore": { value: 203, unit: "mg" }, "Sélénium": { value: 33.1, unit: "µg" }, "Potassium": { value: 321, unit: "mg" } }
                 },
                 "Crevettes": {
-                    calories: 99,
-                    protein: 24.0,
-                    carbs: 0.0,
-                    fat: 0.3,
-                    micro: {
-                        "Sélénium": { value: 38.0, unit: "µg" },
-                        "Vitamine B12": { value: 1.7, unit: "µg" },
-                        "Fer": { value: 2.6, unit: "mg" },
-                        "Zinc": { value: 1.5, unit: "mg" },
-                        "Cuivre": { value: 0.2, unit: "mg" }
-                    }
-                },
-                "Maquereau": {
-                    calories: 205,
-                    protein: 19.0,
-                    carbs: 0.0,
-                    fat: 14.0,
-                    micro: {
-                        "Vitamine D": { value: 16.1, unit: "µg" },
-                        "Vitamine B12": { value: 7.8, unit: "µg" },
-                        "Oméga-3": { value: 2.6, unit: "g" },
-                        "Magnésium": { value: 97, unit: "mg" },
-                        "Potassium": { value: 314, unit: "mg" }
-                    }
-                },
-                "Bar (loup de mer)": {
-                    calories: 124,
-                    protein: 24.0,
-                    carbs: 0.0,
-                    fat: 2.5,
-                    micro: {
-                        "Vitamine B12": { value: 3.6, unit: "µg" },
-                        "Potassium": { value: 256, unit: "mg" },
-                        "Phosphore": { value: 201, unit: "mg" },
-                        "Sélénium": { value: 36.5, unit: "µg" },
-                        "Magnésium": { value: 31, unit: "mg" }
-                    }
+                    calories: 99, protein: 24.0, carbs: 0.0, fat: 0.3,
+                    micro: { "Sélénium": { value: 38.0, unit: "µg" }, "Vitamine B12": { value: 1.7, unit: "µg" }, "Fer": { value: 2.6, unit: "mg" }, "Zinc": { value: 1.5, unit: "mg" }, "Cuivre": { value: 0.2, unit: "mg" } }
                 },
                 "Dorade": {
-                    calories: 128,
-                    protein: 21.6,
-                    carbs: 0.0,
-                    fat: 4.0,
-                    micro: {
-                        "Vitamine B12": { value: 1.9, unit: "µg" },
-                        "Phosphore": { value: 254, unit: "mg" },
-                        "Sélénium": { value: 32.7, unit: "µg" },
-                        "Potassium": { value: 328, unit: "mg" },
-                        "Vitamine D": { value: 1.7, unit: "µg" }
-                    }
+                    calories: 128, protein: 21.6, carbs: 0.0, fat: 4.0,
+                    micro: { "Vitamine B12": { value: 1.9, unit: "µg" }, "Phosphore": { value: 254, unit: "mg" }, "Sélénium": { value: 32.7, unit: "µg" }, "Potassium": { value: 328, unit: "mg" }, "Vitamine D": { value: 1.7, unit: "µg" } }
+                },
+                "Maquereau": {
+                    calories: 205, protein: 19.0, carbs: 0.0, fat: 14.0,
+                    micro: { "Vitamine D": { value: 16.1, unit: "µg" }, "Vitamine B12": { value: 7.8, unit: "µg" }, "Oméga-3": { value: 2.6, unit: "g" }, "Magnésium": { value: 97, unit: "mg" }, "Potassium": { value: 314, unit: "mg" } }
+                },
+                "Sardine": {
+                    calories: 208, protein: 24.6, carbs: 0.0, fat: 11.5,
+                    micro: { "Vitamine D": { value: 4.8, unit: "µg" }, "Calcium": { value: 382, unit: "mg" }, "Vitamine B12": { value: 8.9, unit: "µg" }, "Fer": { value: 2.9, unit: "mg" }, "Oméga-3": { value: 1.4, unit: "g" } }
+                },
+                "Saumon": {
+                    calories: 208, protein: 20.0, carbs: 0.0, fat: 13.0,
+                    micro: { "Vitamine D": { value: 11.0, unit: "µg" }, "Vitamine B12": { value: 2.6, unit: "µg" }, "Oméga-3": { value: 2.3, unit: "g" }, "Sélénium": { value: 36.5, unit: "µg" }, "Potassium": { value: 363, unit: "mg" } }
+                },
+                "Thon": {
+                    calories: 144, protein: 30.0, carbs: 0.0, fat: 1.0,
+                    micro: { "Vitamine B12": { value: 2.5, unit: "µg" }, "Niacine": { value: 11.3, unit: "mg" }, "Sélénium": { value: 65.7, unit: "µg" }, "Potassium": { value: 441, unit: "mg" }, "Phosphore": { value: 267, unit: "mg" } }
+                },
+                "Truite": {
+                    calories: 141, protein: 19.9, carbs: 0.0, fat: 6.2,
+                    micro: { "Vitamine B12": { value: 3.5, unit: "µg" }, "Niacine": { value: 5.4, unit: "mg" }, "Potassium": { value: 375, unit: "mg" }, "Phosphore": { value: 226, unit: "mg" }, "Vitamine D": { value: 7.5, unit: "µg" } }
                 }
             },
-            produits_laitiers: {
-                "Yaourt nature": {
-                    calories: 59,
-                    protein: 3.6,
-                    carbs: 4.7,
-                    fat: 3.2,
-                    micro: {
-                        "Calcium": { value: 121, unit: "mg" },
-                        "Phosphore": { value: 95, unit: "mg" },
-                        "Vitamine B12": { value: 0.4, unit: "µg" },
-                        "Riboflavine": { value: 0.2, unit: "mg" },
-                        "Probiotiques": { value: 10000000, unit: "UFC" }
-                    }
+            produits_laitiers: { // Trié alphabétiquement
+                "Cottage cheese": {
+                    calories: 98, protein: 11.0, carbs: 3.1, fat: 4.3,
+                    micro: { "Calcium": { value: 83, unit: "mg" }, "Phosphore": { value: 151, unit: "mg" }, "Sélénium": { value: 6.8, unit: "µg" }, "Vitamine B12": { value: 0.5, unit: "µg" }, "Zinc": { value: 0.4, unit: "mg" } }
                 },
                 "Fromage blanc 0%": {
-                    calories: 56,
-                    protein: 10.0,
-                    carbs: 3.0,
-                    fat: 0.0,
-                    micro: {
-                        "Calcium": { value: 120, unit: "mg" },
-                        "Phosphore": { value: 153, unit: "mg" },
-                        "Vitamine B12": { value: 0.3, unit: "µg" },
-                        "Potassium": { value: 133, unit: "mg" },
-                        "Zinc": { value: 0.5, unit: "mg" }
-                    }
-                },
-                "Lait demi-écrémé": {
-                    calories: 47,
-                    protein: 3.3,
-                    carbs: 4.8,
-                    fat: 1.6,
-                    micro: {
-                        "Calcium": { value: 120, unit: "mg" },
-                        "Phosphore": { value: 95, unit: "mg" },
-                        "Vitamine B12": { value: 0.4, unit: "µg" },
-                        "Riboflavine": { value: 0.2, unit: "mg" },
-                        "Vitamine D": { value: 0.1, unit: "µg" }
-                    }
+                    calories: 56, protein: 10.0, carbs: 3.0, fat: 0.0,
+                    micro: { "Calcium": { value: 120, unit: "mg" }, "Phosphore": { value: 153, unit: "mg" }, "Vitamine B12": { value: 0.3, unit: "µg" }, "Potassium": { value: 133, unit: "mg" }, "Zinc": { value: 0.5, unit: "mg" } }
                 },
                 "Fromage de chèvre": {
-                    calories: 364,
-                    protein: 21.6,
-                    carbs: 2.5,
-                    fat: 29.8,
-                    micro: {
-                        "Calcium": { value: 298, unit: "mg" },
-                        "Phosphore": { value: 236, unit: "mg" },
-                        "Vitamine A": { value: 378, unit: "µg" },
-                        "Vitamine K": { value: 3.1, unit: "µg" },
-                        "Riboflavine": { value: 0.5, unit: "mg" }
-                    }
+                    calories: 364, protein: 21.6, carbs: 2.5, fat: 29.8,
+                    micro: { "Calcium": { value: 298, unit: "mg" }, "Phosphore": { value: 236, unit: "mg" }, "Vitamine A": { value: 378, unit: "µg" }, "Vitamine K": { value: 3.1, unit: "µg" }, "Riboflavine": { value: 0.5, unit: "mg" } }
+                },
+                "Lait demi-écrémé": {
+                    calories: 47, protein: 3.3, carbs: 4.8, fat: 1.6,
+                    micro: { "Calcium": { value: 120, unit: "mg" }, "Phosphore": { value: 95, unit: "mg" }, "Vitamine B12": { value: 0.4, unit: "µg" }, "Riboflavine": { value: 0.2, unit: "mg" }, "Vitamine D": { value: 0.1, unit: "µg" } }
+                },
+                 "Skyr": {
+                    calories: 63, protein: 11.0, carbs: 4.0, fat: 0.2,
+                    micro: { "Calcium": { value: 120, unit: "mg" }, "Phosphore": { value: 110, unit: "mg" }, "Vitamine B12": { value: 0.9, unit: "µg" }, "Riboflavine": { value: 0.3, unit: "mg" }, "Potassium": { value: 140, unit: "mg" } }
                 },
                 "Yaourt grec": {
-                    calories: 97,
-                    protein: 9.0,
-                    carbs: 3.6,
-                    fat: 5.0,
-                    micro: {
-                        "Calcium": { value: 115, unit: "mg" },
-                        "Phosphore": { value: 135, unit: "mg" },
-                        "Vitamine B12": { value: 0.5, unit: "µg" },
-                        "Sélénium": { value: 9.7, unit: "µg" },
-                        "Zinc": { value: 0.7, unit: "mg" }
-                    }
+                    calories: 97, protein: 9.0, carbs: 3.6, fat: 5.0,
+                    micro: { "Calcium": { value: 115, unit: "mg" }, "Phosphore": { value: 135, unit: "mg" }, "Vitamine B12": { value: 0.5, unit: "µg" }, "Sélénium": { value: 9.7, unit: "µg" }, "Zinc": { value: 0.7, unit: "mg" } }
                 },
-                "Skyr": {
-                    calories: 63,
-                    protein: 11.0,
-                    carbs: 4.0,
-                    fat: 0.2,
-                    micro: {
-                        "Calcium": { value: 120, unit: "mg" },
-                        "Phosphore": { value: 110, unit: "mg" },
-                        "Vitamine B12": { value: 0.9, unit: "µg" },
-                        "Riboflavine": { value: 0.3, unit: "mg" },
-                        "Potassium": { value: 140, unit: "mg" }
-                    }
-                },
-                "Cottage cheese": {
-                    calories: 98,
-                    protein: 11.0,
-                    carbs: 3.1,
-                    fat: 4.3,
-                    micro: {
-                        "Calcium": { value: 83, unit: "mg" },
-                        "Phosphore": { value: 151, unit: "mg" },
-                        "Sélénium": { value: 6.8, unit: "µg" },
-                        "Vitamine B12": { value: 0.5, unit: "µg" },
-                        "Zinc": { value: 0.4, unit: "mg" }
-                    }
+                "Yaourt nature": {
+                    calories: 59, protein: 3.6, carbs: 4.7, fat: 3.2,
+                    micro: { "Calcium": { value: 121, unit: "mg" }, "Phosphore": { value: 95, unit: "mg" }, "Vitamine B12": { value: 0.4, unit: "µg" }, "Riboflavine": { value: 0.2, unit: "mg" }, "Probiotiques": { value: 10000000, unit: "UFC" } }
                 }
             },
-            cereales: {
-                "Pain complet": {
-                    calories: 247,
-                    protein: 10.0,
-                    carbs: 41.0,
-                    fat: 3.3,
-                    micro: {
-                        "Fibres": { value: 7.0, unit: "g" },
-                        "Magnésium": { value: 90, unit: "mg" },
-                        "Sélénium": { value: 35.0, unit: "µg" },
-                        "Niacine": { value: 5.0, unit: "mg" },
-                        "Fer": { value: 2.5, unit: "mg" }
-                    }
+            feculents: { // CATEGORIE FECULENTS - Trié alphabétiquement (avec ajout)
+                 "Haricot Rouge (cuit)": { // NOUVEAU
+                    calories: 127, protein: 8.7, carbs: 22.8, fat: 0.5,
+                    micro: { "Fibres": { value: 6.4, unit: "g" }, "Fer": { value: 2.9, unit: "mg" }, "Folate": { value: 130, unit: "µg" }, "Potassium": { value: 405, unit: "mg" }, "Manganèse": { value: 0.4, unit: "mg" } }
                 },
+                 "Lentilles (cuites)": {
+                    calories: 116, protein: 9.0, carbs: 20.1, fat: 0.4,
+                    micro: { "Folate": { value: 181, unit: "µg" }, "Fer": { value: 3.3, unit: "mg" }, "Manganèse": { value: 0.5, unit: "mg" }, "Fibres": { value: 7.9, unit: "g" }, "Thiamine": { value: 0.2, unit: "mg" } }
+                },
+                "Pain blanc": {
+                    calories: 265, protein: 9.0, carbs: 49.0, fat: 3.2, // Varie beaucoup selon le pain
+                    micro: { "Sélénium": { value: 19.0, unit: "µg" }, "Thiamine": { value: 0.1, unit: "mg" }, "Folate": { value: 25, unit: "µg" }, "Fer": { value: 1.0, unit: "mg" }, "Calcium": { value: 14, unit: "mg" } }
+                },
+                "Patate Douce (cuite)": {
+                    calories: 86, protein: 1.6, carbs: 20.1, fat: 0.1,
+                    micro: { "Vitamine A": { value: 709, unit: "µg" }, "Vitamine C": { value: 2.4, unit: "mg" }, "Manganèse": { value: 0.3, unit: "mg" }, "Vitamine B6": { value: 0.2, unit: "mg" }, "Potassium": { value: 337, unit: "mg" } }
+                },
+                "Pâtes (blanches, cuites)": {
+                    calories: 131, protein: 5.2, carbs: 25.2, fat: 1.1, // Standard, sans sauce
+                    micro: { "Sélénium": { value: 27.6, unit: "µg" }, "Manganèse": { value: 0.3, unit: "mg" }, "Folate": { value: 6, unit: "µg" }, "Thiamine": { value: 0.02, unit: "mg" }, "Fibres": { value: 1.8, unit: "g" } }
+                },
+                "Pois Chiche (cuits)": {
+                    calories: 164, protein: 8.9, carbs: 27.4, fat: 2.6,
+                    micro: { "Manganèse": { value: 1.0, unit: "mg" }, "Folate": { value: 172, unit: "µg" }, "Cuivre": { value: 0.4, unit: "mg" }, "Fer": { value: 2.9, unit: "mg" }, "Fibres": { value: 7.6, unit: "g" } }
+                },
+                "Quinoa (cuit)": {
+                    calories: 120, protein: 4.4, carbs: 21.3, fat: 1.9,
+                    micro: { "Manganèse": { value: 0.6, unit: "mg" }, "Magnésium": { value: 64, unit: "mg" }, "Phosphore": { value: 152, unit: "mg" }, "Folate": { value: 42, unit: "µg" }, "Fibres": { value: 2.8, unit: "g" } }
+                },
+                "Riz Blanc (cuit)": {
+                    calories: 130, protein: 2.7, carbs: 28.2, fat: 0.3,
+                    micro: { "Manganèse": { value: 0.4, unit: "mg" }, "Sélénium": { value: 9.8, unit: "µg" }, "Thiamine": { value: 0.02, unit: "mg" }, "Niacine": { value: 0.4, unit: "mg" }, "Fer": { value: 0.2, unit: "mg" } }
+                }
+            },
+			cereales: { // Trié alphabétiquement
                 "Flocons d'avoine": {
-                    calories: 375,
-                    protein: 13.0,
-                    carbs: 67.5,
-                    fat: 7.0,
-                    micro: {
-                        "Fibres": { value: 10.0, unit: "g" },
-                        "Manganèse": { value: 4.9, unit: "mg" },
-                        "Phosphore": { value: 523, unit: "mg" },
-                        "Magnésium": { value: 177, unit: "mg" },
-                        "Zinc": { value: 4.0, unit: "mg" }
-                    }
+                    calories: 375, protein: 13.0, carbs: 67.5, fat: 7.0,
+                    micro: { "Fibres": { value: 10.0, unit: "g" }, "Manganèse": { value: 4.9, unit: "mg" }, "Phosphore": { value: 523, unit: "mg" }, "Magnésium": { value: 177, unit: "mg" }, "Zinc": { value: 4.0, unit: "mg" } }
                 },
                 "Granola": {
-                    calories: 471,
-                    protein: 10.0,
-                    carbs: 64.0,
-                    fat: 20.0,
-                    micro: {
-                        "Fibres": { value: 7.0, unit: "g" },
-                        "Fer": { value: 4.0, unit: "mg" },
-                        "Magnésium": { value: 120, unit: "mg" },
-                        "Zinc": { value: 3.7, unit: "mg" },
-                        "Manganèse": { value: 3.0, unit: "mg" }
-                    }
+                    calories: 471, protein: 10.0, carbs: 64.0, fat: 20.0,
+                    micro: { "Fibres": { value: 7.0, unit: "g" }, "Fer": { value: 4.0, unit: "mg" }, "Magnésium": { value: 120, unit: "mg" }, "Zinc": { value: 3.7, unit: "mg" }, "Manganèse": { value: 3.0, unit: "mg" } }
                 },
                 "Muesli": {
-                    calories: 378,
-                    protein: 9.0,
-                    carbs: 68.0,
-                    fat: 8.0,
-                    micro: {
-                        "Fibres": { value: 8.5, unit: "g" },
-                        "Fer": { value: 3.0, unit: "mg" },
-                        "Magnésium": { value: 110, unit: "mg" },
-                        "Phosphore": { value: 306, unit: "mg" },
-                        "Zinc": { value: 2.1, unit: "mg" }
-                    }
+                    calories: 378, protein: 9.0, carbs: 68.0, fat: 8.0,
+                    micro: { "Fibres": { value: 8.5, unit: "g" }, "Fer": { value: 3.0, unit: "mg" }, "Magnésium": { value: 110, unit: "mg" }, "Phosphore": { value: 306, unit: "mg" }, "Zinc": { value: 2.1, unit: "mg" } }
                 },
                 "Pain aux céréales": {
-                    calories: 265,
-                    protein: 11.0,
-                    carbs: 43.0,
-                    fat: 5.0,
-                    micro: {
-                        "Fibres": { value: 8.0, unit: "g" },
-                        "Magnésium": { value: 68, unit: "mg" },
-                        "Fer": { value: 2.8, unit: "mg" },
-                        "Zinc": { value: 2.0, unit: "mg" },
-                        "Vitamine E": { value: 1.0, unit: "mg" }
-                    }
+                    calories: 265, protein: 11.0, carbs: 43.0, fat: 5.0,
+                    micro: { "Fibres": { value: 8.0, unit: "g" }, "Magnésium": { value: 68, unit: "mg" }, "Fer": { value: 2.8, unit: "mg" }, "Zinc": { value: 2.0, unit: "mg" }, "Vitamine E": { value: 1.0, unit: "mg" } }
+                },
+                "Pain complet": {
+                    calories: 247, protein: 10.0, carbs: 41.0, fat: 3.3,
+                    micro: { "Fibres": { value: 7.0, unit: "g" }, "Magnésium": { value: 90, unit: "mg" }, "Sélénium": { value: 35.0, unit: "µg" }, "Niacine": { value: 5.0, unit: "mg" }, "Fer": { value: 2.5, unit: "mg" } }
                 },
                 "Pain de seigle": {
-                    calories: 259,
-                    protein: 8.5,
-                    carbs: 48.0,
-                    fat: 3.0,
-                    micro: {
-                        "Fibres": { value: 8.0, unit: "g" },
-                        "Manganèse": { value: 1.9, unit: "mg" },
-                        "Phosphore": { value: 208, unit: "mg" },
-                        "Magnésium": { value: 40, unit: "mg" },
-                        "Zinc": { value: 1.8, unit: "mg" }
-                    }
+                    calories: 259, protein: 8.5, carbs: 48.0, fat: 3.0,
+                    micro: { "Fibres": { value: 8.0, unit: "g" }, "Manganèse": { value: 1.9, unit: "mg" }, "Phosphore": { value: 208, unit: "mg" }, "Magnésium": { value: 40, unit: "mg" }, "Zinc": { value: 1.8, unit: "mg" } }
                 },
-                "Riz brun": {
-                    calories: 111,
-                    protein: 2.6,
-                    carbs: 23.0,
-                    fat: 0.9,
-                    micro: {
-                        "Magnésium": { value: 43, unit: "mg" },
-                        "Phosphore": { value: 83, unit: "mg" },
-                        "Manganèse": { value: 1.1, unit: "mg" },
-                        "Sélénium": { value: 19.1, unit: "µg" },
-                        "Fibres": { value: 1.8, unit: "g" }
-                    }
+                "Riz brun": { // Assumons cuit pour ces valeurs typiques
+                    calories: 111, protein: 2.6, carbs: 23.0, fat: 0.9,
+                    micro: { "Magnésium": { value: 43, unit: "mg" }, "Phosphore": { value: 83, unit: "mg" }, "Manganèse": { value: 1.1, unit: "mg" }, "Sélénium": { value: 19.1, unit: "µg" }, "Fibres": { value: 1.8, unit: "g" } }
                 }
             },
-            petit_dejeuner: {
-                "Œuf (entier)": {
-                    calories: 143,
-                    protein: 12.6,
-                    carbs: 0.7,
-                    fat: 9.5,
-                    micro: {
-                        "Vitamine B12": { value: 0.9, unit: "µg" },
-                        "Vitamine A": { value: 149, unit: "µg" },
-                        "Sélénium": { value: 31.7, unit: "µg" },
-                        "Lutéine": { value: 292, unit: "µg" },
-                        "Choline": { value: 294, unit: "mg" }
-                    }
+            petit_dejeuner: { // Trié alphabétiquement
+                "Avocat": {
+                    calories: 160, protein: 2.0, carbs: 8.5, fat: 14.7,
+                    micro: { "Vitamine K": { value: 21.0, unit: "µg" }, "Folate": { value: 81, unit: "µg" }, "Vitamine C": { value: 10, unit: "mg" }, "Potassium": { value: 485, unit: "mg" }, "Vitamine B5": { value: 1.4, unit: "mg" } }
                 },
                 "Bacon": {
-                    calories: 417,
-                    protein: 37.0,
-                    carbs: 1.4,
-                    fat: 33.0,
-                    micro: {
-                        "Niacine": { value: 12.0, unit: "mg" },
-                        "Vitamine B12": { value: 0.7, unit: "µg" },
-                        "Fer": { value: 0.9, unit: "mg" },
-                        "Zinc": { value: 2.5, unit: "mg" },
-                        "Phosphore": { value: 198, unit: "mg" }
-                    }
-                },
-                "Avocat": {
-                    calories: 160,
-                    protein: 2.0,
-                    carbs: 8.5,
-                    fat: 14.7,
-                    micro: {
-                        "Vitamine K": { value: 21.0, unit: "µg" },
-                        "Folate": { value: 81, unit: "µg" },
-                        "Vitamine C": { value: 10, unit: "mg" },
-                        "Potassium": { value: 485, unit: "mg" },
-                        "Vitamine B5": { value: 1.4, unit: "mg" }
-                    }
-                },
-                "Miel": {
-                    calories: 304,
-                    protein: 0.3,
-                    carbs: 82.4,
-                    fat: 0.0,
-                    micro: {
-                        "Niacine": { value: 0.1, unit: "mg" },
-                        "Riboflavine": { value: 0.04, unit: "mg" },
-                        "Potassium": { value: 52, unit: "mg" },
-                        "Zinc": { value: 0.2, unit: "mg" },
-                        "Fer": { value: 0.4, unit: "mg" }
-                    }
-                },
-                "Confiture de fraises": {
-                    calories: 250,
-                    protein: 0.4,
-                    carbs: 65.0,
-                    fat: 0.0,
-                    micro: {
-                        "Vitamine C": { value: 4.0, unit: "mg" },
-                        "Calcium": { value: 8.0, unit: "mg" },
-                        "Potassium": { value: 37, unit: "mg" },
-                        "Magnésium": { value: 3.0, unit: "mg" },
-                        "Fer": { value: 0.2, unit: "mg" }
-                    }
+                    calories: 417, protein: 37.0, carbs: 1.4, fat: 33.0, // Typiquement cuit
+                    micro: { "Niacine": { value: 12.0, unit: "mg" }, "Vitamine B12": { value: 0.7, unit: "µg" }, "Fer": { value: 0.9, unit: "mg" }, "Zinc": { value: 2.5, unit: "mg" }, "Phosphore": { value: 198, unit: "mg" } }
                 },
                 "Beurre d'amande": {
-                    calories: 614,
-                    protein: 21.0,
-                    carbs: 19.0,
-                    fat: 55.0,
-                    micro: {
-                        "Vitamine E": { value: 24.0, unit: "mg" },
-                        "Magnésium": { value: 270, unit: "mg" },
-                        "Calcium": { value: 347, unit: "mg" },
-                        "Fer": { value: 3.7, unit: "mg" },
-                        "Zinc": { value: 3.3, unit: "mg" }
-                    }
+                    calories: 614, protein: 21.0, carbs: 19.0, fat: 55.0,
+                    micro: { "Vitamine E": { value: 24.0, unit: "mg" }, "Magnésium": { value: 270, unit: "mg" }, "Calcium": { value: 347, unit: "mg" }, "Fer": { value: 3.7, unit: "mg" }, "Zinc": { value: 3.3, unit: "mg" } }
                 },
                 "Beurre de cacahuète": {
-                    calories: 588,
-                    protein: 25.0,
-                    carbs: 20.0,
-                    fat: 50.0,
-                    micro: {
-                        "Niacine": { value: 13.0, unit: "mg" },
-                        "Magnésium": { value: 170, unit: "mg" },
-                        "Phosphore": { value: 335, unit: "mg" },
-                        "Zinc": { value: 2.8, unit: "mg" },
-                        "Vitamine E": { value: 8.3, unit: "mg" }
-                    }
+                    calories: 588, protein: 25.0, carbs: 20.0, fat: 50.0,
+                    micro: { "Niacine": { value: 13.0, unit: "mg" }, "Magnésium": { value: 170, unit: "mg" }, "Phosphore": { value: 335, unit: "mg" }, "Zinc": { value: 2.8, unit: "mg" }, "Vitamine E": { value: 8.3, unit: "mg" } }
+                },
+                "Confiture de fraises": {
+                    calories: 250, protein: 0.4, carbs: 65.0, fat: 0.0,
+                    micro: { "Vitamine C": { value: 4.0, unit: "mg" }, "Calcium": { value: 8.0, unit: "mg" }, "Potassium": { value: 37, unit: "mg" }, "Magnésium": { value: 3.0, unit: "mg" }, "Fer": { value: 0.2, unit: "mg" } }
+                },
+                "Miel": {
+                    calories: 304, protein: 0.3, carbs: 82.4, fat: 0.0,
+                    micro: { "Niacine": { value: 0.1, unit: "mg" }, "Riboflavine": { value: 0.04, unit: "mg" }, "Potassium": { value: 52, unit: "mg" }, "Zinc": { value: 0.2, unit: "mg" }, "Fer": { value: 0.4, unit: "mg" } }
+                },
+                "Œuf (entier)": { // Moyenne pour 100g (environ 2 gros oeufs)
+                    calories: 143, protein: 12.6, carbs: 0.7, fat: 9.5,
+                    micro: { "Vitamine B12": { value: 0.9, unit: "µg" }, "Vitamine A": { value: 149, unit: "µg" }, "Sélénium": { value: 31.7, unit: "µg" }, "Lutéine": { value: 292, unit: "µg" }, "Choline": { value: 294, unit: "mg" } }
                 }
             },
-            boissons: {
-                "Café": {
-                    calories: 2,
-                    protein: 0.1,
-                    carbs: 0.0,
-                    fat: 0.0,
-                    micro: {
-                        "Niacine": { value: 0.5, unit: "mg" },
-                        "Magnésium": { value: 7.1, unit: "mg" },
-                        "Potassium": { value: 116, unit: "mg" },
-                        "Manganèse": { value: 0.05, unit: "mg" },
-                        "Antioxydants": { value: 1000, unit: "ORAC" }
-                    }
+            boissons: { // Trié alphabétiquement
+                 "Café": { // Noir, sans sucre/lait
+                    calories: 2, protein: 0.1, carbs: 0.0, fat: 0.0,
+                    micro: { "Niacine": { value: 0.5, unit: "mg" }, "Magnésium": { value: 7.1, unit: "mg" }, "Potassium": { value: 116, unit: "mg" }, "Manganèse": { value: 0.05, unit: "mg" }, "Antioxydants": { value: 1000, unit: "ORAC" } } // ORAC est indicatif
                 },
-                "Thé": {
-                    calories: 1,
-                    protein: 0.0,
-                    carbs: 0.2,
-                    fat: 0.0,
-                    micro: {
-                        "Manganèse": { value: 0.5, unit: "mg" },
-                        "Fluorure": { value: 0.3, unit: "mg" },
-                        "Potassium": { value: 88, unit: "mg" },
-                        "Antioxydants": { value: 1200, unit: "ORAC" },
-                        "Théine": { value: 25, unit: "mg" }
-                    }
+                "Jus d'ananas": { // 100% pur jus
+                    calories: 50, protein: 0.5, carbs: 12.0, fat: 0.1,
+                    micro: { "Vitamine C": { value: 25.8, unit: "mg" }, "Vitamine B6": { value: 0.1, unit: "mg" }, "Magnésium": { value: 15, unit: "mg" }, "Potassium": { value: 180, unit: "mg" }, "Manganèse": { value: 1.0, unit: "mg" } }
                 },
-                "Jus d'orange": {
-                    calories: 45,
-                    protein: 0.7,
-                    carbs: 10.4,
-                    fat: 0.2,
-                    micro: {
-                        "Vitamine C": { value: 36.4, unit: "mg" },
-                        "Folate": { value: 27.3, unit: "µg" },
-                        "Potassium": { value: 200, unit: "mg" },
-                        "Thiamine": { value: 0.1, unit: "mg" },
-                        "Vitamine A": { value: 25, unit: "µg" }
-                    }
+                "Jus de carotte": { // 100% pur jus
+                    calories: 39, protein: 0.9, carbs: 9.3, fat: 0.2,
+                    micro: { "Vitamine A": { value: 900, unit: "µg" }, "Vitamine K": { value: 20.2, unit: "µg" }, "Potassium": { value: 292, unit: "mg" }, "Vitamine C": { value: 9.1, unit: "mg" }, "Calcium": { value: 30, unit: "mg" } }
                 },
-                "Jus de pomme": {
-                    calories: 47,
-                    protein: 0.1,
-                    carbs: 11.3,
-                    fat: 0.1,
-                    micro: {
-                        "Vitamine C": { value: 2.2, unit: "mg" },
-                        "Potassium": { value: 120, unit: "mg" },
-                        "Magnésium": { value: 7, unit: "mg" },
-                        "Calcium": { value: 8, unit: "mg" },
-                        "Antioxydants": { value: 800, unit: "ORAC" }
-                    }
+                 "Jus d'orange": { // 100% pur jus
+                    calories: 45, protein: 0.7, carbs: 10.4, fat: 0.2,
+                    micro: { "Vitamine C": { value: 36.4, unit: "mg" }, "Folate": { value: 27.3, unit: "µg" }, "Potassium": { value: 200, unit: "mg" }, "Thiamine": { value: 0.1, unit: "mg" }, "Vitamine A": { value: 25, unit: "µg" } }
                 },
-                "Jus d'ananas": {
-                    calories: 50,
-                    protein: 0.5,
-                    carbs: 12.0,
-                    fat: 0.1,
-                    micro: {
-                        "Vitamine C": { value: 25.8, unit: "mg" },
-                        "Vitamine B6": { value: 0.1, unit: "mg" },
-                        "Magnésium": { value: 15, unit: "mg" },
-                        "Potassium": { value: 180, unit: "mg" },
-                        "Manganèse": { value: 1.0, unit: "mg" }
-                    }
+                "Jus de pomme": { // 100% pur jus
+                    calories: 47, protein: 0.1, carbs: 11.3, fat: 0.1,
+                    micro: { "Vitamine C": { value: 2.2, unit: "mg" }, "Potassium": { value: 120, unit: "mg" }, "Magnésium": { value: 7, unit: "mg" }, "Calcium": { value: 8, unit: "mg" }, "Antioxydants": { value: 800, unit: "ORAC" } } // ORAC est indicatif
                 },
-                "Jus de raisin": {
-                    calories: 60,
-                    protein: 0.5,
-                    carbs: 15.0,
-                    fat: 0.0,
-                    micro: {
-                        "Vitamine C": { value: 1.0, unit: "mg" },
-                        "Potassium": { value: 144, unit: "mg" },
-                        "Manganèse": { value: 0.12, unit: "mg" },
-                        "Antioxydants": { value: 1600, unit: "ORAC" },
-                        "Calcium": { value: 15, unit: "mg" }
-                    }
+                "Jus de raisin": { // 100% pur jus
+                    calories: 60, protein: 0.5, carbs: 15.0, fat: 0.0,
+                    micro: { "Vitamine C": { value: 1.0, unit: "mg" }, "Potassium": { value: 144, unit: "mg" }, "Manganèse": { value: 0.12, unit: "mg" }, "Antioxydants": { value: 1600, unit: "ORAC" }, "Calcium": { value: 15, unit: "mg" } } // ORAC est indicatif
                 },
-                "Jus de tomate": {
-                    calories: 17,
-                    protein: 0.8,
-                    carbs: 4.0,
-                    fat: 0.1,
-                    micro: {
-                        "Vitamine C": { value: 18.3, unit: "mg" },
-                        "Vitamine A": { value: 56, unit: "µg" },
-                        "Potassium": { value: 217, unit: "mg" },
-                        "Lycopène": { value: 3100, unit: "µg" },
-                        "Folate": { value: 9, unit: "µg" }
-                    }
+                "Jus de tomate": { // 100% pur jus
+                    calories: 17, protein: 0.8, carbs: 4.0, fat: 0.1,
+                    micro: { "Vitamine C": { value: 18.3, unit: "mg" }, "Vitamine A": { value: 56, unit: "µg" }, "Potassium": { value: 217, unit: "mg" }, "Lycopène": { value: 3100, unit: "µg" }, "Folate": { value: 9, unit: "µg" } }
                 },
-                "Jus de carotte": {
-                    calories: 39,
-                    protein: 0.9,
-                    carbs: 9.3,
-                    fat: 0.2,
-                    micro: {
-                        "Vitamine A": { value: 900, unit: "µg" },
-                        "Vitamine K": { value: 20.2, unit: "µg" },
-                        "Potassium": { value: 292, unit: "mg" },
-                        "Vitamine C": { value: 9.1, unit: "mg" },
-                        "Calcium": { value: 30, unit: "mg" }
-                    }
+                "Thé": { // Infusé, sans sucre/lait
+                    calories: 1, protein: 0.0, carbs: 0.2, fat: 0.0,
+                    micro: { "Manganèse": { value: 0.5, unit: "mg" }, "Fluorure": { value: 0.3, unit: "mg" }, "Potassium": { value: 88, unit: "mg" }, "Antioxydants": { value: 1200, unit: "ORAC" }, "Théine": { value: 25, unit: "mg" } } // ORAC/Théine indicatifs
                 }
             }
         };
-
+           
         // Structure des repas
         const meals = {
             breakfast: { name: "Petit-déjeuner", items: [], icon: "coffee" },
@@ -1331,7 +986,15 @@
                 
                 // Mettre à jour les titres
                 currentMealTitle.textContent = `Ajouter un aliment au ${meals[activeMeal].name.toLowerCase()}`;
-                currentMealDisplay.textContent = `Mon ${meals[activeMeal].name.toLowerCase()}`;
+                // Mettre à jour les titres (Logique modifiée pour currentMealDisplay)
+const mealNameLower = meals[activeMeal].name.toLowerCase();
+currentMealTitle.textContent = `Ajouter un aliment ${mealNameLower === 'collation' ? 'à la' : 'au'} ${mealNameLower}`; // Ajuste aussi la préposition pour "à la collation"
+
+if (activeMeal === 'snack') {
+    currentMealDisplay.textContent = meals[activeMeal].name; // Affiche "Collation"
+} else {
+    currentMealDisplay.textContent = `Mon ${mealNameLower}`; // Garde "Mon ..." pour les autres
+}
                 
                 // Actualiser l'affichage du repas
                 updateMealList();
@@ -2105,6 +1768,214 @@
         // Exposer les fonctions nécessaires globalement
         window.removeFromMeal = removeFromMeal;
         window.editItemQuantity = editItemQuantity;
-    </script>
+// ==========================================
+        // == CODE POUR LA GÉNÉRATION AUTO DE MENU (AVEC OBJECTIFS) ==
+        // ==========================================
+
+        // Références aux éléments HTML (inchangées)
+        const targetCaloriesInput = document.getElementById('target-calories');
+        const generateMenuBtn = document.getElementById('generate-menu-btn');
+        const generationFeedback = document.getElementById('generation-feedback');
+        // Note: Pas besoin de référence directe aux radios, on les lira au moment du clic
+
+        // Écouteur d'événement (inchangé)
+        if (generateMenuBtn) {
+            generateMenuBtn.addEventListener('click', generateFullDayMenu);
+        } else {
+            console.error("Le bouton generate-menu-btn n'a pas été trouvé !");
+        }
+
+        // Fonction principale (modifiée pour lire l'objectif et le passer)
+        function generateFullDayMenu() {
+            const totalTargetCalories = parseInt(targetCaloriesInput.value);
+            generationFeedback.textContent = '';
+
+            // Lire l'objectif sélectionné
+            const selectedObjectiveRadio = document.querySelector('input[name="diet-objective"]:checked');
+            const selectedObjective = selectedObjectiveRadio ? selectedObjectiveRadio.value : 'maintain'; // Défaut 'maintain'
+
+            if (isNaN(totalTargetCalories) || totalTargetCalories <= 0) {
+                generationFeedback.textContent = 'Veuillez entrer un nombre de calories valide.';
+                return;
+            }
+
+            // Afficher l'avertissement (légèrement modifié)
+            generationFeedback.innerHTML = `
+                <p class="font-semibold text-orange-600">Génération en cours (Objectif: ${selectedObjective === 'maintain' ? 'Maintien' : selectedObjective === 'loseWeight' ? 'Perte de poids' : 'Prise de muscle'})...</p>
+                <p class="mt-2 text-gray-700 text-xs">
+                    <i class="fas fa-exclamation-triangle mr-1 text-yellow-500"></i>
+                    <strong>Attention :</strong> Ce menu est généré aléatoirement pour atteindre les calories cibles, en tentant de s'adapter à l'objectif.
+                    Il n'est PAS garanti d'être équilibré nutritionnellement ou gustativement cohérent.
+                    Utilisez-le comme une base et ajustez-le. Consultez un professionnel pour un plan personnalisé.
+                </p>`;
+
+            if (confirm('Ceci va remplacer tous les repas actuels. Continuer ?')) {
+                // --- Réinitialisation (idem qu'avant) ---
+                for (const mealKey in meals) { meals[mealKey].items = []; }
+                if (mealTabs && mealTabs.length > 0) {
+                    activeMeal = mealTabs[0].dataset.meal || 'breakfast';
+                    mealTabs.forEach((tab, index) => { /* ... gestion classes onglets ... */
+                         if (index === 0) { tab.classList.add('active'); tab.classList.remove('bg-gray-200'); }
+                         else { tab.classList.remove('active'); tab.classList.add('bg-gray-200'); }
+                    });
+                     if (currentMealTitle && currentMealDisplay && meals[activeMeal]) {
+                        currentMealTitle.textContent = `Ajouter un aliment au ${meals[activeMeal].name.toLowerCase()}`;
+                        currentMealDisplay.textContent = `Mon ${meals[activeMeal].name.toLowerCase()}`;
+                     }
+                }
+                updateMealList(); updateNutritionSummary(); updateDailySummary();
+
+                // --- Configuration (idem qu'avant) ---
+                const mealTargets = { /* ... calories par repas ... */
+                    breakfast: totalTargetCalories * 0.30, lunch: totalTargetCalories * 0.35,
+                    dinner: totalTargetCalories * 0.30, snack: totalTargetCalories * 0.05
+                };
+                const mealConfigs = { /* ... règles par repas ... */
+                     breakfast: { type: 'random', categories: ['fruits', 'boissons', 'produits_laitiers', 'cereales', 'petit_dejeuner'], minItems: 3, maxItems: 5 },
+                     lunch:     { type: 'structured', structure: { /* ... structure lunch ... */
+                                    protein: { cats: ['viandes', 'poissons'], count: 1 }, starch:  { cats: ['feculents'], count: 1 },
+                                    veggie:  { cats: ['legumes'], count: 1, optional: true }, extra:   { cats: ['assaisonnement'], count: 1, optional: true } }},
+                     dinner:    { type: 'structured', structure: { /* ... structure dîner ... */
+                                    protein: { cats: ['viandes', 'poissons'], count: 1 }, starch:  { cats: ['feculents'], count: 1 },
+                                    veggie:  { cats: ['legumes'], count: 1, optional: true }, extra:   { cats: ['assaisonnement'], count: 1, optional: true } }},
+                     snack:     { type: 'random', categories: ['fruits', 'boissons'], minItems: 1, maxItems: 2 }
+                 };
+
+                 // --- Génération (avec délai + passage de l'objectif) ---
+                 setTimeout(() => {
+                    let lunchProteinInfo = null;
+                    try {
+                        // Passer selectedObjective aux fonctions generateSingleMeal
+                        generateSingleMeal('breakfast', mealTargets.breakfast, mealConfigs.breakfast, null, selectedObjective);
+                        lunchProteinInfo = generateSingleMeal('lunch', mealTargets.lunch, mealConfigs.lunch, null, selectedObjective);
+                        generateSingleMeal('dinner', mealTargets.dinner, mealConfigs.dinner, lunchProteinInfo, selectedObjective);
+                        generateSingleMeal('snack', mealTargets.snack, mealConfigs.snack, null, selectedObjective);
+
+                        // --- Mise à jour finale UI (idem) ---
+                        updateMealList(); updateNutritionSummary(); updateDailySummary();
+                        generationFeedback.innerHTML += '<p class="mt-2 font-semibold text-green-600">Menu généré avec succès ! Veuillez vérifier et ajuster.</p>';
+
+                    } catch (error) { /* ... gestion erreur ... */
+                         console.error("Erreur lors de la génération du menu:", error);
+                         generationFeedback.textContent = 'Une erreur est survenue lors de la génération du menu.';
+                    }
+                }, 50);
+
+            } else {
+                 generationFeedback.textContent = 'Génération annulée.';
+            }
+        }
+
+        // Fonction pour identifier les sources principales de protéines (simplifié)
+        function isPrimaryProteinSource(foodInfo) {
+            if (!foodInfo || !foodInfo.category || !foodInfo.name) return false;
+            const proteinCats = ['viandes', 'poissons'];
+            const highProteinDairy = ['Fromage blanc 0%', 'Skyr', 'Yaourt grec', 'Cottage cheese'];
+            const highProteinBreakfast = ['Œuf (entier)', 'Bacon']; // Bacon est gras mais protéiné aussi
+            const highProteinLegumes = ['Lentilles (cuites)', 'Pois Chiche (cuits)', 'Haricot Rouge (cuit)'];
+
+            return proteinCats.includes(foodInfo.category) ||
+                   (foodInfo.category === 'produits_laitiers' && highProteinDairy.includes(foodInfo.name)) ||
+                   (foodInfo.category === 'petit_dejeuner' && highProteinBreakfast.includes(foodInfo.name)) ||
+                   (foodInfo.category === 'feculents' && highProteinLegumes.includes(foodInfo.name)); // Légumineuses classées ici
+        }
+
+
+        // Fonction pour générer un repas (modifiée pour accepter et utiliser l'objectif)
+        function generateSingleMeal(mealKey, targetCalories, config, excludeProtein = null, objective = 'maintain') { // Ajout paramètre 'objective'
+            let selectedItems = [];
+            let chosenProtein = null;
+
+            // --- 1. Sélection des Aliments (Logique inchangée ici, mais on pourrait la biaiser) ---
+            let tempSelectedFoods = [];
+            if (config.type === 'random') { /* ... sélection random ... */
+                 const minItems=config.minItems||2, maxItems=config.maxItems||4; const numItemsToSelect=Math.floor(Math.random()*(maxItems-minItems+1))+minItems; let availableFoods=[]; config.categories.forEach(catKey=>{if(foodDatabase[catKey]){Object.keys(foodDatabase[catKey]).forEach(foodName=>{availableFoods.push({category:catKey,name:foodName,data:foodDatabase[catKey][foodName]})})}}); if(availableFoods.length===0){console.warn(`Aucun aliment dispo pour ${mealKey} (random)`);return null} for(let i=0;i<numItemsToSelect&&availableFoods.length>0;i++){const randomIndex=Math.floor(Math.random()*availableFoods.length); tempSelectedFoods.push(availableFoods[randomIndex]); availableFoods.splice(randomIndex,1)}
+            } else if (config.type === 'structured') { /* ... sélection structurée avec exclusion ... */
+                 for(const partKey in config.structure){const partConfig=config.structure[partKey]; let availablePartFoods=[]; partConfig.cats.forEach(catKey=>{if(foodDatabase[catKey]){Object.keys(foodDatabase[catKey]).forEach(foodName=>{availablePartFoods.push({category:catKey,name:foodName,data:foodDatabase[catKey][foodName]})})}}); if(partKey==='protein'&&excludeProtein&&availablePartFoods.length>1){availablePartFoods=availablePartFoods.filter(food=>!(food.category===excludeProtein.category&&food.name===excludeProtein.name))} if(availablePartFoods.length>0){const count=partConfig.count||1; for(let i=0;i<count;i++){if(availablePartFoods.length===0)break; if(partConfig.optional&&tempSelectedFoods.length>0&&Math.random()<0.4){continue} const randomIndex=Math.floor(Math.random()*availablePartFoods.length); const selectedFood=availablePartFoods[randomIndex]; tempSelectedFoods.push(selectedFood); if(partKey==='protein'){chosenProtein={category:selectedFood.category,name:selectedFood.name}} availablePartFoods.splice(randomIndex,1)}} else if(!partConfig.optional){console.warn(`Aucun aliment dispo pour partie obligatoire '${partKey}' de ${mealKey}`)}}
+            }
+            if (tempSelectedFoods.length === 0) { console.warn(`Aucun aliment sélectionné pour ${mealKey}`); return null; }
+
+            // --- 2. Quantités Initiales (Logique inchangée) ---
+            let initialTotalCalories = 0;
+            tempSelectedFoods.forEach(foodInfo => { /* ... attribution qté initiale ... */
+                let initialQuantity=100; if(foodInfo.category==='assaisonnement'&&(foodInfo.name.includes('Huile')||foodInfo.name.includes('Vinaigre')))initialQuantity=10; else if(foodInfo.category==='assaisonnement')initialQuantity=20; else if(foodInfo.category==='petit_dejeuner'&&foodInfo.name.includes('Œuf'))initialQuantity=60; else if(foodInfo.category==='boissons'&&foodInfo.data.calories<10)initialQuantity=200; else if(foodInfo.category==='fruits'&&(foodInfo.name.includes('Noix')||foodInfo.name.includes('Amandes')||foodInfo.name.includes('Noisettes')))initialQuantity=30; else if(foodInfo.category==='produits_laitiers'&&foodInfo.data.calories<70)initialQuantity=150; else if(foodInfo.category==='cereales'&&foodInfo.name.includes('Pain'))initialQuantity=50; else if(foodInfo.category==='cereales')initialQuantity=40; else if(foodInfo.category==='feculents'&&foodInfo.name.includes('Pain'))initialQuantity=60; else if(foodInfo.category==='legumes'&&foodInfo.data.calories<30)initialQuantity=150; else if(foodInfo.category==='viandes'||foodInfo.category==='poissons')initialQuantity=120; else if(foodInfo.category==='feculents')initialQuantity=150; const foodCaloriesPer100g=foodInfo.data.calories||0; initialTotalCalories+=(foodCaloriesPer100g*initialQuantity/100); selectedItems.push({foodInfo:foodInfo,quantity:initialQuantity})
+             });
+
+            // --- 3. Ajustement des Quantités (MODIFIÉ pour objectif) ---
+            if (initialTotalCalories > 0 && targetCalories > 0) {
+                 const baseAdjustmentFactor = targetCalories / initialTotalCalories;
+                 selectedItems.forEach(item => {
+                     let objectiveFactor = 1.0; // Facteur par défaut pour maintien/perte
+
+                     // Augmenter *uniquement* pour la prise de muscle ET si c'est une source de protéine
+                     if (objective === 'gainMuscle' && isPrimaryProteinSource(item.foodInfo)) {
+                         objectiveFactor = 1.25; // Boost de 25% pour les protéines
+                         // On ne réduit pas les autres pour garder la simplicité et assurer assez de calories
+                     }
+
+                     // Appliquer les ajustements
+                     const finalAdjustment = baseAdjustmentFactor * objectiveFactor;
+
+                     // Pas d'ajustement sur boissons/assaisonnements très peu caloriques
+                    if (!((item.foodInfo.category === 'boissons' || item.foodInfo.category === 'assaisonnement') && item.foodInfo.data.calories < 10)) {
+                         item.quantity = Math.max(1, Math.round(item.quantity * finalAdjustment));
+                    } else if (item.quantity === 0) {
+                         item.quantity = 1; // Assurer qté min
+                    }
+                 });
+            } else if (targetCalories <= 0) {
+                 selectedItems.forEach(item => item.quantity = 1);
+            }
+
+            // --- 4. Ajout au Repas Global 'meals' (Logique inchangée) ---
+            selectedItems.forEach(item => { /* ... ajout de item à meals[mealKey].items ... */
+                const food=item.foodInfo.data; const quantity=item.quantity; const category=item.foodInfo.category; const foodName=item.foodInfo.name; if(!food||quantity<=0)return; const mealItem={id:Date.now()+Math.random(),category:category,name:foodName,quantity:quantity,calories:(food.calories||0)*quantity/100,protein:(food.protein||0)*quantity/100,carbs:(food.carbs||0)*quantity/100,fat:(food.fat||0)*quantity/100,micro:{}}; if(food.micro){for(const[nutrient,details] of Object.entries(food.micro)){if(details&&typeof details.value==='number'&&details.unit){mealItem.micro[nutrient]={value:details.value*quantity/100,unit:details.unit}}}} if(meals[mealKey]&&meals[mealKey].items){meals[mealKey].items.push(mealItem)}else{console.error(`Repas ${mealKey} invalide.`)}
+            });
+
+            return chosenProtein;
+        }
+
+        // ==========================================
+        // == FIN CODE GÉNÉRATION AUTO DE MENU     ==
+        // ==========================================
+    // ==================================
+        // == CODE POUR REPLIER/DÉPLIER GÉNÉRATEUR ==
+        // ==================================
+        const generatorHeader = document.getElementById('generator-header');
+        const generatorContent = document.getElementById('generator-content');
+        const toggleGeneratorBtn = document.getElementById('toggle-generator-btn');
+        const toggleIcon = toggleGeneratorBtn ? toggleGeneratorBtn.querySelector('i') : null; // Récupère l'icône
+
+        if (generatorHeader && generatorContent && toggleGeneratorBtn && toggleIcon) {
+            generatorHeader.addEventListener('click', () => {
+                generatorContent.classList.toggle('collapsed');
+
+                // Mettre à jour l'icône du bouton
+                if (generatorContent.classList.contains('collapsed')) {
+                    toggleIcon.classList.remove('fa-chevron-up');
+                    toggleIcon.classList.add('fa-chevron-down');
+                    // Optionnel: Ajouter ARIA attributes pour accessibilité
+                    toggleGeneratorBtn.setAttribute('aria-expanded', 'false');
+                    generatorContent.setAttribute('aria-hidden', 'true');
+                } else {
+                    toggleIcon.classList.remove('fa-chevron-down');
+                    toggleIcon.classList.add('fa-chevron-up');
+                    // Optionnel: Ajouter ARIA attributes pour accessibilité
+                    toggleGeneratorBtn.setAttribute('aria-expanded', 'true');
+                    generatorContent.setAttribute('aria-hidden', 'false');
+                }
+            });
+
+             // Initialiser les attributs ARIA au chargement (supposant qu'il est déplié au début)
+             toggleGeneratorBtn.setAttribute('aria-expanded', 'true');
+             toggleGeneratorBtn.setAttribute('aria-controls', 'generator-content'); // Lie le bouton au contenu
+             generatorContent.setAttribute('aria-hidden', 'false');
+
+
+        } else {
+            console.error("Éléments pour le générateur repliable non trouvés ! Vérifiez les IDs HTML: generator-header, generator-content, toggle-generator-btn et l'icône <i> à l'intérieur.");
+        }
+        // --- FIN CODE POUR REPLIER/DÉPLIER ---
+	</script>
 </body>
 </html>
