@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
     <style>
+        /* Styles généraux (barres, etc.) */
         .nutrient-bar {
             height: 20px;
             border-radius: 10px;
@@ -19,15 +20,15 @@
             border-radius: 6px;
             margin-bottom: 3px;
         }
-        .protein { background-color: #4299e1; }
-        .carbs { background-color: #48bb78; }
-        .fat { background-color: #ed8936; }
-        
+        .protein { background-color: #4299e1; } /* Peut être remplacé par Tailwind: bg-blue-500 */
+        .carbs { background-color: #48bb78; }  /* Peut être remplacé par Tailwind: bg-green-500 */
+        .fat { background-color: #ed8936; }    /* Peut être remplacé par Tailwind: bg-orange-500 */
+
         .meal-tab.active {
-            background-color: #4299e1;
+            background-color: #4299e1; /* Ou bg-blue-600 */
             color: white;
         }
-        
+
         /* Modal styles */
         .modal {
             display: none;
@@ -41,33 +42,66 @@
             background-color: rgba(0,0,0,0.4);
             animation: fadeIn 0.3s;
         }
-        
+
         .modal-content {
             background-color: #fefefe;
-            margin: 15% auto;
+            margin: 10% auto; /* Ajusté pour moins d'espace en haut */
             padding: 20px;
             border: 1px solid #888;
             border-radius: 8px;
-            width: 80%;
+            width: 90%; /* Un peu plus large sur mobile */
             max-width: 500px;
             animation: slideIn 0.3s;
         }
-        
+
         @keyframes fadeIn {
             from {opacity: 0}
             to {opacity: 1}
         }
-        
+
         @keyframes slideIn {
-            from {transform: translateY(-50px); opacity: 0;}
+            from {transform: translateY(-30px); opacity: 0;} /* Moins de slide */
             to {transform: translateY(0); opacity: 1;}
         }
-        
+
+        /* Styles pour le générateur repliable */
+        .generator-content {
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+            max-height: 1000px; /* Hauteur max suffisante */
+        }
+        .generator-content.collapsed {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-top: none;
+            margin-top: 0; /* Ajusté */
+            margin-bottom: 0; /* Ajusté */
+        }
+
+        /* Styles pour la section d'ajout d'aliment repliable */
+        .add-food-content {
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+            max-height: 1500px; /* Augmenté car plus de contenu */
+        }
+        .add-food-content.collapsed {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            border-top: none;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        /* Fin des styles pour l'ajout d'aliment repliable */
+
+        /* Styles d'impression */
         @media print {
             body {
                 width: 100%;
                 margin: 0;
                 padding: 0;
+                font-size: 10pt; /* Taille plus adaptée à l'impression */
             }
             .no-print {
                 display: none !important;
@@ -75,45 +109,46 @@
             .print-only {
                 display: block !important;
             }
-            .page-break {
+            .page-break { /* Utiliser dans le contenu généré pour PDF si nécessaire */
                 page-break-after: always;
             }
+            /* Cacher les éléments graphiques non essentiels */
+             #macro-chart, #daily-macro-chart, #meals-chart {
+                 display: none !important;
+             }
+             .modal, .modal-content {
+                 display: none !important;
+             }
+             /* Simplifier certains styles pour l'impression */
+            .shadow { box-shadow: none !important; }
+            .rounded-lg { border-radius: 0 !important; }
+            /* Masquer les boutons d'action dans la liste des repas imprimée */
+            #meal-list .no-print {
+                display: none !important;
+            }
         }
-        
+
         .print-only {
             display: none;
         }
-		/* Styles pour le générateur repliable */
-        .generator-content {
-            overflow: hidden;
-            transition: max-height 0.4s ease-out;
-            max-height: 1000px; /* Hauteur max suffisante pour le contenu déplié */
-        }
-
-        .generator-content.collapsed {
-            max-height: 0;
-            padding-top: 0; /* Optionnel: enlève le padding quand replié */
-            padding-bottom: 0; /* Optionnel: enlève le padding quand replié */
-            border-top: none; /* Assurez-vous qu'il n'y a pas de bordure visible */
-            margin-top: -1px; /* Compense une éventuelle bordure restante */
-        }
-        /* Fin des styles pour le générateur repliable */
     </style>
+    <!-- <link rel="stylesheet" href="style.css"> --> <!-- Décommentez si vous externalisez le CSS -->
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen text-gray-800"> <!-- Ajout texte par défaut -->
+
     <!-- Top Navigation Bar -->
-    <nav class="bg-blue-600 text-white shadow-md">
+    <nav class="bg-blue-600 text-white shadow-md no-print">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center">
                 <h1 class="text-xl font-bold">Calculateur de Calories</h1>
-                <div class="space-x-2">
+                <div class="flex flex-wrap gap-2"> <!-- Utilisation de flex-wrap et gap -->
                     <button id="export-pdf-btn" class="px-3 py-1 bg-blue-500 hover:bg-blue-400 rounded-md text-sm font-medium transition-colors duration-200">
-                        <i class="fas fa-file-pdf mr-1"></i> Exporter en PDF
+                        <i class="fas fa-file-pdf mr-1"></i> Exporter PDF
                     </button>
                     <button id="add-to-home-btn" class="px-3 py-1 bg-blue-500 hover:bg-blue-400 rounded-md text-sm font-medium transition-colors duration-200">
-                        <i class="fas fa-utensils mr-1"></i><i class="fas fa-calculator mr-1"></i> Ajouter à l'accueil
+                        <i class="fas fa-mobile-alt mr-1"></i> Ajouter Accueil <!-- Icône changée -->
                     </button>
-                    <button id="info-btn" class="px-3 py-1 bg-blue-500 hover:bg-blue-400 rounded-md text-sm font-medium transition-colors duration-200">
+                    <button id="info-btn" class="px-3 py-1 bg-blue-500 hover:bg-blue-400 rounded-md text-sm font-medium transition-colors duration-200" aria-haspopup="dialog" aria-controls="info-modal"> <!-- Attributs ARIA -->
                         <i class="fas fa-info-circle mr-1"></i> Information
                     </button>
                 </div>
@@ -121,23 +156,25 @@
         </div>
     </nav>
 
-    <div class="container mx-auto px-4 py-8" id="content-to-export">
+    <!-- Contenu Principal -->
+    <main class="container mx-auto px-4 py-8" id="content-to-export">
         <header class="text-center mb-8">
             <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Calculateur de Calories Journalier</h1>
             <p class="text-gray-600 mt-2">Composez et calculez vos repas pour toute la journée</p>
         </header>
-<!-- Section Génération Automatique (Repliable) -->
+
+        <!-- Section Génération Automatique (Repliable) -->
         <div class="bg-white rounded-lg shadow mb-8 no-print" id="generator-section">
             <!-- En-tête avec bouton Toggle -->
             <div class="flex justify-between items-center p-4 border-b border-gray-200 cursor-pointer" id="generator-header">
                 <h2 class="text-xl font-semibold text-gray-800">Génération Automatique de Menu</h2>
-                <button id="toggle-generator-btn" class="text-blue-500 hover:text-blue-700 text-xl">
-                    <i class="fas fa-chevron-up"></i> <!-- Icone initiale (déplié) -->
+                <button id="toggle-generator-btn" class="text-blue-500 hover:text-blue-700 text-xl" aria-controls="generator-content" aria-expanded="true">
+                    <i class="fas fa-chevron-up"></i>
                 </button>
             </div>
 
             <!-- Contenu à masquer/afficher -->
-            <div class="p-6 generator-content" id="generator-content">
+            <div class="p-6 generator-content" id="generator-content" aria-hidden="false">
                 <!-- Champ Calories -->
                 <div class="mb-4">
                    <label for="target-calories" class="block text-gray-700 mb-1 text-sm font-medium">Calories journalières visées :</label>
@@ -147,7 +184,6 @@
                 <div class="mb-6">
                    <label class="block text-gray-700 mb-2 text-sm font-medium">Quel est votre objectif ?</label>
                    <div class="flex flex-wrap gap-x-6 gap-y-2">
-                       <!-- radios... -->
                         <div class="flex items-center">
                             <input type="radio" id="obj-maintain" name="diet-objective" value="maintain" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" checked>
                             <label for="obj-maintain" class="ml-2 block text-sm text-gray-900">Maintien du poids</label>
@@ -171,294 +207,330 @@
                 <!-- Zone de Feedback -->
                 <div id="generation-feedback" class="mt-4 text-sm text-red-600"></div>
             </div>
-             <!-- Fin Contenu -->
+             <!-- Fin Contenu Générateur -->
         </div>
         <!-- Fin Section Génération Automatique -->
+
         <!-- Onglets des repas -->
-        <div class="flex flex-wrap mb-6 overflow-x-auto no-print" id="meal-tabs">
-            <button class="meal-tab active px-4 py-2 mr-2 mb-2 rounded-lg text-sm font-medium" data-meal="breakfast">
+        <div class="flex flex-wrap mb-6 border-b border-gray-300 no-print" id="meal-tabs"> <!-- Style légèrement ajusté -->
+            <button class="meal-tab active px-4 py-2 -mb-px mr-1 rounded-t-lg text-sm font-medium border-l border-t border-r border-gray-300 bg-white" data-meal="breakfast">
                 <i class="fas fa-coffee mr-1"></i> Petit-déjeuner
             </button>
-            <button class="meal-tab px-4 py-2 mr-2 mb-2 rounded-lg text-sm font-medium bg-gray-200" data-meal="lunch">
+            <button class="meal-tab px-4 py-2 -mb-px mr-1 rounded-t-lg text-sm font-medium bg-gray-200 hover:bg-gray-300" data-meal="lunch">
                 <i class="fas fa-utensils mr-1"></i> Déjeuner
             </button>
-            <button class="meal-tab px-4 py-2 mr-2 mb-2 rounded-lg text-sm font-medium bg-gray-200" data-meal="dinner">
+            <button class="meal-tab px-4 py-2 -mb-px mr-1 rounded-t-lg text-sm font-medium bg-gray-200 hover:bg-gray-300" data-meal="dinner">
                 <i class="fas fa-utensils mr-1"></i> Dîner
             </button>
-            <button class="meal-tab px-4 py-2 mr-2 mb-2 rounded-lg text-sm font-medium bg-gray-200" data-meal="snack">
+            <button class="meal-tab px-4 py-2 -mb-px mr-1 rounded-t-lg text-sm font-medium bg-gray-200 hover:bg-gray-300" data-meal="snack">
                 <i class="fas fa-apple-alt mr-1"></i> Collation
             </button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Section de sélection d'aliments -->
-            <div class="bg-white rounded-lg shadow p-6 no-print">
-                <h2 class="text-xl font-semibold mb-4 text-gray-800" id="current-meal-title">Ajouter un aliment au petit-déjeuner</h2>
-                
-                <div class="mb-4">
-                    <label for="food-category" class="block text-gray-700 mb-2">Catégorie</label>
-                    <select id="food-category" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Sélectionnez une catégorie</option>
-                        <option value="legumes">Légumes</option>
-                        <option value="fruits">Fruits</option>
-                        <option value="feculents">Féculents</option>
-						<option value="viandes">Viandes</option>
-                        <option value="poissons">Poissons</option>
-                        <option value="produits_laitiers">Produits Laitiers</option>
-                        <option value="cereales">Céréales et Pains</option>
-                        <option value="petit_dejeuner">Autres (Petit Déjeuner)</option>
-                        <option value="boissons">Boissons</option>
-                    <option value="assaisonnement">Assaisonnements</option>
-					</select>
+
+            <!-- Section de sélection d'aliments (Maintenant Repliable) -->
+            <div id="add-food-section" class="bg-white rounded-lg shadow no-print"> <!-- ID ajouté, p-6 supprimé -->
+
+                <!-- En-tête avec bouton Toggle -->
+                <div class="flex justify-between items-center p-4 border-b border-gray-200 cursor-pointer" id="add-food-header">
+                    <h2 class="text-xl font-semibold text-gray-800">Ajouter un aliment manuellement</h2>
+                    <button id="toggle-add-food-btn" class="text-blue-500 hover:text-blue-700 text-xl" aria-controls="add-food-content" aria-expanded="true">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
                 </div>
-                
-                <div class="mb-4">
-                    <label for="food-item" class="block text-gray-700 mb-2">Aliment</label>
-                    <select id="food-item" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" disabled>
-                        <option value="">Sélectionnez d'abord une catégorie</option>
-                    </select>
-                </div>
-                
-                <div class="mb-6">
-                    <label for="food-quantity" class="block text-gray-700 mb-2">Quantité (g)</label>
-                    <input type="number" id="food-quantity" min="1" value="100" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <button id="add-food-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                    Ajouter à mon repas
-                </button>
-                
-                <div id="food-details" class="mt-6">
-                    <h3 class="text-lg font-medium mb-3 text-gray-800">Détails nutritionnels</h3>
-                    <div id="food-details-content" class="text-gray-600">
-                        Sélectionnez un aliment pour voir ses détails nutritionnels
+
+                <!-- Contenu à masquer/afficher -->
+                <div class="p-6 add-food-content" id="add-food-content" aria-hidden="false">
+                    <!-- L'ancien H2 est déplacé ici et son ID reste pour la maj dynamique -->
+                    <h2 class="text-lg font-medium mb-4 text-gray-700" id="current-meal-title">Ajouter un aliment au petit-déjeuner</h2>
+
+                    <div class="mb-4">
+                        <label for="food-category" class="block text-gray-700 mb-2 text-sm font-medium">Catégorie</label>
+                        <select id="food-category" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Sélectionnez une catégorie</option>
+                            <option value="legumes">Légumes</option>
+                            <option value="fruits">Fruits</option>
+                            <option value="feculents">Féculents</option>
+                            <option value="viandes">Viandes</option>
+                            <option value="poissons">Poissons</option>
+                            <option value="produits_laitiers">Produits Laitiers</option>
+                            <option value="cereales">Céréales et Pains</option>
+                            <option value="petit_dejeuner">Autres (Petit Déjeuner)</option>
+                            <option value="boissons">Boissons</option>
+                            <option value="assaisonnement">Assaisonnements</option>
+                        </select>
                     </div>
+
+                    <div class="mb-4">
+                        <label for="food-item" class="block text-gray-700 mb-2 text-sm font-medium">Aliment</label>
+                        <select id="food-item" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" disabled>
+                            <option value="">Sélectionnez d'abord une catégorie</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="food-quantity" class="block text-gray-700 mb-2 text-sm font-medium">Quantité (g)</label>
+                        <input type="number" id="food-quantity" min="1" value="100" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <button id="add-food-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        Ajouter à mon repas
+                    </button>
+
+                    <div id="food-details" class="mt-6">
+                        <h3 class="text-lg font-medium mb-3 text-gray-800">Détails nutritionnels (pour 100g)</h3>
+                        <div id="food-details-content" class="text-gray-600">
+                            Sélectionnez un aliment pour voir ses détails nutritionnels
+                        </div>
+                    </div>
+                     <!-- Fin du contenu original -->
                 </div>
+                 <!-- Fin Contenu Ajout Manuel -->
             </div>
-            
+            <!-- Fin Section Sélection d'aliments -->
+
             <!-- Section du repas actuel -->
             <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-xl font-semibold mb-4 text-gray-800" id="current-meal-display">Mon petit-déjeuner</h2>
                 <div id="meal-list" class="mb-6">
-                    <p id="empty-meal-message" class="text-gray-500">Aucun aliment sélectionné</p>
-                    <ul id="meal-items" class="divide-y divide-gray-200"></ul>
+                    <p id="empty-meal-message" class="text-gray-500 italic">Aucun aliment ajouté à ce repas.</p>
+                    <ul id="meal-items" class="divide-y divide-gray-200">
+                        <!-- Les éléments du repas seront injectés ici par JS -->
+                    </ul>
                 </div>
-                
+
                 <div id="meal-summary" class="mt-6">
                     <h3 class="text-lg font-medium mb-3 text-gray-800">Résumé nutritionnel du repas</h3>
-                    
+
                     <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div class="bg-blue-50 p-4 rounded-lg">
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">Calories totales</h4>
+                        <div class="bg-blue-50 p-4 rounded-lg text-center"> <!-- Centré -->
+                            <h4 class="text-sm font-medium text-gray-700 mb-1">Calories</h4>
                             <p id="total-calories" class="text-2xl font-bold text-gray-900">0 kcal</p>
                         </div>
-                        <div class="bg-green-50 p-4 rounded-lg">
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">Poids total</h4>
+                        <div class="bg-green-50 p-4 rounded-lg text-center"> <!-- Centré -->
+                            <h4 class="text-sm font-medium text-gray-700 mb-1">Poids</h4>
                             <p id="total-weight" class="text-2xl font-bold text-gray-900">0 g</p>
                         </div>
                     </div>
-                    
-                    <h4 class="text-md font-medium mb-2 text-gray-800">Macronutriments</h4>
-                    <div id="macros-container" class="mb-6">
-                        <div class="mb-2">
-                            <div class="flex justify-between">
-                                <span class="text-sm font-medium">Protéines</span>
-                                <span id="total-protein" class="text-sm">0g (0%)</span>
+
+                    <h4 class="text-md font-medium mb-2 text-gray-800">Macronutriments (Répartition calorique)</h4>
+                    <div id="macros-container" class="mb-6 space-y-2"> <!-- Ajout space-y -->
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-medium text-blue-700">Protéines</span>
+                                <span id="total-protein" class="text-gray-600">0g (0%)</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div id="protein-bar" class="protein h-2.5 rounded-full" style="width: 0%"></div>
+                                <div id="protein-bar" class="bg-blue-500 h-2.5 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
                             </div>
                         </div>
-                        
-                        <div class="mb-2">
-                            <div class="flex justify-between">
-                                <span class="text-sm font-medium">Glucides</span>
-                                <span id="total-carbs" class="text-sm">0g (0%)</span>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-medium text-green-700">Glucides</span>
+                                <span id="total-carbs" class="text-gray-600">0g (0%)</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div id="carbs-bar" class="carbs h-2.5 rounded-full" style="width: 0%"></div>
+                                <div id="carbs-bar" class="bg-green-500 h-2.5 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
                             </div>
                         </div>
-                        
-                        <div class="mb-2">
-                            <div class="flex justify-between">
-                                <span class="text-sm font-medium">Lipides</span>
-                                <span id="total-fat" class="text-sm">0g (0%)</span>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-medium text-orange-700">Lipides</span>
+                                <span id="total-fat" class="text-gray-600">0g (0%)</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div id="fat-bar" class="fat h-2.5 rounded-full" style="width: 0%"></div>
+                                <div id="fat-bar" class="bg-orange-500 h-2.5 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
                             </div>
                         </div>
                     </div>
-                    
-                    <h4 class="text-md font-medium mb-2 text-gray-800">Répartition calorique</h4>
-                    <div class="w-full h-64 mb-6">
+
+                    <!-- Graphique déplacé avant les micronutriments pour une meilleure disposition -->
+                    <h4 class="text-md font-medium mb-2 text-gray-800">Graphique Répartition Calorique</h4>
+                    <div class="w-full h-56 md:h-64 mb-6"> <!-- Hauteur ajustée -->
                         <canvas id="macro-chart"></canvas>
                     </div>
-                    
-                    <h4 class="text-md font-medium mb-2 text-gray-800">Micronutriments</h4>
+
+                    <h4 class="text-md font-medium mb-2 text-gray-800">Micronutriments (Estimés)</h4>
                     <div id="micronutrients-container" class="mb-4">
-                        <p id="empty-micro-message" class="text-gray-500">Ajoutez des aliments pour voir les micronutriments</p>
+                        <p id="empty-micro-message" class="text-gray-500 italic">Ajoutez des aliments pour voir les micronutriments.</p>
+                         <!-- Les micronutriments seront injectés ici par JS -->
                     </div>
                 </div>
             </div>
-        </div>
+            <!-- Fin Section Repas Actuel -->
+
+        </div> <!-- Fin Grid -->
 
         <!-- Résumé quotidien -->
         <div class="mt-12 bg-white rounded-lg shadow p-6">
             <h2 class="text-xl font-semibold mb-4 text-gray-800">Résumé journalier</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-blue-50 p-4 rounded-lg">
-                    <h4 class="text-sm font-medium text-gray-700 mb-2">Calories totales journée</h4>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                    <h4 class="text-sm font-medium text-gray-700 mb-1">Calories Totales</h4>
                     <p id="daily-calories" class="text-2xl font-bold text-gray-900">0 kcal</p>
                 </div>
-                <div class="bg-blue-100 p-4 rounded-lg">
-                    <h4 class="text-sm font-medium text-gray-700 mb-2">Protéines</h4>
-                    <p id="daily-protein" class="text-2xl font-bold text-gray-900">0 g</p>
+                <div class="bg-blue-100 p-4 rounded-lg text-center">
+                    <h4 class="text-sm font-medium text-gray-700 mb-1">Protéines</h4>
+                    <p id="daily-protein" class="text-xl font-bold text-gray-900">0 g</p> <!-- Taille réduite -->
                 </div>
-                <div class="bg-green-100 p-4 rounded-lg">
-                    <h4 class="text-sm font-medium text-gray-700 mb-2">Glucides</h4>
-                    <p id="daily-carbs" class="text-2xl font-bold text-gray-900">0 g</p>
+                <div class="bg-green-100 p-4 rounded-lg text-center">
+                    <h4 class="text-sm font-medium text-gray-700 mb-1">Glucides</h4>
+                    <p id="daily-carbs" class="text-xl font-bold text-gray-900">0 g</p> <!-- Taille réduite -->
                 </div>
-                <div class="bg-orange-100 p-4 rounded-lg">
-                    <h4 class="text-sm font-medium text-gray-700 mb-2">Lipides</h4>
-                    <p id="daily-fat" class="text-2xl font-bold text-gray-900">0 g</p>
+                <div class="bg-orange-100 p-4 rounded-lg text-center">
+                    <h4 class="text-sm font-medium text-gray-700 mb-1">Lipides</h4>
+                    <p id="daily-fat" class="text-xl font-bold text-gray-900">0 g</p> <!-- Taille réduite -->
                 </div>
             </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
                 <div>
-                    <h4 class="text-md font-medium mb-4 text-gray-800">Répartition par repas</h4>
-                    <div class="w-full h-64 mb-6">
+                    <h4 class="text-md font-medium mb-4 text-gray-800">Répartition Calorique par Repas</h4>
+                    <div class="w-full h-64">
                         <canvas id="meals-chart"></canvas>
                     </div>
                 </div>
                 <div>
-                    <h4 class="text-md font-medium mb-4 text-gray-800">Répartition des macronutriments</h4>
-                    <div class="w-full h-64 mb-6">
+                    <h4 class="text-md font-medium mb-4 text-gray-800">Répartition Calorique des Macronutriments (Journée)</h4>
+                    <div class="w-full h-64">
                         <canvas id="daily-macro-chart"></canvas>
                     </div>
                 </div>
             </div>
-            
+
             <div class="mt-6">
                 <h4 class="text-md font-medium mb-2 text-gray-800">Détail par repas</h4>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full bg-white">
-                        <thead>
+                <div class="overflow-x-auto rounded-lg border border-gray-200"> <!-- Style du tableau amélioré -->
+                    <table class="min-w-full bg-white text-sm"> <!-- Taille texte réduite -->
+                        <thead class="bg-gray-50">
                             <tr>
-                                <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Repas</th>
-                                <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Calories</th>
-                                <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Protéines</th>
-                                <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Glucides</th>
-                                <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Lipides</th>
+                                <th scope="col" class="py-2 px-3 text-left font-semibold text-gray-700 uppercase tracking-wider">Repas</th>
+                                <th scope="col" class="py-2 px-3 text-left font-semibold text-gray-700 uppercase tracking-wider">Calories</th>
+                                <th scope="col" class="py-2 px-3 text-left font-semibold text-gray-700 uppercase tracking-wider">Protéines</th>
+                                <th scope="col" class="py-2 px-3 text-left font-semibold text-gray-700 uppercase tracking-wider">Glucides</th>
+                                <th scope="col" class="py-2 px-3 text-left font-semibold text-gray-700 uppercase tracking-wider">Lipides</th>
                             </tr>
                         </thead>
-                        <tbody id="meals-summary">
-                            <tr>
-                                <td class="py-2 px-4 border-b border-gray-200">Petit-déjeuner</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="breakfast-calories">0 kcal</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="breakfast-protein">0 g</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="breakfast-carbs">0 g</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="breakfast-fat">0 g</td>
+                        <tbody id="meals-summary" class="divide-y divide-gray-200">
+                            <!-- Lignes générées pour chaque repas -->
+                             <tr>
+                                <td class="py-2 px-3">Petit-déjeuner</td>
+                                <td class="py-2 px-3" id="breakfast-calories">0 kcal</td>
+                                <td class="py-2 px-3" id="breakfast-protein">0 g</td>
+                                <td class="py-2 px-3" id="breakfast-carbs">0 g</td>
+                                <td class="py-2 px-3" id="breakfast-fat">0 g</td>
                             </tr>
                             <tr>
-                                <td class="py-2 px-4 border-b border-gray-200">Déjeuner</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="lunch-calories">0 kcal</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="lunch-protein">0 g</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="lunch-carbs">0 g</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="lunch-fat">0 g</td>
+                                <td class="py-2 px-3">Déjeuner</td>
+                                <td class="py-2 px-3" id="lunch-calories">0 kcal</td>
+                                <td class="py-2 px-3" id="lunch-protein">0 g</td>
+                                <td class="py-2 px-3" id="lunch-carbs">0 g</td>
+                                <td class="py-2 px-3" id="lunch-fat">0 g</td>
                             </tr>
                             <tr>
-                                <td class="py-2 px-4 border-b border-gray-200">Dîner</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="dinner-calories">0 kcal</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="dinner-protein">0 g</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="dinner-carbs">0 g</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="dinner-fat">0 g</td>
+                                <td class="py-2 px-3">Dîner</td>
+                                <td class="py-2 px-3" id="dinner-calories">0 kcal</td>
+                                <td class="py-2 px-3" id="dinner-protein">0 g</td>
+                                <td class="py-2 px-3" id="dinner-carbs">0 g</td>
+                                <td class="py-2 px-3" id="dinner-fat">0 g</td>
                             </tr>
                             <tr>
-                                <td class="py-2 px-4 border-b border-gray-200">Collation</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="snack-calories">0 kcal</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="snack-protein">0 g</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="snack-carbs">0 g</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="snack-fat">0 g</td>
+                                <td class="py-2 px-3">Collation</td>
+                                <td class="py-2 px-3" id="snack-calories">0 kcal</td>
+                                <td class="py-2 px-3" id="snack-protein">0 g</td>
+                                <td class="py-2 px-3" id="snack-carbs">0 g</td>
+                                <td class="py-2 px-3" id="snack-fat">0 g</td>
                             </tr>
-                            <tr class="bg-gray-50 font-semibold">
-                                <td class="py-2 px-4 border-b border-gray-200">TOTAL</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="total-daily-calories">0 kcal</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="total-daily-protein">0 g</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="total-daily-carbs">0 g</td>
-                                <td class="py-2 px-4 border-b border-gray-200" id="total-daily-fat">0 g</td>
+                            <!-- Total Row -->
+                            <tr class="bg-gray-100 font-semibold">
+                                <td class="py-2 px-3">TOTAL</td>
+                                <td class="py-2 px-3" id="total-daily-calories">0 kcal</td>
+                                <td class="py-2 px-3" id="total-daily-protein">0 g</td>
+                                <td class="py-2 px-3" id="total-daily-carbs">0 g</td>
+                                <td class="py-2 px-3" id="total-daily-fat">0 g</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-            
+
             <!-- Bouton de réinitialisation -->
             <div class="mt-8 text-center no-print">
                 <button id="reset-all-btn" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-md transition duration-200">
-                    <i class="fas fa-trash-alt mr-2"></i>Réinitialiser tous les repas
+                    <i class="fas fa-trash-alt mr-2"></i>Réinitialiser la journée
                 </button>
             </div>
         </div>
-    </div>
-    
+        <!-- Fin Résumé Quotidien -->
+
+    </main> <!-- Fin Contenu Principal -->
+
+    <!-- Modales -->
     <!-- Modal d'information -->
-    <div id="info-modal" class="modal">
+    <div id="info-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="info-modal-title">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">Information</h3>
-                <span id="close-modal" class="text-gray-500 text-xl cursor-pointer hover:text-gray-700">&times;</span>
+                <h3 id="info-modal-title" class="text-lg font-semibold">Information</h3>
+                <button id="close-modal" class="text-gray-500 text-2xl hover:text-gray-800 leading-none" aria-label="Fermer">&times;</button> <!-- Bouton plus accessible -->
             </div>
-            <div class="mb-4">
-                <p class="mb-3">Application développée par Tophe - Avril 2025</p>
-                <p class="mb-3">Utilisez cette page pour obtenir une estimation rapide des calories de vos repas.</p>
-                <p class="font-semibold">Rappel important :</p>
-                <p>Ces informations sont indicatives et ne remplacent pas les conseils personnalisés d'un professionnel de santé (diététicien(ne), médecin). Consultez-les pour un avis adapté à votre situation.</p>
+            <div class="mb-4 text-sm space-y-3"> <!-- Taille texte réduite, espacement -->
+                <p>Application développée par Tophe - Copyright 2024</p> <!-- Mise à jour date ? -->
+                <p>Utilisez ce calculateur pour estimer rapidement les calories et macronutriments de vos repas.</p>
+                <p class="font-semibold text-orange-700">Rappel important :</p>
+                <p>Ces informations sont <strong>indicatives et basées sur des moyennes</strong>. Elles ne remplacent en aucun cas les conseils personnalisés d'un professionnel de la santé (diététicien(ne)-nutritionniste, médecin). Consultez un expert pour un plan alimentaire adapté à vos besoins spécifiques, votre état de santé et vos objectifs.</p>
+                <p>La génération automatique de menu est un outil expérimental pour donner des idées, elle n'est pas garantie d'être parfaitement équilibrée ou variée.</p>
             </div>
-            <div class="text-right">
-                <button id="close-modal-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-4 rounded-md transition duration-200">
-                    Fermer
+            <div class="text-right mt-5">
+                <button id="close-modal-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-4 rounded-md transition duration-200 text-sm">
+                    Compris
                 </button>
             </div>
         </div>
     </div>
-    
+
     <!-- Modal de modification de quantité -->
-    <div id="edit-modal" class="modal">
+    <div id="edit-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-semibold" id="edit-modal-title">Modifier la quantité</h3>
-                <span id="close-edit-modal" class="text-gray-500 text-xl cursor-pointer hover:text-gray-700">&times;</span>
+                <button id="close-edit-modal" class="text-gray-500 text-2xl hover:text-gray-800 leading-none" aria-label="Fermer">&times;</button>
             </div>
             <div class="mb-6">
-                <label for="edit-quantity" class="block text-gray-700 mb-2">Nouvelle quantité (g)</label>
+                <label for="edit-quantity" class="block text-gray-700 mb-2 text-sm font-medium">Nouvelle quantité (g)</label>
                 <input type="number" id="edit-quantity" min="1" value="100" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-            <div class="flex justify-end space-x-2">
-                <button id="cancel-edit-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-1.5 px-4 rounded-md transition duration-200">
+            <div class="flex justify-end space-x-3"> <!-- Espace augmenté -->
+                <button id="cancel-edit-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-1.5 px-4 rounded-md transition duration-200 text-sm">
                     Annuler
                 </button>
-                <button id="confirm-edit-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-4 rounded-md transition duration-200">
+                <button id="confirm-edit-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1.5 px-4 rounded-md transition duration-200 text-sm">
                     Confirmer
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Contenu spécifique pour PDF -->
+    <!-- Contenu spécifique pour PDF (caché par défaut) -->
     <div id="pdf-content" class="print-only">
         <h1 class="text-2xl font-bold mb-4">Mon plan alimentaire journalier</h1>
         <p class="mb-6">Date: <span id="pdf-date"></span></p>
-        <div id="pdf-meals"></div>
+        <div id="pdf-meals">
+            <!-- Contenu généré dynamiquement pour le PDF -->
+        </div>
+        <footer class="mt-8 pt-4 border-t text-center text-xs text-gray-500">
+            Généré par Calculateur Calories Tophe | Informations indicatives, consultez un professionnel.
+        </footer>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script>
-        // Base de données des aliments avec leurs valeurs nutritionnelles
-        const foodDatabase = {
+        // Attend que le DOM soit chargé
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Base de données des aliments (IMMENSE - Envisager de la mettre dans un fichier JSON séparé !)
+            const foodDatabase = {
                  assaisonnement: { // NOUVELLE CATEGORIE - Trié alphabétiquement
                 "Huile d'olive": {
                     calories: 884, protein: 0.0, carbs: 0.0, fat: 100.0,
@@ -912,1070 +984,1225 @@
                 }
             }
         };
-           
-        // Structure des repas
-        const meals = {
-            breakfast: { name: "Petit-déjeuner", items: [], icon: "coffee" },
-            lunch: { name: "Déjeuner", items: [], icon: "utensils" },
-            dinner: { name: "Dîner", items: [], icon: "utensils" },
-            snack: { name: "Collation", items: [], icon: "apple-alt" }
-        };
 
-        // Repas actif
-        let activeMeal = "breakfast";
-        
-        // Variables globales pour les modales
-        let currentEditId = null;
-        let currentEditMeal = null;
+            // Structure des repas
+            const meals = {
+                breakfast: { name: "Petit-déjeuner", items: [], icon: "coffee" },
+                lunch: { name: "Déjeuner", items: [], icon: "utensils" },
+                dinner: { name: "Dîner", items: [], icon: "utensils" },
+                snack: { name: "Collation", items: [], icon: "apple-alt" }
+            };
 
-        // Graphiques
-        let macroChart = null;
-        let dailyMacroChart = null;
-        let mealsChart = null;
+            // État de l'application
+            let activeMeal = "breakfast";
+            let currentEditId = null;
+            let currentEditMeal = null;
+            let macroChart = null;
+            let dailyMacroChart = null;
+            let mealsChart = null;
 
-        // Récupération des éléments DOM
-        const mealTabs = document.querySelectorAll('.meal-tab');
-        const currentMealTitle = document.getElementById('current-meal-title');
-        const currentMealDisplay = document.getElementById('current-meal-display');
-        const categorySelect = document.getElementById('food-category');
-        const foodSelect = document.getElementById('food-item');
-        const quantityInput = document.getElementById('food-quantity');
-        const addFoodBtn = document.getElementById('add-food-btn');
-        const foodDetailsContent = document.getElementById('food-details-content');
-        const mealList = document.getElementById('meal-items');
-        const emptyMealMessage = document.getElementById('empty-meal-message');
-        const totalCalories = document.getElementById('total-calories');
-        const totalWeight = document.getElementById('total-weight');
-        const totalProtein = document.getElementById('total-protein');
-        const totalCarbs = document.getElementById('total-carbs');
-        const totalFat = document.getElementById('total-fat');
-        const proteinBar = document.getElementById('protein-bar');
-        const carbsBar = document.getElementById('carbs-bar');
-        const fatBar = document.getElementById('fat-bar');
-        const micronutrientsContainer = document.getElementById('micronutrients-container');
-        const emptyMicroMessage = document.getElementById('empty-micro-message');
-        const resetAllBtn = document.getElementById('reset-all-btn');
-        const infoBtn = document.getElementById('info-btn');
-        const infoModal = document.getElementById('info-modal');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const closeModalX = document.getElementById('close-modal');
-        const addToHomeBtn = document.getElementById('add-to-home-btn');
-        const editModal = document.getElementById('edit-modal');
-        const editQuantity = document.getElementById('edit-quantity');
-        const confirmEditBtn = document.getElementById('confirm-edit-btn');
-        const cancelEditBtn = document.getElementById('cancel-edit-btn');
-        const closeEditModalX = document.getElementById('close-edit-modal');
-        const exportPdfBtn = document.getElementById('export-pdf-btn');
+            // Récupération des éléments DOM (utilisez const par défaut)
+            const mealTabsContainer = document.getElementById('meal-tabs');
+            const mealTabs = mealTabsContainer ? mealTabsContainer.querySelectorAll('.meal-tab') : [];
+            const currentMealTitle = document.getElementById('current-meal-title');
+            const currentMealDisplay = document.getElementById('current-meal-display');
+            const categorySelect = document.getElementById('food-category');
+            const foodSelect = document.getElementById('food-item');
+            const quantityInput = document.getElementById('food-quantity');
+            const addFoodBtn = document.getElementById('add-food-btn');
+            const foodDetailsContent = document.getElementById('food-details-content');
+            const mealList = document.getElementById('meal-items');
+            const emptyMealMessage = document.getElementById('empty-meal-message');
+            const totalCalories = document.getElementById('total-calories');
+            const totalWeight = document.getElementById('total-weight');
+            const totalProtein = document.getElementById('total-protein');
+            const totalCarbs = document.getElementById('total-carbs');
+            const totalFat = document.getElementById('total-fat');
+            const proteinBar = document.getElementById('protein-bar');
+            const carbsBar = document.getElementById('carbs-bar');
+            const fatBar = document.getElementById('fat-bar');
+            const micronutrientsContainer = document.getElementById('micronutrients-container');
+            const emptyMicroMessage = document.getElementById('empty-micro-message');
+            const resetAllBtn = document.getElementById('reset-all-btn');
+            const infoBtn = document.getElementById('info-btn');
+            const infoModal = document.getElementById('info-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const closeModalX = document.getElementById('close-modal');
+            const addToHomeBtn = document.getElementById('add-to-home-btn');
+            const editModal = document.getElementById('edit-modal');
+            const editModalTitle = document.getElementById('edit-modal-title');
+            const editQuantity = document.getElementById('edit-quantity');
+            const confirmEditBtn = document.getElementById('confirm-edit-btn');
+            const cancelEditBtn = document.getElementById('cancel-edit-btn');
+            const closeEditModalX = document.getElementById('close-edit-modal');
+            const exportPdfBtn = document.getElementById('export-pdf-btn');
 
-        // Écouteurs d'événements
-        mealTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Mettre à jour le repas actif
-                activeMeal = tab.dataset.meal;
-                
-                // Mettre à jour l'apparence des onglets
-                mealTabs.forEach(t => {
-                    if (t.dataset.meal === activeMeal) {
-                        t.classList.add('active');
-                        t.classList.remove('bg-gray-200');
-                    } else {
-                        t.classList.remove('active');
-                        t.classList.add('bg-gray-200');
-                    }
-                });
-                
-                // Mettre à jour les titres
-                currentMealTitle.textContent = `Ajouter un aliment au ${meals[activeMeal].name.toLowerCase()}`;
-                // Mettre à jour les titres (Logique modifiée pour currentMealDisplay)
-const mealNameLower = meals[activeMeal].name.toLowerCase();
-currentMealTitle.textContent = `Ajouter un aliment ${mealNameLower === 'collation' ? 'à la' : 'au'} ${mealNameLower}`; // Ajuste aussi la préposition pour "à la collation"
+            // --- Éléments pour sections repliables ---
+            // Générateur
+            const generatorHeader = document.getElementById('generator-header');
+            const generatorContent = document.getElementById('generator-content');
+            const toggleGeneratorBtn = document.getElementById('toggle-generator-btn');
+            const generatorToggleIcon = toggleGeneratorBtn ? toggleGeneratorBtn.querySelector('i') : null;
+            const targetCaloriesInput = document.getElementById('target-calories');
+            const generateMenuBtn = document.getElementById('generate-menu-btn');
+            const generationFeedback = document.getElementById('generation-feedback');
 
-if (activeMeal === 'snack') {
-    currentMealDisplay.textContent = meals[activeMeal].name; // Affiche "Collation"
-} else {
-    currentMealDisplay.textContent = `Mon ${mealNameLower}`; // Garde "Mon ..." pour les autres
-}
-                
-                // Actualiser l'affichage du repas
-                updateMealList();
-                updateNutritionSummary();
-            });
-        });
-        
-        categorySelect.addEventListener('change', updateFoodItems);
-        foodSelect.addEventListener('change', updateFoodDetails);
-        quantityInput.addEventListener('input', updateFoodDetails);
-        addFoodBtn.addEventListener('click', addFoodToMeal);
-        resetAllBtn.addEventListener('click', resetAllMeals);
-        
-        // Événements de la modale d'information
-        infoBtn.addEventListener('click', () => infoModal.style.display = 'block');
-        closeModalBtn.addEventListener('click', () => infoModal.style.display = 'none');
-        closeModalX.addEventListener('click', () => infoModal.style.display = 'none');
-        window.addEventListener('click', (e) => {
-            if (e.target === infoModal) infoModal.style.display = 'none';
-            if (e.target === editModal) editModal.style.display = 'none';
-        });
-        
-        // Événements de la modale d'édition
-        confirmEditBtn.addEventListener('click', confirmEdit);
-        cancelEditBtn.addEventListener('click', () => editModal.style.display = 'none');
-        closeEditModalX.addEventListener('click', () => editModal.style.display = 'none');
-        
-        // Événement d'ajout à l'accueil
-        addToHomeBtn.addEventListener('click', addToHome);
-        
-        // Événement d'exportation PDF
-        exportPdfBtn.addEventListener('click', exportToPDF);
+            // Ajout Manuel
+            const addFoodHeader = document.getElementById('add-food-header');
+            const addFoodContent = document.getElementById('add-food-content');
+            const toggleAddFoodBtn = document.getElementById('toggle-add-food-btn');
+            const addFoodToggleIcon = toggleAddFoodBtn ? toggleAddFoodBtn.querySelector('i') : null;
 
-        // Initialisation des graphiques
-        initCharts();
+             // --- FONCTIONS UTILITAIRES ---
 
-        // Fonctions
-        function updateFoodItems() {
-            const category = categorySelect.value;
-            foodSelect.innerHTML = '';
-            
-            if (category) {
-                foodSelect.disabled = false;
-                
-                const defaultOption = document.createElement('option');
-                defaultOption.value = '';
-                defaultOption.textContent = 'Sélectionnez un aliment';
-                foodSelect.appendChild(defaultOption);
-                
-                for (const foodName in foodDatabase[category]) {
-                    const option = document.createElement('option');
-                    option.value = foodName;
-                    option.textContent = foodName;
-                    foodSelect.appendChild(option);
+            // Calcule les nutriments pour une quantité donnée
+            function calculateNutrients(foodData, quantity) {
+                if (!foodData || quantity <= 0) {
+                    return { calories: 0, protein: 0, carbs: 0, fat: 0, micro: {} };
                 }
-            } else {
-                foodSelect.disabled = true;
-                
-                const defaultOption = document.createElement('option');
-                defaultOption.value = '';
-                defaultOption.textContent = "Sélectionnez d'abord une catégorie";
-                foodSelect.appendChild(defaultOption);
-            }
-            
-            updateFoodDetails();
-        }
-
-        function updateFoodDetails() {
-            const category = categorySelect.value;
-            const foodName = foodSelect.value;
-            const quantity = parseInt(quantityInput.value) || 0;
-            
-            if (category && foodName && foodDatabase[category][foodName]) {
-                const food = foodDatabase[category][foodName];
-                const caloriesForQuantity = (food.calories * quantity / 100).toFixed(1);
-                const proteinForQuantity = (food.protein * quantity / 100).toFixed(1);
-                const carbsForQuantity = (food.carbs * quantity / 100).toFixed(1);
-                const fatForQuantity = (food.fat * quantity / 100).toFixed(1);
-                
-                let detailsHTML = `
-                    <div class="mb-3">
-                        <p class="font-medium text-gray-700">Pour ${quantity}g de ${foodName}:</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 mb-3">
-                        <div class="bg-gray-100 p-2 rounded">
-                            <p class="text-sm text-gray-600">Calories</p>
-                            <p class="font-bold">${caloriesForQuantity} kcal</p>
-                        </div>
-                        <div class="bg-blue-100 p-2 rounded">
-                            <p class="text-sm text-gray-600">Protéines</p>
-                            <p class="font-bold">${proteinForQuantity} g</p>
-                        </div>
-                        <div class="bg-green-100 p-2 rounded">
-                            <p class="text-sm text-gray-600">Glucides</p>
-                            <p class="font-bold">${carbsForQuantity} g</p>
-                        </div>
-                        <div class="bg-orange-100 p-2 rounded">
-                            <p class="text-sm text-gray-600">Lipides</p>
-                            <p class="font-bold">${fatForQuantity} g</p>
-                        </div>
-                    </div>
-                    <div>
-                        <p class="font-medium text-gray-700 mb-2">Micronutriments:</p>
-                        <ul class="text-sm">
-                `;
-                
-                for (const [nutrient, details] of Object.entries(food.micro)) {
-                    const valueForQuantity = (details.value * quantity / 100).toFixed(1);
-                    detailsHTML += `<li class="mb-1">${nutrient}: ${valueForQuantity} ${details.unit}</li>`;
-                }
-                
-                detailsHTML += `
-                        </ul>
-                    </div>
-                `;
-                
-                foodDetailsContent.innerHTML = detailsHTML;
-                addFoodBtn.disabled = false;
-            } else {
-                foodDetailsContent.innerHTML = "Sélectionnez un aliment pour voir ses détails nutritionnels";
-                addFoodBtn.disabled = true;
-            }
-        }
-
-        function addFoodToMeal() {
-            const category = categorySelect.value;
-            const foodName = foodSelect.value;
-            const quantity = parseInt(quantityInput.value) || 0;
-            
-            if (category && foodName && quantity > 0) {
-                const food = foodDatabase[category][foodName];
-                
-                // Créer un nouvel élément de repas
-                const mealItem = {
-                    id: Date.now(), // ID unique pour l'élément
-                    category: category,
-                    name: foodName,
-                    quantity: quantity,
-                    calories: food.calories * quantity / 100,
-                    protein: food.protein * quantity / 100,
-                    carbs: food.carbs * quantity / 100,
-                    fat: food.fat * quantity / 100,
+                const factor = quantity / 100;
+                const calculated = {
+                    calories: (foodData.calories || 0) * factor,
+                    protein: (foodData.protein || 0) * factor,
+                    carbs: (foodData.carbs || 0) * factor,
+                    fat: (foodData.fat || 0) * factor,
                     micro: {}
                 };
-                
-                // Copier les micronutriments avec les valeurs ajustées
-                for (const [nutrient, details] of Object.entries(food.micro)) {
-                    mealItem.micro[nutrient] = {
-                        value: details.value * quantity / 100,
-                        unit: details.unit
-                    };
-                }
-                
-                // Ajouter au tableau des éléments du repas actif
-                meals[activeMeal].items.push(mealItem);
-                
-                // Mettre à jour l'affichage
-                updateMealList();
-                updateNutritionSummary();
-                updateDailySummary();
-                
-                // Réinitialiser les sélections
-                foodSelect.value = '';
-                quantityInput.value = '100';
-                updateFoodDetails();
-            }
-        }
-
-        function updateMealList() {
-            const currentMealItems = meals[activeMeal].items;
-            
-            if (currentMealItems.length > 0) {
-                emptyMealMessage.style.display = 'none';
-                
-                let mealHTML = '';
-                currentMealItems.forEach(item => {
-                    mealHTML += `
-                        <li class="py-3">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <span class="font-medium">${item.name}</span>
-                                    <span class="text-sm text-gray-600 ml-2">(${item.quantity}g)</span>
-                                </div>
-                                <div class="flex items-center">
-                                    <span class="text-sm mr-3">${item.calories.toFixed(1)} kcal</span>
-                                    <button class="text-blue-500 hover:text-blue-700 mr-2 no-print" onclick="editItemQuantity('${activeMeal}', ${item.id})">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="text-red-500 hover:text-red-700 no-print" onclick="removeFromMeal('${activeMeal}', ${item.id})">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="mt-1">
-                                <span class="text-xs text-blue-600 mr-2">P: ${item.protein.toFixed(1)}g</span>
-                                <span class="text-xs text-green-600 mr-2">G: ${item.carbs.toFixed(1)}g</span>
-                                <span class="text-xs text-orange-600">L: ${item.fat.toFixed(1)}g</span>
-                            </div>
-                        </li>
-                    `;
-                });
-                
-                mealList.innerHTML = mealHTML;
-            } else {
-                emptyMealMessage.style.display = 'block';
-                mealList.innerHTML = '';
-            }
-        }
-
-        function updateNutritionSummary() {
-            const currentMealItems = meals[activeMeal].items;
-            
-            if (currentMealItems.length === 0) {
-                totalCalories.textContent = '0 kcal';
-                totalWeight.textContent = '0 g';
-                totalProtein.textContent = '0g (0%)';
-                totalCarbs.textContent = '0g (0%)';
-                totalFat.textContent = '0g (0%)';
-                
-                proteinBar.style.width = '0%';
-                carbsBar.style.width = '0%';
-                fatBar.style.width = '0%';
-                
-                emptyMicroMessage.style.display = 'block';
-                micronutrientsContainer.innerHTML = '';
-                
-                updateChart(0, 0, 0);
-                return;
-            }
-            
-            // Calculer les totaux pour le repas actif
-            let totalCal = 0;
-            let totalP = 0;
-            let totalC = 0;
-            let totalF = 0;
-            let totalW = 0;
-            let microTotals = {};
-            
-            currentMealItems.forEach(item => {
-                totalCal += item.calories;
-                totalP += item.protein;
-                totalC += item.carbs;
-                totalF += item.fat;
-                totalW += item.quantity;
-                
-                // Additionner les micronutriments
-                for (const [nutrient, details] of Object.entries(item.micro)) {
-                    if (!microTotals[nutrient]) {
-                        microTotals[nutrient] = {
-                            value: 0,
-                            unit: details.unit
-                        };
+                if (foodData.micro) {
+                    for (const [key, microData] of Object.entries(foodData.micro)) {
+                        if (microData && typeof microData.value === 'number' && microData.unit) {
+                            calculated.micro[key] = {
+                                value: (microData.value || 0) * factor,
+                                unit: microData.unit
+                            };
+                         } else {
+                             console.warn(`Donnée micro invalide pour ${key} dans ${foodData.name || 'aliment inconnu'}:`, microData);
+                         }
                     }
-                    microTotals[nutrient].value += details.value;
                 }
-            });
-            
-            // Calculer les pourcentages de macronutriments (calories)
-            const proteinCal = totalP * 4;
-            const carbsCal = totalC * 4;
-            const fatCal = totalF * 9;
-            const totalMacroCal = proteinCal + carbsCal + fatCal;
-            
-            const proteinPerc = totalMacroCal > 0 ? (proteinCal / totalMacroCal * 100).toFixed(1) : 0;
-            const carbsPerc = totalMacroCal > 0 ? (carbsCal / totalMacroCal * 100).toFixed(1) : 0;
-            const fatPerc = totalMacroCal > 0 ? (fatCal / totalMacroCal * 100).toFixed(1) : 0;
-            
-            // Mettre à jour l'affichage
-            totalCalories.textContent = `${totalCal.toFixed(1)} kcal`;
-            totalWeight.textContent = `${totalW} g`;
-            totalProtein.textContent = `${totalP.toFixed(1)}g (${proteinPerc}%)`;
-            totalCarbs.textContent = `${totalC.toFixed(1)}g (${carbsPerc}%)`;
-            totalFat.textContent = `${totalF.toFixed(1)}g (${fatPerc}%)`;
-            
-            proteinBar.style.width = `${proteinPerc}%`;
-            carbsBar.style.width = `${carbsPerc}%`;
-            fatBar.style.width = `${fatPerc}%`;
-            
-            // Mettre à jour le graphique
-            updateChart(proteinCal, carbsCal, fatCal);
-            
-            // Afficher les micronutriments
-            if (Object.keys(microTotals).length > 0) {
-                emptyMicroMessage.style.display = 'none';
-                
-                let microHTML = '<div class="grid grid-cols-1 md:grid-cols-2 gap-2">';
-                
-                for (const [nutrient, details] of Object.entries(microTotals)) {
-                    microHTML += `
-                        <div class="mb-2">
-                            <div class="flex justify-between text-sm">
-                                <span>${nutrient}</span>
-                                <span>${details.value.toFixed(1)} ${details.unit}</span>
+                return calculated;
+            }
+
+            // Met à jour l'affichage d'un titre de repas
+            function updateMealTitles() {
+                 const mealName = meals[activeMeal]?.name || 'Repas';
+                 const mealNameLower = mealName.toLowerCase();
+                 const preposition = mealNameLower === 'collation' ? 'à la' : 'au';
+
+                 if(currentMealTitle) currentMealTitle.textContent = `Ajouter un aliment ${preposition} ${mealNameLower}`;
+                 if(currentMealDisplay) {
+                     if (activeMeal === 'snack') {
+                         currentMealDisplay.textContent = mealName; // Juste "Collation"
+                     } else {
+                         currentMealDisplay.textContent = `Mon ${mealNameLower}`;
+                     }
+                 }
+            }
+
+            // Ouvre une modale
+            function openModal(modalElement) {
+                if (!modalElement) return;
+                modalElement.style.display = 'block';
+                // Ajouter la gestion du focus trap ici si implémenté
+                // Exemple: modalElement.querySelector('input, button').focus();
+            }
+
+            // Ferme une modale
+            function closeModal(modalElement) {
+                if (!modalElement) return;
+                modalElement.style.display = 'none';
+                // Ajouter la restauration du focus ici si implémenté
+            }
+
+            // --- FONCTIONS PRINCIPALES ---
+
+            function updateFoodItems() {
+                const category = categorySelect.value;
+                foodSelect.innerHTML = ''; // Vider les options précédentes
+                foodSelect.disabled = true; // Désactiver par défaut
+
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+
+                if (category && foodDatabase[category]) {
+                    foodSelect.disabled = false;
+                    defaultOption.textContent = 'Sélectionnez un aliment';
+                    foodSelect.appendChild(defaultOption);
+
+                    // Trier les aliments alphabétiquement
+                    const foodNames = Object.keys(foodDatabase[category]).sort();
+
+                    foodNames.forEach(foodName => {
+                        const option = document.createElement('option');
+                        option.value = foodName;
+                        option.textContent = foodName;
+                        foodSelect.appendChild(option);
+                    });
+                } else {
+                    defaultOption.textContent = category ? "Aucun aliment dans cette catégorie" : "Sélectionnez d'abord une catégorie";
+                    foodSelect.appendChild(defaultOption);
+                }
+
+                updateFoodDetails(); // Mettre à jour les détails même si la catégorie est vide
+            }
+
+            function updateFoodDetails() {
+                const category = categorySelect.value;
+                const foodName = foodSelect.value;
+                const quantity = parseInt(quantityInput.value) || 100; // Utiliser 100 par défaut si invalide
+
+                 // Afficher les détails pour 100g, peu importe la quantité entrée
+                const displayQuantity = 100;
+
+                if (category && foodName && foodDatabase[category] && foodDatabase[category][foodName]) {
+                    const food = foodDatabase[category][foodName];
+                    // Calculer pour 100g pour l'affichage des détails
+                    const nutrientsFor100g = calculateNutrients(food, displayQuantity);
+
+                    let detailsHTML = `
+                        <div class="grid grid-cols-2 gap-2 text-sm">
+                            <div class="bg-gray-100 p-2 rounded">
+                                <p class="text-gray-600">Calories</p>
+                                <p class="font-bold">${nutrientsFor100g.calories.toFixed(1)} kcal</p>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-1.5">
-                                <div class="bg-purple-500 h-1.5 rounded-full" style="width: 100%"></div>
+                            <div class="bg-blue-100 p-2 rounded">
+                                <p class="text-gray-600">Protéines</p>
+                                <p class="font-bold">${nutrientsFor100g.protein.toFixed(1)} g</p>
+                            </div>
+                            <div class="bg-green-100 p-2 rounded">
+                                <p class="text-gray-600">Glucides</p>
+                                <p class="font-bold">${nutrientsFor100g.carbs.toFixed(1)} g</p>
+                            </div>
+                            <div class="bg-orange-100 p-2 rounded">
+                                <p class="text-gray-600">Lipides</p>
+                                <p class="font-bold">${nutrientsFor100g.fat.toFixed(1)} g</p>
                             </div>
                         </div>
                     `;
+
+                     // Afficher les micronutriments pour 100g s'ils existent
+                    if (nutrientsFor100g.micro && Object.keys(nutrientsFor100g.micro).length > 0) {
+                        detailsHTML += `<div class="mt-4"><p class="font-medium text-gray-700 mb-2 text-sm">Micronutriments (pour ${displayQuantity}g):</p><ul class="text-xs space-y-1">`;
+                        // Trier les micronutriments pour un affichage cohérent
+                        const sortedMicros = Object.entries(nutrientsFor100g.micro).sort((a, b) => a[0].localeCompare(b[0]));
+                        sortedMicros.forEach(([nutrient, details]) => {
+                            detailsHTML += `<li class="text-gray-600">${nutrient}: ${details.value.toFixed(1)} ${details.unit}</li>`;
+                        });
+                        detailsHTML += `</ul></div>`;
+                    }
+
+                    foodDetailsContent.innerHTML = detailsHTML;
+                    addFoodBtn.disabled = false; // Activer le bouton seulement si un aliment est sélectionné
+                } else {
+                    foodDetailsContent.innerHTML = '<p class="text-gray-500 italic text-sm">Sélectionnez un aliment pour voir ses détails nutritionnels (pour 100g).</p>';
+                    addFoodBtn.disabled = true; // Désactiver le bouton
                 }
-                
-                microHTML += '</div>';
-                micronutrientsContainer.innerHTML = microHTML;
-            } else {
-                emptyMicroMessage.style.display = 'block';
-                micronutrientsContainer.innerHTML = '';
             }
-        }
 
-        function updateDailySummary() {
-            // Calculer les totaux pour tous les repas
-            let totalCal = 0;
-            let totalP = 0;
-            let totalC = 0;
-            let totalF = 0;
-            let mealCalories = {};
-            
-            // Calculer les totaux pour chaque repas
-            for (const [mealKey, meal] of Object.entries(meals)) {
-                let mealCal = 0;
-                let mealP = 0;
-                let mealC = 0;
-                let mealF = 0;
-                
-                meal.items.forEach(item => {
-                    mealCal += item.calories;
-                    mealP += item.protein;
-                    mealC += item.carbs;
-                    mealF += item.fat;
-                });
-                
-                // Mettre à jour les champs du tableau récapitulatif
-                document.getElementById(`${mealKey}-calories`).textContent = `${mealCal.toFixed(1)} kcal`;
-                document.getElementById(`${mealKey}-protein`).textContent = `${mealP.toFixed(1)} g`;
-                document.getElementById(`${mealKey}-carbs`).textContent = `${mealC.toFixed(1)} g`;
-                document.getElementById(`${mealKey}-fat`).textContent = `${mealF.toFixed(1)} g`;
-                
-                // Cumuler pour le total journalier
-                totalCal += mealCal;
-                totalP += mealP;
-                totalC += mealC;
-                totalF += mealF;
-                
-                // Stocker pour le graphique
-                mealCalories[meal.name] = mealCal;
+
+            function addFoodToMeal() {
+                const category = categorySelect.value;
+                const foodName = foodSelect.value;
+                const quantity = parseInt(quantityInput.value);
+
+                if (!category || !foodName) {
+                    alert("Veuillez sélectionner une catégorie et un aliment.");
+                    return;
+                }
+                if (isNaN(quantity) || quantity <= 0) {
+                     alert("Veuillez entrer une quantité valide (supérieure à 0).");
+                    return;
+                }
+                if (foodDatabase[category] && foodDatabase[category][foodName]) {
+                    const food = foodDatabase[category][foodName];
+                    const calculatedNutrients = calculateNutrients(food, quantity);
+
+                    const mealItem = {
+                        id: Date.now() + Math.random(), // ID unique plus robuste
+                        category: category,
+                        name: foodName,
+                        quantity: quantity,
+                        ...calculatedNutrients // Utilise le spread operator
+                    };
+
+                    meals[activeMeal].items.push(mealItem);
+
+                    updateMealList();
+                    updateNutritionSummary();
+                    updateDailySummary();
+
+                    // Optionnel: Réinitialiser la sélection après ajout
+                    // foodSelect.value = '';
+                    // quantityInput.value = '100';
+                    // updateFoodDetails(); // Met à jour les détails pour afficher le message par défaut
+                    // categorySelect.value = ''; // Déselectionne aussi la catégorie
+                    // foodSelect.disabled = true;
+
+                } else {
+                    console.error("Aliment non trouvé dans la base de données:", category, foodName);
+                    alert("Erreur : Aliment non trouvé.");
+                }
             }
-            
-            // Mettre à jour les totaux journaliers
-            document.getElementById('daily-calories').textContent = `${totalCal.toFixed(1)} kcal`;
-            document.getElementById('daily-protein').textContent = `${totalP.toFixed(1)} g`;
-            document.getElementById('daily-carbs').textContent = `${totalC.toFixed(1)} g`;
-            document.getElementById('daily-fat').textContent = `${totalF.toFixed(1)} g`;
-            
-            // Dernière ligne du tableau
-            document.getElementById('total-daily-calories').textContent = `${totalCal.toFixed(1)} kcal`;
-            document.getElementById('total-daily-protein').textContent = `${totalP.toFixed(1)} g`;
-            document.getElementById('total-daily-carbs').textContent = `${totalC.toFixed(1)} g`;
-            document.getElementById('total-daily-fat').textContent = `${totalF.toFixed(1)} g`;
-            
-            // Calculer les proportions de macronutriments pour le graphique
-            const proteinCal = totalP * 4;
-            const carbsCal = totalC * 4;
-            const fatCal = totalF * 9;
-            
-            // Mettre à jour les graphiques
-            updateDailyMacroChart(proteinCal, carbsCal, fatCal);
-            updateMealsChart(mealCalories);
-        }
 
-        function initCharts() {
-            // Graphique des macronutriments du repas actif
-            const macroCtx = document.getElementById('macro-chart').getContext('2d');
-            macroChart = new Chart(macroCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Protéines', 'Glucides', 'Lipides'],
-                    datasets: [{
-                        data: [0, 0, 0],
-                        backgroundColor: ['#4299e1', '#48bb78', '#ed8936'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: {
-                                    size: 12
+            function updateMealList() {
+                if (!mealList || !emptyMealMessage) return; // Sécurité
+
+                const currentMealItems = meals[activeMeal]?.items || [];
+
+                if (currentMealItems.length > 0) {
+                    emptyMealMessage.style.display = 'none';
+                    mealList.innerHTML = ''; // Vider la liste existante
+
+                    currentMealItems.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = 'py-3';
+                        li.innerHTML = `
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <span class="font-medium text-gray-800">${item.name}</span>
+                                    <span class="text-sm text-gray-500 ml-2">(${item.quantity}g)</span>
+                                </div>
+                                <div class="flex items-center space-x-2"> <!-- Utilisation de space-x -->
+                                    <span class="text-sm font-semibold mr-2">${item.calories.toFixed(0)} kcal</span>
+                                    <button class="edit-item-btn text-blue-500 hover:text-blue-700 no-print p-1" data-meal-key="${activeMeal}" data-item-id="${item.id}" aria-label="Modifier ${item.name}">
+                                        <i class="fas fa-edit fa-fw"></i> <!-- fa-fw pour largeur fixe -->
+                                    </button>
+                                    <button class="remove-item-btn text-red-500 hover:text-red-700 no-print p-1" data-meal-key="${activeMeal}" data-item-id="${item.id}" aria-label="Supprimer ${item.name}">
+                                        <i class="fas fa-trash-alt fa-fw"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-1 text-xs">
+                                <span class="text-blue-600 mr-2">P: ${item.protein.toFixed(1)}g</span>
+                                <span class="text-green-600 mr-2">G: ${item.carbs.toFixed(1)}g</span>
+                                <span class="text-orange-600">L: ${item.fat.toFixed(1)}g</span>
+                            </div>
+                        `;
+                        mealList.appendChild(li);
+                    });
+                } else {
+                    emptyMealMessage.style.display = 'block';
+                    mealList.innerHTML = ''; // Assurer que la liste est vide
+                }
+            }
+
+             function handleMealItemAction(event) {
+                const target = event.target;
+                const removeButton = target.closest('.remove-item-btn');
+                const editButton = target.closest('.edit-item-btn');
+
+                if (removeButton) {
+                    const mealKey = removeButton.dataset.mealKey;
+                    const itemId = parseInt(removeButton.dataset.itemId);
+                    if (mealKey && !isNaN(itemId) && meals[mealKey]) {
+                         handleRemoveItem(mealKey, itemId);
+                    }
+                } else if (editButton) {
+                    const mealKey = editButton.dataset.mealKey;
+                    const itemId = parseInt(editButton.dataset.itemId);
+                     if (mealKey && !isNaN(itemId) && meals[mealKey]) {
+                         handleEditItem(mealKey, itemId);
+                     }
+                }
+            }
+
+            function handleRemoveItem(mealKey, id) {
+                 // Ajouter une confirmation
+                 if (confirm(`Voulez-vous vraiment supprimer cet élément ?`)) {
+                    meals[mealKey].items = meals[mealKey].items.filter(item => item.id !== id);
+
+                    if (mealKey === activeMeal) {
+                        updateMealList();
+                        updateNutritionSummary();
+                    }
+                    updateDailySummary();
+                }
+            }
+
+            function handleEditItem(mealKey, id) {
+                const item = meals[mealKey]?.items.find(item => item.id === id);
+                if (item) {
+                    currentEditId = id;
+                    currentEditMeal = mealKey;
+                    editQuantity.value = item.quantity;
+                    editModalTitle.textContent = `Modifier quantité: ${item.name}`;
+                    openModal(editModal);
+                    editQuantity.focus(); // Mettre le focus sur l'input
+                    editQuantity.select(); // Sélectionner le contenu
+                } else {
+                    console.error("Élément à éditer non trouvé:", mealKey, id);
+                }
+            }
+
+            function confirmEdit() {
+                if (currentEditId !== null && currentEditMeal !== null) {
+                    const newQuantity = parseInt(editQuantity.value);
+
+                    if (!isNaN(newQuantity) && newQuantity > 0) {
+                        const itemIndex = meals[currentEditMeal].items.findIndex(item => item.id === currentEditId);
+
+                        if (itemIndex !== -1) {
+                            const item = meals[currentEditMeal].items[itemIndex];
+                            const foodData = foodDatabase[item.category]?.[item.name];
+
+                            if (foodData) {
+                                const updatedNutrients = calculateNutrients(foodData, newQuantity);
+                                // Mettre à jour l'objet item
+                                meals[currentEditMeal].items[itemIndex] = {
+                                    ...item, // Garde l'ID, category, name
+                                    quantity: newQuantity,
+                                    ...updatedNutrients // Met à jour calories, protein, etc.
+                                };
+
+                                // Mettre à jour l'affichage
+                                if (currentEditMeal === activeMeal) {
+                                    updateMealList();
+                                    updateNutritionSummary();
                                 }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-                                    return `${label}: ${percentage}% (${value.toFixed(1)} kcal)`;
-                                }
+                                updateDailySummary();
+                            } else {
+                                console.error("Données de l'aliment non trouvées pour la mise à jour:", item.category, item.name);
+                                alert("Erreur: impossible de trouver les données de l'aliment pour la mise à jour.");
                             }
                         }
+                    } else {
+                         alert("Veuillez entrer une quantité valide (nombre entier positif).");
+                         return; // Ne pas fermer la modale si la valeur est invalide
                     }
                 }
-            });
-            
-            // Graphique des macronutriments journaliers
-            const dailyMacroCtx = document.getElementById('daily-macro-chart').getContext('2d');
-            dailyMacroChart = new Chart(dailyMacroCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Protéines', 'Glucides', 'Lipides'],
-                    datasets: [{
-                        data: [0, 0, 0],
-                        backgroundColor: ['#4299e1', '#48bb78', '#ed8936'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-                                    return `${label}: ${percentage}% (${value.toFixed(1)} kcal)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // Graphique de répartition par repas
-            const mealsCtx = document.getElementById('meals-chart').getContext('2d');
-            mealsChart = new Chart(mealsCtx, {
-                type: 'bar',
-                data: {
-                    labels: [
-                        'Petit-déjeuner',
-                        'Déjeuner',
-                        'Dîner',
-                        'Collation'
-                    ],
-                    datasets: [{
-                        label: 'Calories (kcal)',
-                        data: [0, 0, 0, 0],
-                        backgroundColor: [
-                            'rgba(66, 153, 225, 0.7)',
-                            'rgba(72, 187, 120, 0.7)',
-                            'rgba(237, 137, 54, 0.7)',
-                            'rgba(159, 122, 234, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(66, 153, 225, 1)',
-                            'rgba(72, 187, 120, 1)',
-                            'rgba(237, 137, 54, 1)',
-                            'rgba(159, 122, 234, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Calories (kcal)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function updateChart(protein, carbs, fat) {
-            macroChart.data.datasets[0].data = [protein, carbs, fat];
-            macroChart.update();
-        }
-
-        function updateDailyMacroChart(protein, carbs, fat) {
-            dailyMacroChart.data.datasets[0].data = [protein, carbs, fat];
-            dailyMacroChart.update();
-        }
-
-        function updateMealsChart(mealCalories) {
-            mealsChart.data.datasets[0].data = [
-                mealCalories['Petit-déjeuner'] || 0,
-                mealCalories['Déjeuner'] || 0,
-                mealCalories['Dîner'] || 0,
-                mealCalories['Collation'] || 0
-            ];
-            mealsChart.update();
-        }
-
-        function removeFromMeal(mealKey, id) {
-            meals[mealKey].items = meals[mealKey].items.filter(item => item.id !== id);
-            
-            if (mealKey === activeMeal) {
-                updateMealList();
-                updateNutritionSummary();
-            }
-            
-            updateDailySummary();
-        }
-        
-        function resetAllMeals() {
-            if (confirm('Voulez-vous vraiment réinitialiser tous les repas ? Cette action est irréversible.')) {
-                for (const mealKey in meals) {
-                    meals[mealKey].items = [];
-                }
-                
-                updateMealList();
-                updateNutritionSummary();
-                updateDailySummary();
-            }
-        }
-        
-        function editItemQuantity(mealKey, id) {
-            const item = meals[mealKey].items.find(item => item.id === id);
-            if (item) {
-                // Stocker les références pour validation
-                currentEditId = id;
-                currentEditMeal = mealKey;
-                
-                // Préremplir le champ avec la quantité actuelle
-                editQuantity.value = item.quantity;
-                
-                // Afficher le titre avec le nom de l'aliment
-                document.getElementById('edit-modal-title').textContent = `Modifier la quantité de ${item.name}`;
-                
-                // Afficher la modale
-                editModal.style.display = 'block';
-            }
-        }
-        
-        function confirmEdit() {
-            if (currentEditId && currentEditMeal) {
-                const newQuantity = parseInt(editQuantity.value) || 0;
-                
-                if (newQuantity > 0) {
-                    const itemIndex = meals[currentEditMeal].items.findIndex(item => item.id === currentEditId);
-                    
-                    if (itemIndex !== -1) {
-                        const item = meals[currentEditMeal].items[itemIndex];
-                        const food = foodDatabase[item.category][item.name];
-                        
-                        // Calculer les nouvelles valeurs
-                        const oldQuantity = item.quantity;
-                        const quantityRatio = newQuantity / oldQuantity;
-                        
-                        // Mettre à jour les valeurs
-                        item.quantity = newQuantity;
-                        item.calories = food.calories * newQuantity / 100;
-                        item.protein = food.protein * newQuantity / 100;
-                        item.carbs = food.carbs * newQuantity / 100;
-                        item.fat = food.fat * newQuantity / 100;
-                        
-                        // Mettre à jour les micronutriments
-                        for (const nutrient in item.micro) {
-                            item.micro[nutrient].value = food.micro[nutrient].value * newQuantity / 100;
-                        }
-                        
-                        // Mettre à jour l'affichage
-                        if (currentEditMeal === activeMeal) {
-                            updateMealList();
-                            updateNutritionSummary();
-                        }
-                        
-                        updateDailySummary();
-                    }
-                }
-                
-                // Fermer la modale et réinitialiser les valeurs
-                editModal.style.display = 'none';
+                // Fermer la modale et réinitialiser
+                closeModal(editModal);
                 currentEditId = null;
                 currentEditMeal = null;
             }
-        }
-        
-        function addToHome() {
-            // Cette fonction simule l'ajout à l'écran d'accueil
-            alert('L\'application "Calcul Calorie - Tophe" a été ajoutée à votre écran d\'accueil');
-        }
-        
-        function exportToPDF() {
-            // Préparation du contenu pour PDF
-            const today = new Date();
-            const dateStr = today.toLocaleDateString('fr-FR', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
-            
-            // Créer le conteneur pour le PDF
-            const pdfContent = document.createElement('div');
-            pdfContent.classList.add('pdf-container');
-            pdfContent.style.padding = '20px';
-            pdfContent.style.fontFamily = 'Arial, sans-serif';
-            
-            // Ajouter l'en-tête
-            const header = document.createElement('div');
-            header.innerHTML = `
-                <h1 style="text-align: center; color: #2c5282; margin-bottom: 10px;">Menu journalier - Détail nutritionnel</h1>
-                <p style="text-align: center; margin-bottom: 30px;">Date: ${dateStr}</p>
-            `;
-            pdfContent.appendChild(header);
-            
-            // Ajouter le résumé calorique
-            const caloriesSummary = document.createElement('div');
-            caloriesSummary.style.marginBottom = '30px';
-            caloriesSummary.style.padding = '15px';
-            caloriesSummary.style.backgroundColor = '#f0f9ff';
-            caloriesSummary.style.borderRadius = '8px';
-            
-            const totalCal = parseFloat(document.getElementById('daily-calories').textContent);
-            const totalProtein = parseFloat(document.getElementById('daily-protein').textContent);
-            const totalCarbs = parseFloat(document.getElementById('daily-carbs').textContent);
-            const totalFat = parseFloat(document.getElementById('daily-fat').textContent);
-            
-            caloriesSummary.innerHTML = `
-                <h2 style="color: #2c5282; margin-bottom: 15px;">Résumé nutritionnel</h2>
-                <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
-                    <div style="background-color: #e3f2fd; padding: 10px; border-radius: 6px; width: 48%; margin-bottom: 10px;">
-                        <p style="font-weight: bold; margin: 0;">Calories totales</p>
-                        <p style="font-size: 24px; margin: 5px 0 0 0;">${totalCal} kcal</p>
-                    </div>
-                    <div style="background-color: #e8f5e9; padding: 10px; border-radius: 6px; width: 48%; margin-bottom: 10px;">
-                        <p style="font-weight: bold; margin: 0;">Protéines</p>
-                        <p style="font-size: 24px; margin: 5px 0 0 0;">${totalProtein} g</p>
-                    </div>
-                    <div style="background-color: #fff3e0; padding: 10px; border-radius: 6px; width: 48%;">
-                        <p style="font-weight: bold; margin: 0;">Glucides</p>
-                        <p style="font-size: 24px; margin: 5px 0 0 0;">${totalCarbs} g</p>
-                    </div>
-                    <div style="background-color: #fbe9e7; padding: 10px; border-radius: 6px; width: 48%;">
-                        <p style="font-weight: bold; margin: 0;">Lipides</p>
-                        <p style="font-size: 24px; margin: 5px 0 0 0;">${totalFat} g</p>
-                    </div>
-                </div>
-            `;
-            pdfContent.appendChild(caloriesSummary);
-            
-            // Ajouter le détail de chaque repas
-            for (const [mealKey, meal] of Object.entries(meals)) {
-                const mealSection = document.createElement('div');
-                mealSection.style.marginBottom = '30px';
-                
-                let mealIconClass = '';
-                switch(mealKey) {
-                    case 'breakfast':
-                        mealIconClass = 'fas fa-coffee';
-                        break;
-                    case 'lunch':
-                    case 'dinner':
-                        mealIconClass = 'fas fa-utensils';
-                        break;
-                    case 'snack':
-                        mealIconClass = 'fas fa-apple-alt';
-                        break;
-                }
-                
-                let mealContent = `
-                    <h2 style="color: #2c5282; margin-bottom: 15px;">
-                        <i class="${mealIconClass}" style="margin-right: 8px;"></i>${meal.name}
-                    </h2>
-                `;
-                
-                if (meal.items.length === 0) {
-                    mealContent += `<p style="color: #718096; font-style: italic;">Aucun aliment enregistré pour ce repas</p>`;
-                } else {
-                    let totalMealCal = 0;
-                    let totalMealProt = 0;
-                    let totalMealCarbs = 0;
-                    let totalMealFat = 0;
-                    
-                    mealContent += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
-                        <tr style="background-color: #f8fafc; text-align: left;">
-                            <th style="padding: 10px; border-bottom: 1px solid #e2e8f0;">Aliment</th>
-                            <th style="padding: 10px; border-bottom: 1px solid #e2e8f0;">Quantité</th>
-                            <th style="padding: 10px; border-bottom: 1px solid #e2e8f0;">Calories</th>
-                            <th style="padding: 10px; border-bottom: 1px solid #e2e8f0;">P/G/L</th>
-                        </tr>`;
-                    
-                    meal.items.forEach(item => {
-                        totalMealCal += item.calories;
-                        totalMealProt += item.protein;
-                        totalMealCarbs += item.carbs;
-                        totalMealFat += item.fat;
-                        
-                        mealContent += `
-                            <tr style="border-bottom: 1px solid #e2e8f0;">
-                                <td style="padding: 10px;">${item.name}</td>
-                                <td style="padding: 10px;">${item.quantity}g</td>
-                                <td style="padding: 10px;">${item.calories.toFixed(1)} kcal</td>
-                                <td style="padding: 10px;">
-                                    <span style="color: #4299e1;">${item.protein.toFixed(1)}g</span> / 
-                                    <span style="color: #48bb78;">${item.carbs.toFixed(1)}g</span> / 
-                                    <span style="color: #ed8936;">${item.fat.toFixed(1)}g</span>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    
-                    mealContent += `
-                        <tr style="background-color: #ebf8ff; font-weight: bold;">
-                            <td style="padding: 10px;">Total</td>
-                            <td style="padding: 10px;"></td>
-                            <td style="padding: 10px;">${totalMealCal.toFixed(1)} kcal</td>
-                            <td style="padding: 10px;">
-                                <span style="color: #4299e1;">${totalMealProt.toFixed(1)}g</span> / 
-                                <span style="color: #48bb78;">${totalMealCarbs.toFixed(1)}g</span> / 
-                                <span style="color: #ed8936;">${totalMealFat.toFixed(1)}g</span>
-                            </td>
-                        </tr>
-                    </table>`;
-                }
-                
-                mealSection.innerHTML = mealContent;
-                pdfContent.appendChild(mealSection);
-            }
-            
-            // Ajouter note de bas de page
-            const footer = document.createElement('div');
-            footer.style.borderTop = '1px solid #e2e8f0';
-            footer.style.paddingTop = '15px';
-            footer.style.textAlign = 'center';
-            footer.style.color = '#718096';
-            footer.style.fontSize = '12px';
-            footer.innerHTML = `
-                <p>Application développée par Tophe - 2025</p>
-                <p style="margin-top: 5px;">Ces informations sont indicatives et ne remplacent pas les conseils personnalisés d'un professionnel de santé.</p>
-            `;
-            pdfContent.appendChild(footer);
-            
-            // Créer le PDF avec html2pdf
-            const opt = {
-                margin: 10,
-                filename: `Menu_Journalier_${today.toISOString().split('T')[0]}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            
-            html2pdf().set(opt).from(pdfContent).save();
-        }
-
-        // Exposer les fonctions nécessaires globalement
-        window.removeFromMeal = removeFromMeal;
-        window.editItemQuantity = editItemQuantity;
-// ==========================================
-        // == CODE POUR LA GÉNÉRATION AUTO DE MENU (AVEC OBJECTIFS) ==
-        // ==========================================
-
-        // Références aux éléments HTML (inchangées)
-        const targetCaloriesInput = document.getElementById('target-calories');
-        const generateMenuBtn = document.getElementById('generate-menu-btn');
-        const generationFeedback = document.getElementById('generation-feedback');
-        // Note: Pas besoin de référence directe aux radios, on les lira au moment du clic
-
-        // Écouteur d'événement (inchangé)
-        if (generateMenuBtn) {
-            generateMenuBtn.addEventListener('click', generateFullDayMenu);
-        } else {
-            console.error("Le bouton generate-menu-btn n'a pas été trouvé !");
-        }
-
-        // Fonction principale (modifiée pour lire l'objectif et le passer)
-        function generateFullDayMenu() {
-            const totalTargetCalories = parseInt(targetCaloriesInput.value);
-            generationFeedback.textContent = '';
-
-            // Lire l'objectif sélectionné
-            const selectedObjectiveRadio = document.querySelector('input[name="diet-objective"]:checked');
-            const selectedObjective = selectedObjectiveRadio ? selectedObjectiveRadio.value : 'maintain'; // Défaut 'maintain'
-
-            if (isNaN(totalTargetCalories) || totalTargetCalories <= 0) {
-                generationFeedback.textContent = 'Veuillez entrer un nombre de calories valide.';
-                return;
-            }
-
-            // Afficher l'avertissement (légèrement modifié)
-            generationFeedback.innerHTML = `
-                <p class="font-semibold text-orange-600">Génération en cours (Objectif: ${selectedObjective === 'maintain' ? 'Maintien' : selectedObjective === 'loseWeight' ? 'Perte de poids' : 'Prise de muscle'})...</p>
-                <p class="mt-2 text-gray-700 text-xs">
-                    <i class="fas fa-exclamation-triangle mr-1 text-yellow-500"></i>
-                    <strong>Attention :</strong> Ce menu est généré aléatoirement pour atteindre les calories cibles, en tentant de s'adapter à l'objectif.
-                    Il n'est PAS garanti d'être équilibré nutritionnellement ou gustativement cohérent.
-                    Utilisez-le comme une base et ajustez-le. Consultez un professionnel pour un plan personnalisé.
-                </p>`;
-
-            if (confirm('Ceci va remplacer tous les repas actuels. Continuer ?')) {
-                // --- Réinitialisation (idem qu'avant) ---
-                for (const mealKey in meals) { meals[mealKey].items = []; }
-                if (mealTabs && mealTabs.length > 0) {
-                    activeMeal = mealTabs[0].dataset.meal || 'breakfast';
-                    mealTabs.forEach((tab, index) => { /* ... gestion classes onglets ... */
-                         if (index === 0) { tab.classList.add('active'); tab.classList.remove('bg-gray-200'); }
-                         else { tab.classList.remove('active'); tab.classList.add('bg-gray-200'); }
-                    });
-                     if (currentMealTitle && currentMealDisplay && meals[activeMeal]) {
-                        currentMealTitle.textContent = `Ajouter un aliment au ${meals[activeMeal].name.toLowerCase()}`;
-                        currentMealDisplay.textContent = `Mon ${meals[activeMeal].name.toLowerCase()}`;
-                     }
-                }
-                updateMealList(); updateNutritionSummary(); updateDailySummary();
-
-                // --- Configuration (idem qu'avant) ---
-                const mealTargets = { /* ... calories par repas ... */
-                    breakfast: totalTargetCalories * 0.30, lunch: totalTargetCalories * 0.35,
-                    dinner: totalTargetCalories * 0.30, snack: totalTargetCalories * 0.05
-                };
-                const mealConfigs = { /* ... règles par repas ... */
-                     breakfast: { type: 'random', categories: ['fruits', 'boissons', 'produits_laitiers', 'cereales', 'petit_dejeuner'], minItems: 3, maxItems: 5 },
-                     lunch:     { type: 'structured', structure: { /* ... structure lunch ... */
-                                    protein: { cats: ['viandes', 'poissons'], count: 1 }, starch:  { cats: ['feculents'], count: 1 },
-                                    veggie:  { cats: ['legumes'], count: 1, optional: true }, extra:   { cats: ['assaisonnement'], count: 1, optional: true } }},
-                     dinner:    { type: 'structured', structure: { /* ... structure dîner ... */
-                                    protein: { cats: ['viandes', 'poissons'], count: 1 }, starch:  { cats: ['feculents'], count: 1 },
-                                    veggie:  { cats: ['legumes'], count: 1, optional: true }, extra:   { cats: ['assaisonnement'], count: 1, optional: true } }},
-                     snack:     { type: 'random', categories: ['fruits', 'boissons'], minItems: 1, maxItems: 2 }
-                 };
-
-                 // --- Génération (avec délai + passage de l'objectif) ---
-                 setTimeout(() => {
-                    let lunchProteinInfo = null;
-                    try {
-                        // Passer selectedObjective aux fonctions generateSingleMeal
-                        generateSingleMeal('breakfast', mealTargets.breakfast, mealConfigs.breakfast, null, selectedObjective);
-                        lunchProteinInfo = generateSingleMeal('lunch', mealTargets.lunch, mealConfigs.lunch, null, selectedObjective);
-                        generateSingleMeal('dinner', mealTargets.dinner, mealConfigs.dinner, lunchProteinInfo, selectedObjective);
-                        generateSingleMeal('snack', mealTargets.snack, mealConfigs.snack, null, selectedObjective);
-
-                        // --- Mise à jour finale UI (idem) ---
-                        updateMealList(); updateNutritionSummary(); updateDailySummary();
-                        generationFeedback.innerHTML += '<p class="mt-2 font-semibold text-green-600">Menu généré avec succès ! Veuillez vérifier et ajuster.</p>';
-
-                    } catch (error) { /* ... gestion erreur ... */
-                         console.error("Erreur lors de la génération du menu:", error);
-                         generationFeedback.textContent = 'Une erreur est survenue lors de la génération du menu.';
-                    }
-                }, 50);
-
-            } else {
-                 generationFeedback.textContent = 'Génération annulée.';
-            }
-        }
-
-        // Fonction pour identifier les sources principales de protéines (simplifié)
-        function isPrimaryProteinSource(foodInfo) {
-            if (!foodInfo || !foodInfo.category || !foodInfo.name) return false;
-            const proteinCats = ['viandes', 'poissons'];
-            const highProteinDairy = ['Fromage blanc 0%', 'Skyr', 'Yaourt grec', 'Cottage cheese'];
-            const highProteinBreakfast = ['Œuf (entier)', 'Bacon']; // Bacon est gras mais protéiné aussi
-            const highProteinLegumes = ['Lentilles (cuites)', 'Pois Chiche (cuits)', 'Haricot Rouge (cuit)'];
-
-            return proteinCats.includes(foodInfo.category) ||
-                   (foodInfo.category === 'produits_laitiers' && highProteinDairy.includes(foodInfo.name)) ||
-                   (foodInfo.category === 'petit_dejeuner' && highProteinBreakfast.includes(foodInfo.name)) ||
-                   (foodInfo.category === 'feculents' && highProteinLegumes.includes(foodInfo.name)); // Légumineuses classées ici
-        }
 
 
-        // Fonction pour générer un repas (modifiée pour accepter et utiliser l'objectif)
-        function generateSingleMeal(mealKey, targetCalories, config, excludeProtein = null, objective = 'maintain') { // Ajout paramètre 'objective'
-            let selectedItems = [];
-            let chosenProtein = null;
+            function updateNutritionSummary() {
+                 const currentMealItems = meals[activeMeal]?.items || [];
 
-            // --- 1. Sélection des Aliments (Logique inchangée ici, mais on pourrait la biaiser) ---
-            let tempSelectedFoods = [];
-            if (config.type === 'random') { /* ... sélection random ... */
-                 const minItems=config.minItems||2, maxItems=config.maxItems||4; const numItemsToSelect=Math.floor(Math.random()*(maxItems-minItems+1))+minItems; let availableFoods=[]; config.categories.forEach(catKey=>{if(foodDatabase[catKey]){Object.keys(foodDatabase[catKey]).forEach(foodName=>{availableFoods.push({category:catKey,name:foodName,data:foodDatabase[catKey][foodName]})})}}); if(availableFoods.length===0){console.warn(`Aucun aliment dispo pour ${mealKey} (random)`);return null} for(let i=0;i<numItemsToSelect&&availableFoods.length>0;i++){const randomIndex=Math.floor(Math.random()*availableFoods.length); tempSelectedFoods.push(availableFoods[randomIndex]); availableFoods.splice(randomIndex,1)}
-            } else if (config.type === 'structured') { /* ... sélection structurée avec exclusion ... */
-                 for(const partKey in config.structure){const partConfig=config.structure[partKey]; let availablePartFoods=[]; partConfig.cats.forEach(catKey=>{if(foodDatabase[catKey]){Object.keys(foodDatabase[catKey]).forEach(foodName=>{availablePartFoods.push({category:catKey,name:foodName,data:foodDatabase[catKey][foodName]})})}}); if(partKey==='protein'&&excludeProtein&&availablePartFoods.length>1){availablePartFoods=availablePartFoods.filter(food=>!(food.category===excludeProtein.category&&food.name===excludeProtein.name))} if(availablePartFoods.length>0){const count=partConfig.count||1; for(let i=0;i<count;i++){if(availablePartFoods.length===0)break; if(partConfig.optional&&tempSelectedFoods.length>0&&Math.random()<0.4){continue} const randomIndex=Math.floor(Math.random()*availablePartFoods.length); const selectedFood=availablePartFoods[randomIndex]; tempSelectedFoods.push(selectedFood); if(partKey==='protein'){chosenProtein={category:selectedFood.category,name:selectedFood.name}} availablePartFoods.splice(randomIndex,1)}} else if(!partConfig.optional){console.warn(`Aucun aliment dispo pour partie obligatoire '${partKey}' de ${mealKey}`)}}
-            }
-            if (tempSelectedFoods.length === 0) { console.warn(`Aucun aliment sélectionné pour ${mealKey}`); return null; }
+                 let totalCal = 0, totalP = 0, totalC = 0, totalF = 0, totalW = 0;
+                 let microTotals = {};
 
-            // --- 2. Quantités Initiales (Logique inchangée) ---
-            let initialTotalCalories = 0;
-            tempSelectedFoods.forEach(foodInfo => { /* ... attribution qté initiale ... */
-                let initialQuantity=100; if(foodInfo.category==='assaisonnement'&&(foodInfo.name.includes('Huile')||foodInfo.name.includes('Vinaigre')))initialQuantity=10; else if(foodInfo.category==='assaisonnement')initialQuantity=20; else if(foodInfo.category==='petit_dejeuner'&&foodInfo.name.includes('Œuf'))initialQuantity=60; else if(foodInfo.category==='boissons'&&foodInfo.data.calories<10)initialQuantity=200; else if(foodInfo.category==='fruits'&&(foodInfo.name.includes('Noix')||foodInfo.name.includes('Amandes')||foodInfo.name.includes('Noisettes')))initialQuantity=30; else if(foodInfo.category==='produits_laitiers'&&foodInfo.data.calories<70)initialQuantity=150; else if(foodInfo.category==='cereales'&&foodInfo.name.includes('Pain'))initialQuantity=50; else if(foodInfo.category==='cereales')initialQuantity=40; else if(foodInfo.category==='feculents'&&foodInfo.name.includes('Pain'))initialQuantity=60; else if(foodInfo.category==='legumes'&&foodInfo.data.calories<30)initialQuantity=150; else if(foodInfo.category==='viandes'||foodInfo.category==='poissons')initialQuantity=120; else if(foodInfo.category==='feculents')initialQuantity=150; const foodCaloriesPer100g=foodInfo.data.calories||0; initialTotalCalories+=(foodCaloriesPer100g*initialQuantity/100); selectedItems.push({foodInfo:foodInfo,quantity:initialQuantity})
-             });
+                 currentMealItems.forEach(item => {
+                    totalCal += item.calories;
+                    totalP += item.protein;
+                    totalC += item.carbs;
+                    totalF += item.fat;
+                    totalW += item.quantity;
 
-            // --- 3. Ajustement des Quantités (MODIFIÉ pour objectif) ---
-            if (initialTotalCalories > 0 && targetCalories > 0) {
-                 const baseAdjustmentFactor = targetCalories / initialTotalCalories;
-                 selectedItems.forEach(item => {
-                     let objectiveFactor = 1.0; // Facteur par défaut pour maintien/perte
-
-                     // Augmenter *uniquement* pour la prise de muscle ET si c'est une source de protéine
-                     if (objective === 'gainMuscle' && isPrimaryProteinSource(item.foodInfo)) {
-                         objectiveFactor = 1.25; // Boost de 25% pour les protéines
-                         // On ne réduit pas les autres pour garder la simplicité et assurer assez de calories
-                     }
-
-                     // Appliquer les ajustements
-                     const finalAdjustment = baseAdjustmentFactor * objectiveFactor;
-
-                     // Pas d'ajustement sur boissons/assaisonnements très peu caloriques
-                    if (!((item.foodInfo.category === 'boissons' || item.foodInfo.category === 'assaisonnement') && item.foodInfo.data.calories < 10)) {
-                         item.quantity = Math.max(1, Math.round(item.quantity * finalAdjustment));
-                    } else if (item.quantity === 0) {
-                         item.quantity = 1; // Assurer qté min
+                    // Additionner les micronutriments
+                    for (const [nutrient, details] of Object.entries(item.micro || {})) {
+                        if (!microTotals[nutrient]) {
+                            microTotals[nutrient] = { value: 0, unit: details.unit };
+                        }
+                        microTotals[nutrient].value += details.value;
                     }
                  });
-            } else if (targetCalories <= 0) {
-                 selectedItems.forEach(item => item.quantity = 1);
+
+                 // Calculer les calories des macros
+                 const proteinCal = totalP * 4;
+                 const carbsCal = totalC * 4;
+                 const fatCal = totalF * 9;
+                 const totalMacroCal = proteinCal + carbsCal + fatCal;
+
+                 // Calculer les pourcentages (éviter division par zéro)
+                 const proteinPerc = totalMacroCal > 0 ? (proteinCal / totalMacroCal * 100) : 0;
+                 const carbsPerc = totalMacroCal > 0 ? (carbsCal / totalMacroCal * 100) : 0;
+                 const fatPerc = totalMacroCal > 0 ? (fatCal / totalMacroCal * 100) : 0;
+
+                 // Mettre à jour l'affichage des totaux et pourcentages
+                 totalCalories.textContent = `${totalCal.toFixed(0)} kcal`;
+                 totalWeight.textContent = `${totalW} g`;
+                 totalProtein.textContent = `${totalP.toFixed(1)}g (${proteinPerc.toFixed(0)}%)`;
+                 totalCarbs.textContent = `${totalC.toFixed(1)}g (${carbsPerc.toFixed(0)}%)`;
+                 totalFat.textContent = `${totalF.toFixed(1)}g (${fatPerc.toFixed(0)}%)`;
+
+                 // Mettre à jour les barres de progression
+                 proteinBar.style.width = `${proteinPerc}%`;
+                 carbsBar.style.width = `${carbsPerc}%`;
+                 fatBar.style.width = `${fatPerc}%`;
+
+                 // Mettre à jour le graphique du repas
+                 updateChart(proteinCal, carbsCal, fatCal);
+
+                 // Afficher les micronutriments
+                 if (micronutrientsContainer && emptyMicroMessage) {
+                    if (Object.keys(microTotals).length > 0) {
+                        emptyMicroMessage.style.display = 'none';
+                        let microHTML = '<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs">'; // Grid pour meilleure disposition
+                        const sortedMicros = Object.entries(microTotals).sort((a, b) => a[0].localeCompare(b[0]));
+
+                        sortedMicros.forEach(([nutrient, details]) => {
+                            // Ajout d'une barre indicative simple (optionnel)
+                            microHTML += `
+                                <div class="mb-1">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">${nutrient}</span>
+                                        <span class="font-medium">${details.value.toFixed(1)} ${details.unit}</span>
+                                    </div>
+                                     <div class="w-full bg-gray-200 rounded-full h-1 mt-0.5">
+                                         <div class="bg-purple-400 h-1 rounded-full" style="width: ${Math.min(100, details.value)}%"></div> <!-- Barre indicative simple -->
+                                     </div>
+                                </div>
+                            `;
+                        });
+                        microHTML += '</div>';
+                        micronutrientsContainer.innerHTML = microHTML;
+                    } else {
+                        emptyMicroMessage.style.display = 'block';
+                        micronutrientsContainer.innerHTML = ''; // Vider au cas où
+                    }
+                 }
             }
 
-            // --- 4. Ajout au Repas Global 'meals' (Logique inchangée) ---
-            selectedItems.forEach(item => { /* ... ajout de item à meals[mealKey].items ... */
-                const food=item.foodInfo.data; const quantity=item.quantity; const category=item.foodInfo.category; const foodName=item.foodInfo.name; if(!food||quantity<=0)return; const mealItem={id:Date.now()+Math.random(),category:category,name:foodName,quantity:quantity,calories:(food.calories||0)*quantity/100,protein:(food.protein||0)*quantity/100,carbs:(food.carbs||0)*quantity/100,fat:(food.fat||0)*quantity/100,micro:{}}; if(food.micro){for(const[nutrient,details] of Object.entries(food.micro)){if(details&&typeof details.value==='number'&&details.unit){mealItem.micro[nutrient]={value:details.value*quantity/100,unit:details.unit}}}} if(meals[mealKey]&&meals[mealKey].items){meals[mealKey].items.push(mealItem)}else{console.error(`Repas ${mealKey} invalide.`)}
-            });
+            function updateDailySummary() {
+                let totalDailyCal = 0, totalDailyP = 0, totalDailyC = 0, totalDailyF = 0;
+                let mealCaloriesData = {}; // Pour le graphique des repas
 
-            return chosenProtein;
-        }
+                // Itérer sur tous les repas définis dans 'meals'
+                for (const [mealKey, meal] of Object.entries(meals)) {
+                    let mealCal = 0, mealP = 0, mealC = 0, mealF = 0;
 
-        // ==========================================
-        // == FIN CODE GÉNÉRATION AUTO DE MENU     ==
-        // ==========================================
-    // ==================================
-        // == CODE POUR REPLIER/DÉPLIER GÉNÉRATEUR ==
-        // ==================================
-        const generatorHeader = document.getElementById('generator-header');
-        const generatorContent = document.getElementById('generator-content');
-        const toggleGeneratorBtn = document.getElementById('toggle-generator-btn');
-        const toggleIcon = toggleGeneratorBtn ? toggleGeneratorBtn.querySelector('i') : null; // Récupère l'icône
+                    meal.items.forEach(item => {
+                        mealCal += item.calories;
+                        mealP += item.protein;
+                        mealC += item.carbs;
+                        mealF += item.fat;
+                    });
 
-        if (generatorHeader && generatorContent && toggleGeneratorBtn && toggleIcon) {
-            generatorHeader.addEventListener('click', () => {
-                generatorContent.classList.toggle('collapsed');
+                    // Mettre à jour le tableau récapitulatif
+                    document.getElementById(`${mealKey}-calories`).textContent = `${mealCal.toFixed(0)} kcal`;
+                    document.getElementById(`${mealKey}-protein`).textContent = `${mealP.toFixed(1)} g`;
+                    document.getElementById(`${mealKey}-carbs`).textContent = `${mealC.toFixed(1)} g`;
+                    document.getElementById(`${mealKey}-fat`).textContent = `${mealF.toFixed(1)} g`;
 
-                // Mettre à jour l'icône du bouton
-                if (generatorContent.classList.contains('collapsed')) {
-                    toggleIcon.classList.remove('fa-chevron-up');
-                    toggleIcon.classList.add('fa-chevron-down');
-                    // Optionnel: Ajouter ARIA attributes pour accessibilité
-                    toggleGeneratorBtn.setAttribute('aria-expanded', 'false');
-                    generatorContent.setAttribute('aria-hidden', 'true');
-                } else {
-                    toggleIcon.classList.remove('fa-chevron-down');
-                    toggleIcon.classList.add('fa-chevron-up');
-                    // Optionnel: Ajouter ARIA attributes pour accessibilité
-                    toggleGeneratorBtn.setAttribute('aria-expanded', 'true');
-                    generatorContent.setAttribute('aria-hidden', 'false');
+                    // Cumuler pour les totaux journaliers
+                    totalDailyCal += mealCal;
+                    totalDailyP += mealP;
+                    totalDailyC += mealC;
+                    totalDailyF += mealF;
+
+                    // Stocker pour le graphique des repas (utiliser le nom du repas)
+                    mealCaloriesData[meal.name] = mealCal;
                 }
+
+                // Mettre à jour les cartes de résumé journalier
+                document.getElementById('daily-calories').textContent = `${totalDailyCal.toFixed(0)} kcal`;
+                document.getElementById('daily-protein').textContent = `${totalDailyP.toFixed(1)} g`;
+                document.getElementById('daily-carbs').textContent = `${totalDailyC.toFixed(1)} g`;
+                document.getElementById('daily-fat').textContent = `${totalDailyF.toFixed(1)} g`;
+
+                // Mettre à jour la ligne TOTAL du tableau
+                document.getElementById('total-daily-calories').textContent = `${totalDailyCal.toFixed(0)} kcal`;
+                document.getElementById('total-daily-protein').textContent = `${totalDailyP.toFixed(1)} g`;
+                document.getElementById('total-daily-carbs').textContent = `${totalDailyC.toFixed(1)} g`;
+                document.getElementById('total-daily-fat').textContent = `${totalDailyF.toFixed(1)} g`;
+
+                // Mettre à jour les graphiques journaliers
+                const proteinCal = totalDailyP * 4;
+                const carbsCal = totalDailyC * 4;
+                const fatCal = totalDailyF * 9;
+                updateDailyMacroChart(proteinCal, carbsCal, fatCal);
+                updateMealsChart(mealCaloriesData);
+            }
+
+            function initCharts() {
+                Chart.defaults.font.family = "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif"; // Police plus standard
+                Chart.defaults.font.size = 11; // Taille par défaut légèrement réduite
+                Chart.defaults.color = '#6b7280'; // Couleur de police par défaut (gris Tailwind)
+
+                const commonDoughnutOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%', // Fait un trou plus grand
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15, // Espace entre les légendes
+                                usePointStyle: true, // Utilise des cercles au lieu de rectangles
+                                boxWidth: 8, // Taille des points
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            titleFont: { size: 12 },
+                            bodyFont: { size: 11 },
+                            padding: 8,
+                            cornerRadius: 4,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return `${label}: ${percentage}% (${value.toFixed(0)} kcal)`;
+                                }
+                            }
+                        }
+                    }
+                };
+
+                // Graphique Macronutriments du Repas
+                const macroCtx = document.getElementById('macro-chart')?.getContext('2d');
+                if (macroCtx) {
+                    macroChart = new Chart(macroCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Protéines', 'Glucides', 'Lipides'],
+                            datasets: [{
+                                data: [1, 1, 1], // Initialiser avec des valeurs non nulles pour voir le rendu
+                                backgroundColor: ['#4299e1', '#48bb78', '#ed8936'],
+                                hoverBackgroundColor: ['#3182ce', '#38a169', '#dd6b20'], // Couleur au survol
+                                borderWidth: 0, // Pas de bordure
+                                hoverOffset: 8 // Effet léger au survol
+                            }]
+                        },
+                        options: commonDoughnutOptions
+                    });
+                } else { console.error("Canvas 'macro-chart' non trouvé."); }
+
+                // Graphique Macronutriments Journaliers
+                const dailyMacroCtx = document.getElementById('daily-macro-chart')?.getContext('2d');
+                 if (dailyMacroCtx) {
+                    dailyMacroChart = new Chart(dailyMacroCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Protéines', 'Glucides', 'Lipides'],
+                            datasets: [{
+                                data: [1, 1, 1],
+                                backgroundColor: ['#63b3ed', '#68d391', '#f6ad55'], // Nuances légèrement différentes
+                                hoverBackgroundColor: ['#4299e1', '#48bb78', '#ed8936'],
+                                borderWidth: 0,
+                                hoverOffset: 8
+                            }]
+                        },
+                        options: commonDoughnutOptions
+                    });
+                 } else { console.error("Canvas 'daily-macro-chart' non trouvé."); }
+
+                // Graphique Répartition par Repas
+                const mealsCtx = document.getElementById('meals-chart')?.getContext('2d');
+                if (mealsCtx) {
+                    mealsChart = new Chart(mealsCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Petit-déj.', 'Déjeuner', 'Dîner', 'Collation'], // Labels raccourcis
+                            datasets: [{
+                                label: 'Calories (kcal)',
+                                data: [0, 0, 0, 0],
+                                backgroundColor: [
+                                    'rgba(66, 153, 225, 0.6)',  // Bleu
+                                    'rgba(72, 187, 120, 0.6)',  // Vert
+                                    'rgba(237, 137, 54, 0.6)', // Orange
+                                    'rgba(159, 122, 234, 0.6)'  // Violet
+                                ],
+                                borderColor: [ // Bordures plus foncées
+                                    'rgba(49, 130, 206, 1)',
+                                    'rgba(56, 161, 105, 1)',
+                                    'rgba(221, 107, 32, 1)',
+                                    'rgba(128, 90, 213, 1)'
+                                ],
+                                borderWidth: 1,
+                                borderRadius: 4, // Coins arrondis
+                                barPercentage: 0.7, // Barres moins larges
+                                categoryPercentage: 0.8 // Moins d'espace entre groupes
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false }, // Pas besoin de légende pour une seule série
+                                tooltip: {
+                                     backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                     titleFont: { size: 12 }, bodyFont: { size: 11 }, padding: 8, cornerRadius: 4,
+                                     callbacks: {
+                                         label: (context) => `${context.raw.toFixed(0)} kcal`
+                                     }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: '#e2e8f0' }, // Lignes de grille plus claires
+                                    title: {
+                                        display: true,
+                                        text: 'Calories (kcal)',
+                                        font: { size: 10 },
+                                        padding: { top: 0, bottom: 5 }
+                                    },
+                                     ticks: { font: { size: 10 } }
+                                },
+                                x: {
+                                     grid: { display: false }, // Pas de grille verticale
+                                     ticks: { font: { size: 10 } }
+                                }
+                            }
+                        }
+                    });
+                } else { console.error("Canvas 'meals-chart' non trouvé."); }
+            }
+
+            function updateChart(protein, carbs, fat) {
+                if (macroChart) {
+                    macroChart.data.datasets[0].data = [protein, carbs, fat];
+                    macroChart.update('none'); // 'none' pour éviter l'animation si non désiré
+                }
+            }
+
+            function updateDailyMacroChart(protein, carbs, fat) {
+                if (dailyMacroChart) {
+                    dailyMacroChart.data.datasets[0].data = [protein, carbs, fat];
+                    dailyMacroChart.update('none');
+                }
+            }
+
+            function updateMealsChart(mealCalories) {
+                if (mealsChart) {
+                     // Assurez-vous que les clés correspondent aux labels du graphique
+                     const data = [
+                        mealCalories['Petit-déjeuner'] || 0,
+                        mealCalories['Déjeuner'] || 0,
+                        mealCalories['Dîner'] || 0,
+                        mealCalories['Collation'] || 0
+                     ];
+                    mealsChart.data.datasets[0].data = data;
+                    mealsChart.update(); // Laisser l'animation ici peut être bien
+                }
+            }
+
+             function resetAllMeals() {
+                 // Utiliser une modale custom serait mieux, mais confirm() est simple
+                 if (confirm('Voulez-vous vraiment réinitialiser tous les repas de la journée ? Cette action est irréversible.')) {
+                     for (const mealKey in meals) {
+                         if (meals.hasOwnProperty(mealKey)) {
+                             meals[mealKey].items = [];
+                         }
+                     }
+
+                     // Assurer que le premier onglet est actif
+                     activeMeal = mealTabs.length > 0 ? mealTabs[0].dataset.meal : 'breakfast';
+                     updateActiveTab(); // Mettre à jour l'onglet visuellement
+
+                     updateMealList();
+                     updateNutritionSummary(); // Met à jour le résumé du repas actif (vide)
+                     updateDailySummary(); // Met à jour le résumé journalier (tout à zéro)
+                     updateMealTitles();   // Met à jour les titres H2
+
+                     // Optionnel: Déplier la section d'ajout manuel si elle était repliée
+                     if (addFoodContent && addFoodContent.classList.contains('collapsed')) {
+                        toggleSection(addFoodContent, addFoodToggleIcon, toggleAddFoodBtn);
+                     }
+                 }
+             }
+
+
+            function addToHome() {
+                // Fonction PWA (Progressive Web App) basique
+                // Nécessite un Manifest et un Service Worker pour fonctionner réellement
+                alert("Pour ajouter à l'écran d'accueil :\n\nSur iOS : Touchez l'icône Partager puis 'Sur l'écran d'accueil'.\nSur Android : Touchez les trois points du navigateur puis 'Ajouter à l'écran d'accueil'.");
+                // Idéalement, détecter si l'app peut être installée et montrer un bouton différent
+            }
+
+            function exportToPDF() {
+                // Préparation du contenu pour PDF
+                const today = new Date();
+                const dateStr = today.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+
+                const pdfContainer = document.createElement('div');
+                pdfContainer.style.fontFamily = 'Arial, sans-serif';
+                pdfContainer.style.padding = '20px';
+                pdfContainer.style.fontSize = '10pt'; // Taille pour impression
+
+                 // En-tête
+                 pdfContainer.innerHTML = `
+                    <div style="text-align: center; border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 20px;">
+                        <h1 style="font-size: 16pt; color: #2c5282; margin: 0;">Menu Journalier Détaillé</h1>
+                        <p style="font-size: 9pt; color: #555; margin-top: 5px;">Date: ${dateStr}</p>
+                    </div>
+                `;
+
+                 // Résumé Global
+                 const summaryDiv = document.createElement('div');
+                 summaryDiv.style.backgroundColor = '#f7fafc';
+                 summaryDiv.style.border = '1px solid #e2e8f0';
+                 summaryDiv.style.borderRadius = '6px';
+                 summaryDiv.style.padding = '15px';
+                 summaryDiv.style.marginBottom = '25px';
+                 summaryDiv.innerHTML = `<h2 style="font-size: 12pt; color: #2d3748; margin-top: 0; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">Résumé Nutritionnel Journalier</h2>`;
+
+                 const summaryGrid = document.createElement('div');
+                 summaryGrid.style.display = 'grid';
+                 summaryGrid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(120px, 1fr))'; // Responsive
+                 summaryGrid.style.gap = '15px';
+
+                 const totalCalPDF = parseFloat(document.getElementById('daily-calories')?.textContent || '0');
+                 const totalProtPDF = parseFloat(document.getElementById('daily-protein')?.textContent || '0');
+                 const totalCarbPDF = parseFloat(document.getElementById('daily-carbs')?.textContent || '0');
+                 const totalFatPDF = parseFloat(document.getElementById('daily-fat')?.textContent || '0');
+
+                 summaryGrid.innerHTML = `
+                    <div style="text-align: center; background-color: #ebf8ff; padding: 10px; border-radius: 4px;">
+                        <strong style="font-size: 9pt; color: #3182ce;">Calories</strong><br>
+                        <span style="font-size: 14pt; font-weight: bold;">${totalCalPDF.toFixed(0)} kcal</span>
+                    </div>
+                    <div style="text-align: center; background-color: #e6fffa; padding: 10px; border-radius: 4px;">
+                        <strong style="font-size: 9pt; color: #38a169;">Protéines</strong><br>
+                        <span style="font-size: 14pt; font-weight: bold;">${totalProtPDF.toFixed(1)} g</span>
+                    </div>
+                    <div style="text-align: center; background-color: #fffaf0; padding: 10px; border-radius: 4px;">
+                        <strong style="font-size: 9pt; color: #dd6b20;">Glucides</strong><br>
+                        <span style="font-size: 14pt; font-weight: bold;">${totalCarbPDF.toFixed(1)} g</span>
+                    </div>
+                    <div style="text-align: center; background-color: #fff5f5; padding: 10px; border-radius: 4px;">
+                        <strong style="font-size: 9pt; color: #c53030;">Lipides</strong><br>
+                        <span style="font-size: 14pt; font-weight: bold;">${totalFatPDF.toFixed(1)} g</span>
+                    </div>
+                 `;
+                 summaryDiv.appendChild(summaryGrid);
+                 pdfContainer.appendChild(summaryDiv);
+
+                 // Détail par repas
+                 for (const [mealKey, meal] of Object.entries(meals)) {
+                    if (meal.items.length > 0) { // N'afficher que les repas non vides
+                        const mealDiv = document.createElement('div');
+                        mealDiv.style.marginBottom = '25px';
+                        mealDiv.style.pageBreakInside = 'avoid'; // Essayer d'éviter coupure au milieu d'un repas
+
+                        let mealIconHTML = ''; // Pas d'icônes FontAwesome dans le PDF simple
+                        // Retrouver le nom correct
+                        const mealNamePDF = meals[mealKey]?.name || mealKey;
+
+                        let mealContent = `<h2 style="font-size: 12pt; color: #2d3748; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 4px;">${mealIconHTML}${mealNamePDF}</h2>`;
+
+                        let totalMealCal = 0, totalMealProt = 0, totalMealCarbs = 0, totalMealFat = 0;
+
+                        mealContent += `<table style="width: 100%; border-collapse: collapse; font-size: 9pt;">
+                            <thead>
+                                <tr style="text-align: left; background-color: #f8fafc;">
+                                    <th style="padding: 6px 4px; border-bottom: 1px solid #ddd;">Aliment</th>
+                                    <th style="padding: 6px 4px; border-bottom: 1px solid #ddd; text-align: right;">Qté (g)</th>
+                                    <th style="padding: 6px 4px; border-bottom: 1px solid #ddd; text-align: right;">Kcal</th>
+                                    <th style="padding: 6px 4px; border-bottom: 1px solid #ddd; text-align: right;">P (g)</th>
+                                    <th style="padding: 6px 4px; border-bottom: 1px solid #ddd; text-align: right;">G (g)</th>
+                                    <th style="padding: 6px 4px; border-bottom: 1px solid #ddd; text-align: right;">L (g)</th>
+                                </tr>
+                            </thead><tbody>`;
+
+                        meal.items.forEach(item => {
+                            totalMealCal += item.calories;
+                            totalMealProt += item.protein;
+                            totalMealCarbs += item.carbs;
+                            totalMealFat += item.fat;
+                            mealContent += `
+                                <tr style="border-bottom: 1px solid #eee;">
+                                    <td style="padding: 5px 4px;">${item.name}</td>
+                                    <td style="padding: 5px 4px; text-align: right;">${item.quantity}</td>
+                                    <td style="padding: 5px 4px; text-align: right;">${item.calories.toFixed(0)}</td>
+                                    <td style="padding: 5px 4px; text-align: right;">${item.protein.toFixed(1)}</td>
+                                    <td style="padding: 5px 4px; text-align: right;">${item.carbs.toFixed(1)}</td>
+                                    <td style="padding: 5px 4px; text-align: right;">${item.fat.toFixed(1)}</td>
+                                </tr>`;
+                        });
+
+                         // Ligne Total du repas
+                         mealContent += `
+                            <tr style="background-color: #f8fafc; font-weight: bold;">
+                                <td style="padding: 6px 4px;">Total ${mealNamePDF}</td>
+                                <td style="padding: 6px 4px;"></td>
+                                <td style="padding: 6px 4px; text-align: right;">${totalMealCal.toFixed(0)}</td>
+                                <td style="padding: 6px 4px; text-align: right;">${totalMealProt.toFixed(1)}</td>
+                                <td style="padding: 6px 4px; text-align: right;">${totalMealCarbs.toFixed(1)}</td>
+                                <td style="padding: 6px 4px; text-align: right;">${totalMealFat.toFixed(1)}</td>
+                            </tr>
+                         </tbody></table>`;
+
+                         mealDiv.innerHTML = mealContent;
+                         pdfContainer.appendChild(mealDiv);
+                    }
+                 }
+
+                 // Pied de page
+                 const footer = document.createElement('div');
+                 footer.style.marginTop = '30px';
+                 footer.style.paddingTop = '10px';
+                 footer.style.borderTop = '1px solid #ccc';
+                 footer.style.textAlign = 'center';
+                 footer.style.fontSize = '8pt';
+                 footer.style.color = '#777';
+                 footer.innerHTML = `
+                    <p>Généré par le Calculateur de Calories - Tophe (${today.getFullYear()})</p>
+                    <p>Les valeurs nutritionnelles sont des estimations basées sur des données moyennes et peuvent varier.</p>
+                    <p><strong>Ce document ne remplace pas l'avis d'un professionnel de la nutrition ou de la santé.</strong></p>
+                `;
+                 pdfContainer.appendChild(footer);
+
+
+                // Options pour html2pdf
+                const opt = {
+                    margin: [10, 10, 10, 10], // [top, left, bottom, right] en mm
+                    filename: `Menu_Journalier_${today.toISOString().split('T')[0]}.pdf`,
+                    image: { type: 'jpeg', quality: 0.95 },
+                    html2canvas: {
+                        scale: 2, // Améliore la résolution
+                        useCORS: true, // Si vous chargez des images externes
+                        logging: false // Moins de logs console
+                     },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                // Générer le PDF
+                 html2pdf().set(opt).from(pdfContainer).save();
+
+            }
+
+            // --- FONCTIONS POUR LA GÉNÉRATION AUTOMATIQUE ---
+
+            function isPrimaryProteinSource(foodInfo) {
+                if (!foodInfo || !foodInfo.category || !foodInfo.name) return false;
+                const proteinCats = ['viandes', 'poissons'];
+                const highProteinDairy = ['Fromage blanc 0%', 'Skyr', 'Yaourt grec', 'Cottage cheese'];
+                const highProteinBreakfast = ['Œuf (entier)', 'Bacon'];
+                const highProteinLegumes = ['Lentilles (cuites)', 'Pois Chiche (cuits)', 'Haricot Rouge (cuit)'];
+
+                return proteinCats.includes(foodInfo.category) ||
+                       (foodInfo.category === 'produits_laitiers' && highProteinDairy.includes(foodInfo.name)) ||
+                       (foodInfo.category === 'petit_dejeuner' && highProteinBreakfast.includes(foodInfo.name)) ||
+                       (foodInfo.category === 'feculents' && highProteinLegumes.includes(foodInfo.name));
+            }
+
+            function generateSingleMeal(mealKey, targetCalories, config, excludeProtein = null, objective = 'maintain') {
+                let selectedItems = [];
+                let chosenProtein = null;
+                let tempSelectedFoods = [];
+
+                // 1. Sélection des Aliments
+                if (config.type === 'random') {
+                     const minItems=config.minItems||2, maxItems=config.maxItems||4;
+                     const numItemsToSelect=Math.floor(Math.random()*(maxItems-minItems+1))+minItems;
+                     let availableFoods=[];
+                     config.categories.forEach(catKey=>{
+                         if(foodDatabase[catKey]){
+                            Object.keys(foodDatabase[catKey]).forEach(foodName=>{availableFoods.push({category:catKey,name:foodName,data:foodDatabase[catKey][foodName]})})
+                         } else { console.warn(`Catégorie ${catKey} non trouvée dans foodDatabase pour ${mealKey}`); }
+                     });
+                     if(availableFoods.length===0){console.warn(`Aucun aliment dispo pour ${mealKey} (random)`);return null}
+                     for(let i=0;i<numItemsToSelect&&availableFoods.length>0;i++){
+                         const randomIndex=Math.floor(Math.random()*availableFoods.length);
+                         tempSelectedFoods.push(availableFoods[randomIndex]);
+                         availableFoods.splice(randomIndex,1);
+                     }
+                } else if (config.type === 'structured') {
+                     for(const partKey in config.structure){
+                         const partConfig=config.structure[partKey];
+                         let availablePartFoods=[];
+                         partConfig.cats.forEach(catKey=>{
+                            if(foodDatabase[catKey]){
+                               Object.keys(foodDatabase[catKey]).forEach(foodName=>{availablePartFoods.push({category:catKey,name:foodName,data:foodDatabase[catKey][foodName]})})
+                            } else { console.warn(`Catégorie ${catKey} non trouvée dans foodDatabase pour partie ${partKey} de ${mealKey}`); }
+                         });
+                         if(partKey==='protein'&&excludeProtein&&availablePartFoods.length>1){
+                             availablePartFoods=availablePartFoods.filter(food=>!(food.category===excludeProtein.category&&food.name===excludeProtein.name))
+                         }
+                         if(availablePartFoods.length>0){
+                             const count=partConfig.count||1;
+                             for(let i=0;i<count;i++){
+                                 if(availablePartFoods.length===0)break;
+                                 if(partConfig.optional&&tempSelectedFoods.length>0&&Math.random()<0.4){continue}
+                                 const randomIndex=Math.floor(Math.random()*availablePartFoods.length);
+                                 const selectedFood=availablePartFoods[randomIndex];
+                                 tempSelectedFoods.push(selectedFood);
+                                 if(partKey==='protein'){chosenProtein={category:selectedFood.category,name:selectedFood.name}}
+                                 availablePartFoods.splice(randomIndex,1)
+                              }
+                         } else if(!partConfig.optional){
+                             console.warn(`Aucun aliment dispo pour partie obligatoire '${partKey}' de ${mealKey}`);
+                         }
+                     }
+                }
+                if (tempSelectedFoods.length === 0) { console.warn(`Aucun aliment sélectionné pour ${mealKey}`); return null; }
+
+                // 2. Quantités Initiales
+                let initialTotalCalories = 0;
+                tempSelectedFoods.forEach(foodInfo => {
+                     let initialQuantity=100;
+                     // Logique d'ajustement quantité initiale (simplifiée)
+                     if(foodInfo.category==='assaisonnement') initialQuantity = (foodInfo.name.toLowerCase().includes('huile')) ? 10 : 20;
+                     else if(foodInfo.category==='boissons' && foodInfo.data.calories < 10) initialQuantity = 200;
+                     else if(foodInfo.category==='fruits' && (foodInfo.name.includes('Noix')||foodInfo.name.includes('Amandes')||foodInfo.name.includes('Noisettes'))) initialQuantity = 30;
+                     else if(foodInfo.category==='produits_laitiers' && foodInfo.data.calories < 70) initialQuantity = 150;
+                     else if(foodInfo.category==='cereales' && foodInfo.name.includes('Pain')) initialQuantity = 50;
+                     else if(foodInfo.category==='cereales') initialQuantity = 40;
+                     else if(foodInfo.category==='feculents' && foodInfo.name.includes('Pain')) initialQuantity = 60;
+                     else if(foodInfo.category==='legumes' && foodInfo.data.calories < 30) initialQuantity = 150;
+                     else if(foodInfo.category==='viandes'||foodInfo.category==='poissons') initialQuantity = 120;
+                     else if(foodInfo.category==='feculents') initialQuantity = 150;
+                     else if(foodInfo.category==='petit_dejeuner' && foodInfo.name.includes('Œuf')) initialQuantity = 60; // env 1 oeuf
+
+                     const foodCaloriesPer100g=foodInfo.data.calories||0;
+                     initialTotalCalories+=(foodCaloriesPer100g*initialQuantity/100);
+                     selectedItems.push({foodInfo:foodInfo,quantity:initialQuantity})
+                });
+
+                 // 3. Ajustement des Quantités basé sur objectif et calories cibles
+                 if (initialTotalCalories > 0 && targetCalories > 0) {
+                     const baseAdjustmentFactor = targetCalories / initialTotalCalories;
+                     selectedItems.forEach(item => {
+                         let objectiveFactor = 1.0;
+                         if (objective === 'gainMuscle' && isPrimaryProteinSource(item.foodInfo)) {
+                             objectiveFactor = 1.20; // +20% Protéines pour prise de muscle
+                         } else if (objective === 'loseWeight' && !isPrimaryProteinSource(item.foodInfo)) {
+                              objectiveFactor = 0.90; // -10% sur non-protéines pour perte poids (léger)
+                         }
+                         // Ne pas trop réduire les petites quantités (assaisonnements, etc.)
+                         const isSmallPortion = (item.foodInfo.category === 'assaisonnement' || item.foodInfo.category === 'boissons' || item.quantity < 30);
+                         const finalAdjustment = isSmallPortion ? baseAdjustmentFactor : baseAdjustmentFactor * objectiveFactor;
+
+                         let newQuantity = Math.max(5, Math.round(item.quantity * finalAdjustment)); // Min 5g
+                         // Arrondir aux 5g près pour plus de réalisme
+                         newQuantity = Math.round(newQuantity / 5) * 5;
+                         item.quantity = Math.max(5, newQuantity); // Assurer un minimum après arrondi
+                     });
+                 } else if (targetCalories <= 0) {
+                     selectedItems.forEach(item => item.quantity = Math.round(item.quantity / 2)); // Réduire si 0 cal visées
+                 }
+
+                // 4. Ajout au Repas Global 'meals'
+                selectedItems.forEach(item => {
+                    const food=item.foodInfo.data;
+                    const quantity=item.quantity;
+                    const category=item.foodInfo.category;
+                    const foodName=item.foodInfo.name;
+                    if(!food||quantity<=0)return;
+
+                    const calculatedNutrients = calculateNutrients(food, quantity);
+                    const mealItem={
+                        id:Date.now()+Math.random(),
+                        category:category,
+                        name:foodName,
+                        quantity:quantity,
+                        ...calculatedNutrients
+                    };
+
+                    if(meals[mealKey]?.items){
+                        meals[mealKey].items.push(mealItem);
+                    }else{console.error(`Repas ${mealKey} invalide lors de l'ajout d'item.`)}
+                });
+
+                return chosenProtein;
+            }
+
+            function generateFullDayMenu() {
+                const totalTargetCalories = parseInt(targetCaloriesInput.value);
+                generationFeedback.textContent = ''; // Nettoyer feedback précédent
+
+                const selectedObjectiveRadio = document.querySelector('input[name="diet-objective"]:checked');
+                const selectedObjective = selectedObjectiveRadio ? selectedObjectiveRadio.value : 'maintain';
+
+                if (isNaN(totalTargetCalories) || totalTargetCalories <= 500) { // Augmenter minimum raisonnable
+                    generationFeedback.textContent = 'Veuillez entrer un total calorique journalier valide (minimum 500 kcal).';
+                    return;
+                }
+
+                const objectiveText = {
+                    maintain: 'Maintien',
+                    loseWeight: 'Perte de poids',
+                    gainMuscle: 'Prise de muscle'
+                }[selectedObjective];
+
+                generationFeedback.innerHTML = `
+                    <p class="font-semibold text-orange-600">Génération en cours (Objectif: ${objectiveText})...</p>
+                    <p class="mt-2 text-gray-600 text-xs">
+                        <i class="fas fa-exclamation-triangle mr-1 text-yellow-500"></i>
+                        <strong>Attention :</strong> Ce menu est généré aléatoirement pour approcher les calories cibles et l'objectif choisi. Il n'est PAS garanti d'être parfaitement équilibré, varié ou gustativement cohérent. Utilisez-le comme point de départ et adaptez-le. Consultez toujours un professionnel pour un plan nutritionnel personnalisé.
+                    </p>`;
+
+                // Utiliser une modale custom serait mieux que confirm()
+                if (confirm('Générer un nouveau menu écrasera tous les repas actuellement saisis. Continuer ?')) {
+                    // --- Réinitialisation ---
+                    for (const mealKey in meals) { meals[mealKey].items = []; }
+                     activeMeal = mealTabs.length > 0 ? mealTabs[0].dataset.meal : 'breakfast';
+                     updateActiveTab();
+                     updateMealList(); updateNutritionSummary(); updateDailySummary(); updateMealTitles();
+
+
+                    // --- Configuration (Ajuster répartition si besoin) ---
+                    const mealTargets = {
+                        breakfast: totalTargetCalories * 0.25, // Légèrement moins
+                        lunch:     totalTargetCalories * 0.35,
+                        dinner:    totalTargetCalories * 0.30,
+                        snack:     totalTargetCalories * 0.10  // Un peu plus pour la collation
+                    };
+                    const mealConfigs = {
+                         breakfast: { type: 'random', categories: ['fruits', 'produits_laitiers', 'cereales', 'petit_dejeuner', 'boissons'], minItems: 2, maxItems: 4 },
+                         lunch:     { type: 'structured', structure: {
+                                        protein: { cats: ['viandes', 'poissons', 'feculents'], count: 1 }, // Ajout feculents (légumineuses)
+                                        starch:  { cats: ['feculents'], count: 1 },
+                                        veggie:  { cats: ['legumes'], count: 1 },
+                                        fat_source: { cats: ['assaisonnement'], count: 1, optional: true } // Source de gras
+                                     }},
+                         dinner:    { type: 'structured', structure: {
+                                        protein: { cats: ['viandes', 'poissons', 'feculents'], count: 1 },
+                                        veggie:  { cats: ['legumes'], count: 2 }, // Plus de légumes le soir?
+                                        starch:  { cats: ['feculents'], count: 1, optional: true }, // Féculent optionnel?
+                                        fat_source: { cats: ['assaisonnement'], count: 1, optional: true }
+                                     }},
+                         snack:     { type: 'random', categories: ['fruits', 'produits_laitiers', 'cereales', 'boissons'], minItems: 1, maxItems: 2 }
+                     };
+
+                     // --- Génération (avec délai pour feedback UI) ---
+                     setTimeout(() => {
+                        let lunchProteinInfo = null;
+                        try {
+                            generateSingleMeal('breakfast', mealTargets.breakfast, mealConfigs.breakfast, null, selectedObjective);
+                            lunchProteinInfo = generateSingleMeal('lunch', mealTargets.lunch, mealConfigs.lunch, null, selectedObjective);
+                            // Passer la protéine du midi pour essayer de varier le soir
+                            generateSingleMeal('dinner', mealTargets.dinner, mealConfigs.dinner, lunchProteinInfo, selectedObjective);
+                            generateSingleMeal('snack', mealTargets.snack, mealConfigs.snack, null, selectedObjective);
+
+                            // --- Mise à jour finale UI ---
+                             updateMealList(); // Important de mettre à jour la liste active
+                             updateNutritionSummary();
+                             updateDailySummary();
+                             generationFeedback.innerHTML += '<p class="mt-2 font-semibold text-green-600">Menu généré avec succès ! Vérifiez et ajustez si nécessaire.</p>';
+
+                            // ***** Replier la section d'ajout manuel *****
+                            if (addFoodContent && !addFoodContent.classList.contains('collapsed')) {
+                                toggleSection(addFoodContent, addFoodToggleIcon, toggleAddFoodBtn, false); // force collapse
+                                console.log("Section d'ajout manuel repliée automatiquement.");
+                            }
+                            // ***** FIN Repliement *****
+
+                        } catch (error) {
+                             console.error("Erreur lors de la génération du menu:", error);
+                             generationFeedback.textContent = 'Une erreur est survenue pendant la génération. Veuillez réessayer.';
+                        }
+                    }, 50); // Court délai pour que le message "Génération en cours" s'affiche
+
+                } else {
+                     generationFeedback.textContent = 'Génération annulée par l\'utilisateur.';
+                }
+            }
+
+            // --- FONCTIONS POUR SECTIONS REPLIABLES ---
+             function toggleSection(contentElement, iconElement, buttonElement, expand = null) {
+                if (!contentElement || !iconElement || !buttonElement) return;
+
+                const shouldBeCollapsed = (expand === null) ? !contentElement.classList.contains('collapsed') : !expand;
+
+                if (shouldBeCollapsed) {
+                    contentElement.classList.add('collapsed');
+                    iconElement.classList.remove('fa-chevron-up');
+                    iconElement.classList.add('fa-chevron-down');
+                    buttonElement.setAttribute('aria-expanded', 'false');
+                    contentElement.setAttribute('aria-hidden', 'true');
+                } else {
+                    contentElement.classList.remove('collapsed');
+                    iconElement.classList.remove('fa-chevron-down');
+                    iconElement.classList.add('fa-chevron-up');
+                    buttonElement.setAttribute('aria-expanded', 'true');
+                    contentElement.setAttribute('aria-hidden', 'false');
+                }
+             }
+
+            // --- GESTION DES ONGLETS ---
+            function updateActiveTab() {
+                 mealTabs.forEach(t => {
+                     if (t.dataset.meal === activeMeal) {
+                         t.classList.add('active', 'bg-white', 'border-gray-300', 'border-b-transparent'); // Styles onglet actif
+                         t.classList.remove('bg-gray-200', 'hover:bg-gray-300', 'border-transparent');
+                         t.setAttribute('aria-selected', 'true');
+                     } else {
+                         t.classList.remove('active', 'bg-white', 'border-gray-300', 'border-b-transparent');
+                         t.classList.add('bg-gray-200', 'hover:bg-gray-300', 'border-transparent'); // Styles onglet inactif
+                          t.setAttribute('aria-selected', 'false');
+                     }
+                 });
+            }
+
+
+            // --- ÉCOUTEURS D'ÉVÉNEMENTS ---
+
+            // Onglets de repas
+            if (mealTabsContainer) {
+                mealTabsContainer.addEventListener('click', (e) => {
+                    const tab = e.target.closest('.meal-tab');
+                    if (tab && tab.dataset.meal) {
+                        activeMeal = tab.dataset.meal;
+                        updateActiveTab();
+                        updateMealTitles();
+                        updateMealList();
+                        updateNutritionSummary(); // Mettre à jour le résumé pour le nouvel onglet actif
+                    }
+                });
+            }
+
+            // Sélection catégorie/aliment/quantité
+            if(categorySelect) categorySelect.addEventListener('change', updateFoodItems);
+            if(foodSelect) foodSelect.addEventListener('change', updateFoodDetails);
+            if(quantityInput) quantityInput.addEventListener('input', updateFoodDetails); // Maj détails en temps réel ? Peut-être pas nécessaire. Change le titre des détails seulement.
+
+            // Bouton Ajouter Aliment
+            if(addFoodBtn) addFoodBtn.addEventListener('click', addFoodToMeal);
+
+            // Actions sur les items du repas (Edit/Delete) - Délégation
+            if(mealList) mealList.addEventListener('click', handleMealItemAction);
+
+            // Bouton Reset
+            if(resetAllBtn) resetAllBtn.addEventListener('click', resetAllMeals);
+
+             // Modale Info
+            if(infoBtn) infoBtn.addEventListener('click', () => openModal(infoModal));
+            if(closeModalBtn) closeModalBtn.addEventListener('click', () => closeModal(infoModal));
+            if(closeModalX) closeModalX.addEventListener('click', () => closeModal(infoModal));
+
+            // Modale Edit
+            if(confirmEditBtn) confirmEditBtn.addEventListener('click', confirmEdit);
+            if(cancelEditBtn) cancelEditBtn.addEventListener('click', () => closeModal(editModal));
+            if(closeEditModalX) closeEditModalX.addEventListener('click', () => closeModal(editModal));
+
+            // Bouton Ajouter à l'accueil
+            if(addToHomeBtn) addToHomeBtn.addEventListener('click', addToHome);
+
+            // Bouton Export PDF
+            if(exportPdfBtn) exportPdfBtn.addEventListener('click', exportToPDF);
+
+            // Bouton Générer Menu
+            if(generateMenuBtn) generateMenuBtn.addEventListener('click', generateFullDayMenu);
+
+            // Gestion sections repliables
+            if(generatorHeader) generatorHeader.addEventListener('click', () => toggleSection(generatorContent, generatorToggleIcon, toggleGeneratorBtn));
+            if(addFoodHeader) addFoodHeader.addEventListener('click', () => toggleSection(addFoodContent, addFoodToggleIcon, toggleAddFoodBtn));
+
+
+            // Fermeture modales au clic extérieur ou Esc
+            window.addEventListener('click', (e) => {
+                if (e.target === infoModal) closeModal(infoModal);
+                if (e.target === editModal) closeModal(editModal);
+            });
+            window.addEventListener('keydown', (e) => {
+                 if (e.key === 'Escape') {
+                    if (infoModal.style.display === 'block') closeModal(infoModal);
+                    if (editModal.style.display === 'block') closeModal(editModal);
+                 }
             });
 
-             // Initialiser les attributs ARIA au chargement (supposant qu'il est déplié au début)
-             toggleGeneratorBtn.setAttribute('aria-expanded', 'true');
-             toggleGeneratorBtn.setAttribute('aria-controls', 'generator-content'); // Lie le bouton au contenu
-             generatorContent.setAttribute('aria-hidden', 'false');
 
+            // --- INITIALISATION ---
+             console.log("Application Calculateur de Calories initialisée.");
+             updateFoodItems(); // Peupler la liste des aliments initiale si une catégorie est sélectionnée par défaut
+             updateMealTitles(); // Mettre à jour les titres H2 initiaux
+             initCharts();
+             updateDailySummary(); // Afficher 0 partout au début
+             updateActiveTab(); // Assurer que le premier onglet est bien stylé
 
-        } else {
-            console.error("Éléments pour le générateur repliable non trouvés ! Vérifiez les IDs HTML: generator-header, generator-content, toggle-generator-btn et l'icône <i> à l'intérieur.");
-        }
-        // --- FIN CODE POUR REPLIER/DÉPLIER ---
-	</script>
+             // Initialiser les états ARIA des sections repliables
+             toggleSection(generatorContent, generatorToggleIcon, toggleGeneratorBtn, true); // Déplié au début
+             toggleSection(addFoodContent, addFoodToggleIcon, toggleAddFoodBtn, true); // Déplié au début
+
+        }); // Fin DOMContentLoaded
+    </script>
 </body>
 </html>
