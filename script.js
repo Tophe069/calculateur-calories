@@ -28,27 +28,74 @@ function calculerBesoins() {
   genererMenu(besoinTotal);
 }
 
-function genererMenu(besoin) {
+function genererMenu(besoinTotal) {
+  const objectifs = {
+    "Petit-déjeuner": besoinTotal * 0.25,
+    "Déjeuner": besoinTotal * 0.35,
+    "Dîner": besoinTotal * 0.30,
+    "Collation": besoinTotal * 0.10
+  };
+
+  let menu = {
+    "Petit-déjeuner": [],
+    "Déjeuner": [],
+    "Dîner": [],
+    "Collation": []
+  };
+
+  let totalParRepas = {
+    "Petit-déjeuner": 0,
+    "Déjeuner": 0,
+    "Dîner": 0,
+    "Collation": 0
+  };
+
+  const categories = Object.keys(alimentsData);
+  let catIndex = 0;
+
+  for (const repas in objectifs) {
+    while (totalParRepas[repas] < objectifs[repas] && catIndex < categories.length) {
+      const cat = categories[catIndex];
+      for (const nom in alimentsData[cat]) {
+        const a = alimentsData[cat][nom];
+        if (totalParRepas[repas] + a.calories <= objectifs[repas]) {
+          totalParRepas[repas] += a.calories;
+          menu[repas].push(`${nom} (${a.calories} kcal)`);
+        }
+        if (totalParRepas[repas] >= objectifs[repas]) break;
+      }
+      catIndex++;
+    }
+  }
+
+  afficherMenuRepas(menu);
+}
+
+function afficherMenuRepas(menu) {
   const section = document.getElementById("generationMenu");
   section.classList.remove("hidden");
 
   const container = document.getElementById("menuGenere");
   container.innerHTML = '';
 
-  let total = 0;
-  let menu = [];
+  const emojis = {
+    "Petit-déjeuner": "🥐",
+    "Déjeuner": "🍛",
+    "Dîner": "🍲",
+    "Collation": "🍪"
+  };
 
-  for (const categorie in alimentsData) {
-    for (const nom in alimentsData[categorie]) {
-      if (total >= besoin) break;
-      const alim = alimentsData[categorie][nom];
-      total += alim.calories;
-      menu.push(`${nom} (${alim.calories} kcal)`);
-    }
-    if (total >= besoin) break;
+  for (const repas in menu) {
+    const bloc = document.createElement("div");
+    bloc.className = "mb-4 p-4 border rounded bg-gray-50";
+
+    bloc.innerHTML = `<h3 class="text-lg font-semibold mb-2">${emojis[repas]} ${repas}</h3>
+      <ul class="list-disc list-inside text-sm">
+        ${menu[repas].map(item => `<li>${item}</li>`).join("")}
+      </ul>`;
+
+    container.appendChild(bloc);
   }
-
-  container.innerHTML = "<ul class='list-disc list-inside'>" + menu.map(m => `<li>${m}</li>`).join('') + "</ul>";
 }
 
 function exporterPDF() {
