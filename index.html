@@ -1,1658 +1,543 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Calculateur de Calories</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="bg-gray-50 p-4">
-    <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
-        <!-- Header with buttons -->
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold">Calculateur de Calories</h1>
-            <div class="flex space-x-2">
-                <button id="exportPdfBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded flex items-center">
-                    <i class="fas fa-file-pdf mr-2"></i> Exporter en PDF
-                </button>
-                <button id="infoBtn" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded flex items-center">
-                    <i class="fas fa-info-circle mr-2"></i> Informations
-                </button>
-            </div>
-        </div>
+    <div id="app" class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
         
-        <!-- Section de génération automatique de menu -->
-        <div class="mb-8 bg-yellow-50 p-4 rounded-lg shadow">
-            <div class="flex justify-between items-center mb-4 cursor-pointer" id="menuGeneratorHeader">
-                <h2 class="text-xl font-semibold">Génération Automatique de Menu</h2>
-                <i class="fas fa-chevron-down text-gray-600" id="menuGeneratorChevron"></i>
-            </div>
-            
-            <div id="menuGeneratorContent">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div>
-                        <label for="targetCalories" class="block text-sm font-medium text-gray-700 mb-1">Calories journalières visées :</label>
-                        <input type="number" id="targetCalories" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="2000" min="1000" max="4000">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Quel est votre objectif ?</label>
-                        <div class="flex space-x-4">
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="objective" value="maintenance" class="form-radio">
-                                <span class="ml-2">Maintien du poids</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="objective" value="loss" class="form-radio" checked>
-                                <span class="ml-2">Perte de poids</span>
-                            </label>
-                            <label class="inline-flex items-center">
-                                <input type="radio" name="objective" value="gain" class="form-radio">
-                                <span class="ml-2">Prise de muscle</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-end">
-                        <button id="generateMenuBtn" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded w-full">
+<div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
+<!-- Header with buttons -->
+<div class="flex justify-between items-center mb-6">
+<h1 class="text-2xl font-bold">Calculateur de Calories</h1>
+<div class="flex space-x-2">
+<button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded flex items-center" id="exportPdfBtn">
+<i class="fas fa-file-pdf mr-2"></i> Exporter en PDF
+                </button>
+<button class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded flex items-center" id="infoBtn">
+<i class="fas fa-info-circle mr-2"></i> Informations
+                </button>
+</div>
+</div>
+<!-- Section de génération automatique de menu -->
+<div class="mb-8 bg-yellow-50 p-4 rounded-lg shadow">
+<div class="flex justify-between items-center mb-4 cursor-pointer" id="menuGeneratorHeader">
+<h2 class="text-xl font-semibold">Génération Automatique de Menu</h2>
+<i class="fas fa-chevron-down text-gray-600" id="menuGeneratorChevron"></i>
+</div>
+<div id="menuGeneratorContent">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1" for="targetCalories">Calories journalières visées :</label>
+<input class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" id="targetCalories" max="4000" min="1000" type="number" value="2000"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Quel est votre objectif ?</label>
+<div class="flex space-x-4">
+<label class="inline-flex items-center">
+<input class="form-radio" name="objective" type="radio" value="maintenance"/>
+<span class="ml-2">Maintien du poids</span>
+</label>
+<label class="inline-flex items-center">
+<input checked="" class="form-radio" name="objective" type="radio" value="loss"/>
+<span class="ml-2">Perte de poids</span>
+</label>
+<label class="inline-flex items-center">
+<input class="form-radio" name="objective" type="radio" value="gain"/>
+<span class="ml-2">Prise de muscle</span>
+</label>
+</div>
+</div>
+<div class="flex items-end">
+<button class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded w-full" id="generateMenuBtn">
                             Générer le Menu
                         </button>
-                    </div>
-                </div>
-                
-                <div id="generationStatus" class="hidden">
-                    <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4" role="alert">
-                        <p class="font-bold">Génération en cours (Objectif: <span id="objectiveDisplay">Perte de poids</span>)...</p>
-                    </div>
-                </div>
-                
-                <div id="generationResult" class="hidden">
-                    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
-                        <p class="font-bold">Attention :</p>
-                        <p>Ce menu est généré aléatoirement pour approcher les calories cibles et l'objectif choisi. Il n'est PAS garanti d'être parfaitement équilibré, tant au quotidiennement qu'en termes de nutriments. Utilisez-le comme point de départ et adaptez-le. Consultez toujours un professionnel pour un plan nutritionnel personnalisé.</p>
-                    </div>
-                    <div class="mt-4 text-green-600 font-semibold text-center" id="menuGeneratedMessage">
+</div>
+</div>
+<div class="hidden" id="generationStatus">
+<div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4" role="alert">
+<p class="font-bold">Génération en cours (Objectif: <span id="objectiveDisplay">Perte de poids</span>)...</p>
+</div>
+</div>
+<div class="hidden" id="generationResult">
+<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+<p class="font-bold">Attention :</p>
+<p>Ce menu est généré aléatoirement pour approcher les calories cibles et l'objectif choisi. Il n'est PAS garanti d'être parfaitement équilibré, tant au quotidiennement qu'en termes de nutriments. Utilisez-le comme point de départ et adaptez-le. Consultez toujours un professionnel pour un plan nutritionnel personnalisé.</p>
+</div>
+<div class="mt-4 text-green-600 font-semibold text-center" id="menuGeneratedMessage">
                         Menu généré avec succès ! Vérifiez et ajustez si nécessaire.
                     </div>
-                    
-                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="bg-blue-50 p-3 rounded">
-                            <h3 class="font-semibold">Petit-déjeuner</h3>
-                            <p><span id="breakfast-actual-calories">0</span> kcal sur <span id="breakfast-target-calories">0</span> kcal</p>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                                <div id="breakfast-progress" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
-                            </div>
-                            <p class="text-sm text-gray-600 mt-1"><span id="breakfast-percent">0</span>% de l'objectif</p>
-                        </div>
-                        <div class="bg-blue-50 p-3 rounded">
-                            <h3 class="font-semibold">Déjeuner</h3>
-                            <p><span id="lunch-actual-calories">0</span> kcal sur <span id="lunch-target-calories">0</span> kcal</p>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                                <div id="lunch-progress" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
-                            </div>
-                            <p class="text-sm text-gray-600 mt-1"><span id="lunch-percent">0</span>% de l'objectif</p>
-                        </div>
-                        <div class="bg-blue-50 p-3 rounded">
-                            <h3 class="font-semibold">Dîner</h3>
-                            <p><span id="dinner-actual-calories">0</span> kcal sur <span id="dinner-target-calories">0</span> kcal</p>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                                <div id="dinner-progress" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
-                            </div>
-                            <p class="text-sm text-gray-600 mt-1"><span id="dinner-percent">0</span>% de l'objectif</p>
-                        </div>
-                        <div class="bg-blue-50 p-3 rounded">
-                            <h3 class="font-semibold">Collation</h3>
-                            <p><span id="snack-actual-calories">0</span> kcal sur <span id="snack-target-calories">0</span> kcal</p>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                                <div id="snack-progress" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
-                            </div>
-                            <p class="text-sm text-gray-600 mt-1"><span id="snack-percent">0</span>% de l'objectif</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Section de sélection d'aliments -->
-        <div class="mb-8 bg-blue-50 p-4 rounded-lg">
-            <div class="flex justify-between items-center mb-4 cursor-pointer" id="foodSelectionHeader">
-                <h2 class="text-xl font-semibold">Sélection d'aliments</h2>
-                <i class="fas fa-chevron-down text-gray-600" id="foodSelectionChevron"></i>
-            </div>
-            
-            <div id="foodSelectionContent">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Sélection de catégorie -->
-                    <div>
-                        <label for="categorySelect" class="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-                        <select id="categorySelect" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">Choisir une catégorie</option>
-                            <option value="legumes">Légumes</option>
-                            <option value="fruits">Fruits</option>
-                            <option value="viandes">Viandes</option>
-                            <option value="poissons">Poissons</option>
-                            <option value="cereales">Céréales</option>
-                            <option value="feculents">Féculents</option>
-                            <option value="produits_laitiers">Produits laitiers</option>
-                            <option value="boissons">Boissons</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Sélection d'aliment -->
-                    <div>
-                        <label for="foodSelect" class="block text-sm font-medium text-gray-700 mb-1">Aliment</label>
-                        <select id="foodSelect" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">Veuillez sélectionner une catégorie</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Quantité -->
-                    <div>
-                        <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantité (g)</label>
-                        <input type="number" id="quantity" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="100" min="1">
-                    </div>
-                    
-                    <!-- Bouton d'ajout -->
-                    <div class="flex items-end">
-                        <button id="addFoodBtn" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded">
+<div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="bg-blue-50 p-3 rounded">
+<h3 class="font-semibold">Petit-déjeuner</h3>
+<p><span id="breakfast-actual-calories">0</span> kcal sur <span id="breakfast-target-calories">0</span> kcal</p>
+<div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+<div class="bg-blue-600 h-2.5 rounded-full" id="breakfast-progress" style="width: 0%"></div>
+</div>
+<p class="text-sm text-gray-600 mt-1"><span id="breakfast-percent">0</span>% de l'objectif</p>
+</div>
+<div class="bg-blue-50 p-3 rounded">
+<h3 class="font-semibold">Déjeuner</h3>
+<p><span id="lunch-actual-calories">0</span> kcal sur <span id="lunch-target-calories">0</span> kcal</p>
+<div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+<div class="bg-blue-600 h-2.5 rounded-full" id="lunch-progress" style="width: 0%"></div>
+</div>
+<p class="text-sm text-gray-600 mt-1"><span id="lunch-percent">0</span>% de l'objectif</p>
+</div>
+<div class="bg-blue-50 p-3 rounded">
+<h3 class="font-semibold">Dîner</h3>
+<p><span id="dinner-actual-calories">0</span> kcal sur <span id="dinner-target-calories">0</span> kcal</p>
+<div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+<div class="bg-blue-600 h-2.5 rounded-full" id="dinner-progress" style="width: 0%"></div>
+</div>
+<p class="text-sm text-gray-600 mt-1"><span id="dinner-percent">0</span>% de l'objectif</p>
+</div>
+<div class="bg-blue-50 p-3 rounded">
+<h3 class="font-semibold">Collation</h3>
+<p><span id="snack-actual-calories">0</span> kcal sur <span id="snack-target-calories">0</span> kcal</p>
+<div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+<div class="bg-blue-600 h-2.5 rounded-full" id="snack-progress" style="width: 0%"></div>
+</div>
+<p class="text-sm text-gray-600 mt-1"><span id="snack-percent">0</span>% de l'objectif</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section de sélection d'aliments -->
+<div class="mb-8 bg-blue-50 p-4 rounded-lg">
+<div class="flex justify-between items-center mb-4 cursor-pointer" id="foodSelectionHeader">
+<h2 class="text-xl font-semibold">Sélection d'aliments</h2>
+<i class="fas fa-chevron-down text-gray-600" id="foodSelectionChevron"></i>
+</div>
+<div id="foodSelectionContent">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Sélection de catégorie -->
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1" for="categorySelect">Catégorie</label>
+<select class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" id="categorySelect">
+<option value="">Choisir une catégorie</option>
+<option value="legumes">Légumes</option>
+<option value="fruits">Fruits</option>
+<option value="viandes">Viandes</option>
+<option value="poissons">Poissons</option>
+<option value="cereales">Céréales</option>
+<option value="feculents">Féculents</option>
+<option value="produits_laitiers">Produits laitiers</option>
+<option value="boissons">Boissons</option>
+</select>
+</div>
+<!-- Sélection d'aliment -->
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1" for="foodSelect">Aliment</label>
+<select class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" id="foodSelect">
+<option value="">Veuillez sélectionner une catégorie</option>
+</select>
+</div>
+<!-- Quantité -->
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1" for="quantity">Quantité (g)</label>
+<input class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" id="quantity" min="1" type="number" value="100"/>
+</div>
+<!-- Bouton d'ajout -->
+<div class="flex items-end">
+<button class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded" id="addFoodBtn">
                             Ajouter à mon repas
                         </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Détails nutritionnels -->
-        <div class="mb-8 bg-gray-50 p-4 rounded-lg">
-            <h2 class="text-xl font-semibold mb-4">Détails nutritionnels (pour 100g)</h2>
-            <div id="nutritionDetails" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-blue-100 p-3 rounded-lg">
-                    <p class="text-sm text-gray-700">Calories</p>
-                    <p id="calories" class="text-xl font-bold">-</p>
-                </div>
-                <div class="bg-green-100 p-3 rounded-lg">
-                    <p class="text-sm text-gray-700">Protéines</p>
-                    <p id="proteins" class="text-xl font-bold">-</p>
-                </div>
-                <div class="bg-yellow-100 p-3 rounded-lg">
-                    <p class="text-sm text-gray-700">Glucides</p>
-                    <p id="carbs" class="text-xl font-bold">-</p>
-                </div>
-                <div class="bg-red-100 p-3 rounded-lg">
-                    <p class="text-sm text-gray-700">Lipides</p>
-                    <p id="fats" class="text-xl font-bold">-</p>
-                </div>
-            </div>
-            
-            <div class="mt-4">
-                <h3 class="font-semibold mb-2">Micronutriments</h3>
-                <div id="micronutrients" class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                    <p class="text-gray-600">Sélectionnez un aliment pour voir ses détails</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Onglets de repas -->
-        <div class="bg-gray-50 p-4 rounded-lg">
-            <div class="mb-4">
-                <ul class="flex flex-wrap border-b border-gray-200">
-                    <li class="mr-2">
-                        <a href="#" class="meal-tab inline-block p-2 rounded-t-lg border-b-2 border-transparent hover:text-blue-600 hover:border-blue-600 active-tab" data-meal="breakfast">
+</div>
+</div>
+</div>
+</div>
+<!-- Détails nutritionnels -->
+<div class="mb-8 bg-gray-50 p-4 rounded-lg">
+<h2 class="text-xl font-semibold mb-4">Détails nutritionnels (pour 100g)</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="nutritionDetails">
+<div class="bg-blue-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Calories</p>
+<p class="text-xl font-bold" id="calories">-</p>
+</div>
+<div class="bg-green-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Protéines</p>
+<p class="text-xl font-bold" id="proteins">-</p>
+</div>
+<div class="bg-yellow-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Glucides</p>
+<p class="text-xl font-bold" id="carbs">-</p>
+</div>
+<div class="bg-red-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Lipides</p>
+<p class="text-xl font-bold" id="fats">-</p>
+</div>
+</div>
+<div class="mt-4">
+<h3 class="font-semibold mb-2">Micronutriments</h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm" id="micronutrients">
+<p class="text-gray-600">Sélectionnez un aliment pour voir ses détails</p>
+</div>
+</div>
+</div>
+<!-- Onglets de repas -->
+<div class="bg-gray-50 p-4 rounded-lg">
+<div class="mb-4">
+<ul class="flex flex-wrap border-b border-gray-200">
+<li class="mr-2">
+<a class="meal-tab inline-block p-2 rounded-t-lg border-b-2 border-transparent hover:text-blue-600 hover:border-blue-600 active-tab" data-meal="breakfast" href="#">
                             Petit-déjeuner
                         </a>
-                    </li>
-                    <li class="mr-2">
-                        <a href="#" class="meal-tab inline-block p-2 rounded-t-lg border-b-2 border-transparent hover:text-blue-600 hover:border-blue-600" data-meal="lunch">
+</li>
+<li class="mr-2">
+<a class="meal-tab inline-block p-2 rounded-t-lg border-b-2 border-transparent hover:text-blue-600 hover:border-blue-600" data-meal="lunch" href="#">
                             Déjeuner
                         </a>
-                    </li>
-                    <li class="mr-2">
-                        <a href="#" class="meal-tab inline-block p-2 rounded-t-lg border-b-2 border-transparent hover:text-blue-600 hover:border-blue-600" data-meal="dinner">
+</li>
+<li class="mr-2">
+<a class="meal-tab inline-block p-2 rounded-t-lg border-b-2 border-transparent hover:text-blue-600 hover:border-blue-600" data-meal="dinner" href="#">
                             Dîner
                         </a>
-                    </li>
-                    <li class="mr-2">
-                        <a href="#" class="meal-tab inline-block p-2 rounded-t-lg border-b-2 border-transparent hover:text-blue-600 hover:border-blue-600" data-meal="snack">
+</li>
+<li class="mr-2">
+<a class="meal-tab inline-block p-2 rounded-t-lg border-b-2 border-transparent hover:text-blue-600 hover:border-blue-600" data-meal="snack" href="#">
                             Collation
                         </a>
-                    </li>
-                </ul>
-            </div>
-            
-            <!-- Contenu du repas actif -->
-            <div class="meal-content active" data-meal="breakfast">
-                <h2 class="text-xl font-semibold mb-4">Mon petit-déjeuner</h2>
-                <div class="meal-empty italic text-gray-500">Aucun aliment ajouté à ce repas.</div>
-                <ul class="meal-items space-y-2"></ul>
-                
-                <!-- Résumé nutritionnel du repas -->
-                <div class="meal-summary mt-6 hidden">
-                    <h3 class="font-semibold mb-2">Résumé nutritionnel du repas</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="bg-blue-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Calories totales</p>
-                            <p class="meal-total-calories text-xl font-bold">0 kcal</p>
-                        </div>
-                        <div class="bg-green-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Protéines</p>
-                            <p class="meal-total-proteins text-xl font-bold">0 g</p>
-                        </div>
-                        <div class="bg-yellow-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Glucides</p>
-                            <p class="meal-total-carbs text-xl font-bold">0 g</p>
-                        </div>
-                        <div class="bg-red-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Lipides</p>
-                            <p class="meal-total-fats text-xl font-bold">0 g</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="meal-content hidden" data-meal="lunch">
-                <h2 class="text-xl font-semibold mb-4">Mon déjeuner</h2>
-                <div class="meal-empty italic text-gray-500">Aucun aliment ajouté à ce repas.</div>
-                <ul class="meal-items space-y-2"></ul>
-                
-                <!-- Résumé nutritionnel du repas -->
-                <div class="meal-summary mt-6 hidden">
-                    <h3 class="font-semibold mb-2">Résumé nutritionnel du repas</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="bg-blue-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Calories totales</p>
-                            <p class="meal-total-calories text-xl font-bold">0 kcal</p>
-                        </div>
-                        <div class="bg-green-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Protéines</p>
-                            <p class="meal-total-proteins text-xl font-bold">0 g</p>
-                        </div>
-                        <div class="bg-yellow-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Glucides</p>
-                            <p class="meal-total-carbs text-xl font-bold">0 g</p>
-                        </div>
-                        <div class="bg-red-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Lipides</p>
-                            <p class="meal-total-fats text-xl font-bold">0 g</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="meal-content hidden" data-meal="dinner">
-                <h2 class="text-xl font-semibold mb-4">Mon dîner</h2>
-                <div class="meal-empty italic text-gray-500">Aucun aliment ajouté à ce repas.</div>
-                <ul class="meal-items space-y-2"></ul>
-                
-                <!-- Résumé nutritionnel du repas -->
-                <div class="meal-summary mt-6 hidden">
-                    <h3 class="font-semibold mb-2">Résumé nutritionnel du repas</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="bg-blue-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Calories totales</p>
-                            <p class="meal-total-calories text-xl font-bold">0 kcal</p>
-                        </div>
-                        <div class="bg-green-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Protéines</p>
-                            <p class="meal-total-proteins text-xl font-bold">0 g</p>
-                        </div>
-                        <div class="bg-yellow-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Glucides</p>
-                            <p class="meal-total-carbs text-xl font-bold">0 g</p>
-                        </div>
-                        <div class="bg-red-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Lipides</p>
-                            <p class="meal-total-fats text-xl font-bold">0 g</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="meal-content hidden" data-meal="snack">
-                <h2 class="text-xl font-semibold mb-4">Ma collation</h2>
-                <div class="meal-empty italic text-gray-500">Aucun aliment ajouté à ce repas.</div>
-                <ul class="meal-items space-y-2"></ul>
-                
-                <!-- Résumé nutritionnel du repas -->
-                <div class="meal-summary mt-6 hidden">
-                    <h3 class="font-semibold mb-2">Résumé nutritionnel du repas</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="bg-blue-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Calories totales</p>
-                            <p class="meal-total-calories text-xl font-bold">0 kcal</p>
-                        </div>
-                        <div class="bg-green-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Protéines</p>
-                            <p class="meal-total-proteins text-xl font-bold">0 g</p>
-                        </div>
-                        <div class="bg-yellow-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Glucides</p>
-                            <p class="meal-total-carbs text-xl font-bold">0 g</p>
-                        </div>
-                        <div class="bg-red-100 p-3 rounded-lg">
-                            <p class="text-sm text-gray-700">Lipides</p>
-                            <p class="meal-total-fats text-xl font-bold">0 g</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Résumé journalier -->
-            <div class="mt-8 pt-6 border-t border-gray-200">
-                <h2 class="text-xl font-semibold mb-4">Résumé journalier</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-blue-100 p-3 rounded-lg">
-                        <p class="text-sm text-gray-700">Calories Totales</p>
-                        <p id="dailyTotalCalories" class="text-xl font-bold">0 kcal</p>
-                    </div>
-                    <div class="bg-green-100 p-3 rounded-lg">
-                        <p class="text-sm text-gray-700">Protéines</p>
-                        <p id="dailyTotalProteins" class="text-xl font-bold">0 g</p>
-                    </div>
-                    <div class="bg-yellow-100 p-3 rounded-lg">
-                        <p class="text-sm text-gray-700">Glucides</p>
-                        <p id="dailyTotalCarbs" class="text-xl font-bold">0 g</p>
-                    </div>
-                    <div class="bg-red-100 p-3 rounded-lg">
-                        <p class="text-sm text-gray-700">Lipides</p>
-                        <p id="dailyTotalFats" class="text-xl font-bold">0 g</p>
-                    </div>
-                </div>
-                
-                <div class="mt-4">
-                    <h3 class="font-semibold mb-2">Détail par repas</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold">REPAS</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold">CALORIES</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold">PROTÉINES</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold">GLUCIDES</th>
-                                    <th class="py-2 px-4 text-left text-sm font-semibold">LIPIDES</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="py-2 px-4 border-t">Petit-déjeuner</td>
-                                    <td id="breakfast-calories" class="py-2 px-4 border-t">0 kcal</td>
-                                    <td id="breakfast-proteins" class="py-2 px-4 border-t">0 g</td>
-                                    <td id="breakfast-carbs" class="py-2 px-4 border-t">0 g</td>
-                                    <td id="breakfast-fats" class="py-2 px-4 border-t">0 g</td>
-                                </tr>
-                                <tr>
-                                    <td class="py-2 px-4 border-t">Déjeuner</td>
-                                    <td id="lunch-calories" class="py-2 px-4 border-t">0 kcal</td>
-                                    <td id="lunch-proteins" class="py-2 px-4 border-t">0 g</td>
-                                    <td id="lunch-carbs" class="py-2 px-4 border-t">0 g</td>
-                                    <td id="lunch-fats" class="py-2 px-4 border-t">0 g</td>
-                                </tr>
-                                <tr>
-                                    <td class="py-2 px-4 border-t">Dîner</td>
-                                    <td id="dinner-calories" class="py-2 px-4 border-t">0 kcal</td>
-                                    <td id="dinner-proteins" class="py-2 px-4 border-t">0 g</td>
-                                    <td id="dinner-carbs" class="py-2 px-4 border-t">0 g</td>
-                                    <td id="dinner-fats" class="py-2 px-4 border-t">0 g</td>
-                                </tr>
-                                <tr>
-                                    <td class="py-2 px-4 border-t">Collation</td>
-                                    <td id="snack-calories" class="py-2 px-4 border-t">0 kcal</td>
-                                    <td id="snack-proteins" class="py-2 px-4 border-t">0 g</td>
-                                    <td id="snack-carbs" class="py-2 px-4 border-t">0 g</td>
-                                    <td id="snack-fats" class="py-2 px-4 border-t">0 g</td>
-                                </tr>
-                                <tr class="bg-gray-100 font-semibold">
-                                    <td class="py-2 px-4 border-t">TOTAL</td>
-                                    <td id="total-calories" class="py-2 px-4 border-t">0 kcal</td>
-                                    <td id="total-proteins" class="py-2 px-4 border-t">0 g</td>
-                                    <td id="total-carbs" class="py-2 px-4 border-t">0 g</td>
-                                    <td id="total-fats" class="py-2 px-4 border-t">0 g</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <div class="mt-4 text-center">
-                    <button id="resetAllBtn" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
+</li>
+</ul>
+</div>
+<!-- Contenu du repas actif -->
+<div class="meal-content active" data-meal="breakfast">
+<h2 class="text-xl font-semibold mb-4">Mon petit-déjeuner</h2>
+<div class="meal-empty italic text-gray-500">Aucun aliment ajouté à ce repas.</div>
+<ul class="meal-items space-y-2"></ul>
+<!-- Résumé nutritionnel du repas -->
+<div class="meal-summary mt-6 hidden">
+<h3 class="font-semibold mb-2">Résumé nutritionnel du repas</h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="bg-blue-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Calories totales</p>
+<p class="meal-total-calories text-xl font-bold">0 kcal</p>
+</div>
+<div class="bg-green-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Protéines</p>
+<p class="meal-total-proteins text-xl font-bold">0 g</p>
+</div>
+<div class="bg-yellow-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Glucides</p>
+<p class="meal-total-carbs text-xl font-bold">0 g</p>
+</div>
+<div class="bg-red-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Lipides</p>
+<p class="meal-total-fats text-xl font-bold">0 g</p>
+</div>
+</div>
+</div>
+</div>
+<div class="meal-content hidden" data-meal="lunch">
+<h2 class="text-xl font-semibold mb-4">Mon déjeuner</h2>
+<div class="meal-empty italic text-gray-500">Aucun aliment ajouté à ce repas.</div>
+<ul class="meal-items space-y-2"></ul>
+<!-- Résumé nutritionnel du repas -->
+<div class="meal-summary mt-6 hidden">
+<h3 class="font-semibold mb-2">Résumé nutritionnel du repas</h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="bg-blue-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Calories totales</p>
+<p class="meal-total-calories text-xl font-bold">0 kcal</p>
+</div>
+<div class="bg-green-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Protéines</p>
+<p class="meal-total-proteins text-xl font-bold">0 g</p>
+</div>
+<div class="bg-yellow-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Glucides</p>
+<p class="meal-total-carbs text-xl font-bold">0 g</p>
+</div>
+<div class="bg-red-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Lipides</p>
+<p class="meal-total-fats text-xl font-bold">0 g</p>
+</div>
+</div>
+</div>
+</div>
+<div class="meal-content hidden" data-meal="dinner">
+<h2 class="text-xl font-semibold mb-4">Mon dîner</h2>
+<div class="meal-empty italic text-gray-500">Aucun aliment ajouté à ce repas.</div>
+<ul class="meal-items space-y-2"></ul>
+<!-- Résumé nutritionnel du repas -->
+<div class="meal-summary mt-6 hidden">
+<h3 class="font-semibold mb-2">Résumé nutritionnel du repas</h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="bg-blue-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Calories totales</p>
+<p class="meal-total-calories text-xl font-bold">0 kcal</p>
+</div>
+<div class="bg-green-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Protéines</p>
+<p class="meal-total-proteins text-xl font-bold">0 g</p>
+</div>
+<div class="bg-yellow-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Glucides</p>
+<p class="meal-total-carbs text-xl font-bold">0 g</p>
+</div>
+<div class="bg-red-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Lipides</p>
+<p class="meal-total-fats text-xl font-bold">0 g</p>
+</div>
+</div>
+</div>
+</div>
+<div class="meal-content hidden" data-meal="snack">
+<h2 class="text-xl font-semibold mb-4">Ma collation</h2>
+<div class="meal-empty italic text-gray-500">Aucun aliment ajouté à ce repas.</div>
+<ul class="meal-items space-y-2"></ul>
+<!-- Résumé nutritionnel du repas -->
+<div class="meal-summary mt-6 hidden">
+<h3 class="font-semibold mb-2">Résumé nutritionnel du repas</h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="bg-blue-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Calories totales</p>
+<p class="meal-total-calories text-xl font-bold">0 kcal</p>
+</div>
+<div class="bg-green-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Protéines</p>
+<p class="meal-total-proteins text-xl font-bold">0 g</p>
+</div>
+<div class="bg-yellow-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Glucides</p>
+<p class="meal-total-carbs text-xl font-bold">0 g</p>
+</div>
+<div class="bg-red-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Lipides</p>
+<p class="meal-total-fats text-xl font-bold">0 g</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Résumé journalier -->
+<div class="mt-8 pt-6 border-t border-gray-200">
+<h2 class="text-xl font-semibold mb-4">Résumé journalier</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="bg-blue-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Calories Totales</p>
+<p class="text-xl font-bold" id="dailyTotalCalories">0 kcal</p>
+</div>
+<div class="bg-green-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Protéines</p>
+<p class="text-xl font-bold" id="dailyTotalProteins">0 g</p>
+</div>
+<div class="bg-yellow-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Glucides</p>
+<p class="text-xl font-bold" id="dailyTotalCarbs">0 g</p>
+</div>
+<div class="bg-red-100 p-3 rounded-lg">
+<p class="text-sm text-gray-700">Lipides</p>
+<p class="text-xl font-bold" id="dailyTotalFats">0 g</p>
+</div>
+</div>
+<div class="mt-4">
+<h3 class="font-semibold mb-2">Détail par repas</h3>
+<div class="overflow-x-auto">
+<table class="min-w-full bg-white">
+<thead class="bg-gray-100">
+<tr>
+<th class="py-2 px-4 text-left text-sm font-semibold">REPAS</th>
+<th class="py-2 px-4 text-left text-sm font-semibold">CALORIES</th>
+<th class="py-2 px-4 text-left text-sm font-semibold">PROTÉINES</th>
+<th class="py-2 px-4 text-left text-sm font-semibold">GLUCIDES</th>
+<th class="py-2 px-4 text-left text-sm font-semibold">LIPIDES</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="py-2 px-4 border-t">Petit-déjeuner</td>
+<td class="py-2 px-4 border-t" id="breakfast-calories">0 kcal</td>
+<td class="py-2 px-4 border-t" id="breakfast-proteins">0 g</td>
+<td class="py-2 px-4 border-t" id="breakfast-carbs">0 g</td>
+<td class="py-2 px-4 border-t" id="breakfast-fats">0 g</td>
+</tr>
+<tr>
+<td class="py-2 px-4 border-t">Déjeuner</td>
+<td class="py-2 px-4 border-t" id="lunch-calories">0 kcal</td>
+<td class="py-2 px-4 border-t" id="lunch-proteins">0 g</td>
+<td class="py-2 px-4 border-t" id="lunch-carbs">0 g</td>
+<td class="py-2 px-4 border-t" id="lunch-fats">0 g</td>
+</tr>
+<tr>
+<td class="py-2 px-4 border-t">Dîner</td>
+<td class="py-2 px-4 border-t" id="dinner-calories">0 kcal</td>
+<td class="py-2 px-4 border-t" id="dinner-proteins">0 g</td>
+<td class="py-2 px-4 border-t" id="dinner-carbs">0 g</td>
+<td class="py-2 px-4 border-t" id="dinner-fats">0 g</td>
+</tr>
+<tr>
+<td class="py-2 px-4 border-t">Collation</td>
+<td class="py-2 px-4 border-t" id="snack-calories">0 kcal</td>
+<td class="py-2 px-4 border-t" id="snack-proteins">0 g</td>
+<td class="py-2 px-4 border-t" id="snack-carbs">0 g</td>
+<td class="py-2 px-4 border-t" id="snack-fats">0 g</td>
+</tr>
+<tr class="bg-gray-100 font-semibold">
+<td class="py-2 px-4 border-t">TOTAL</td>
+<td class="py-2 px-4 border-t" id="total-calories">0 kcal</td>
+<td class="py-2 px-4 border-t" id="total-proteins">0 g</td>
+<td class="py-2 px-4 border-t" id="total-carbs">0 g</td>
+<td class="py-2 px-4 border-t" id="total-fats">0 g</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="mt-4 text-center">
+<button class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded" id="resetAllBtn">
                         Réinitialiser la journée
                     </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Boîte de dialogue de modification -->
-    <div id="modifyDialog" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-10">
-        <div class="bg-white p-4 rounded-lg shadow-lg w-96">
-            <h3 class="text-lg font-semibold mb-3">Modifier l'aliment</h3>
-            
-            <!-- Champ pour modifier la quantité -->
-            <div class="mb-4">
-                <label for="modifyQuantity" class="block text-sm font-medium text-gray-700 mb-1">Quantité (g)</label>
-                <input type="number" id="modifyQuantity" class="w-full p-2 border border-gray-300 rounded-md" min="1">
-            </div>
-            
-            <!-- Détails nutritionnels de l'aliment sélectionné -->
-            <div id="modifyNutritionPreview" class="mb-4 bg-blue-50 p-3 rounded text-sm">
-                <!-- Détails nutritionnels mis à jour dynamiquement -->
-            </div>
-            
-            <div class="flex justify-end space-x-2">
-                <button id="cancelModify" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded">Annuler</button>
-                <button id="saveModify" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">Enregistrer</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal d'exportation PDF -->
-    <div id="exportModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-10">
-        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-            <h3 class="text-xl font-semibold mb-4">Exporter en PDF</h3>
-            
-            <div class="mb-4">
-                <label for="exportDate" class="block text-sm font-medium text-gray-700 mb-1">Date du menu</label>
-                <input type="date" id="exportDate" class="w-full p-2 border border-gray-300 rounded-md">
-            </div>
-            
-            <div class="mb-6">
-                <label for="exportTitle" class="block text-sm font-medium text-gray-700 mb-1">Titre personnalisé (optionnel)</label>
-                <input type="text" id="exportTitle" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Mon plan alimentaire">
-            </div>
-            
-            <div class="flex justify-end space-x-3">
-                <button id="cancelExport" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded">Annuler</button>
-                <button id="confirmExport" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">Exporter</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal d'information -->
-    <div id="infoModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-10">
-        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-screen overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-semibold">À propos du Calculateur de Calories</h3>
-                <button id="closeInfoModal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="mb-4">
-                <p class="font-semibold mb-2">Application développée par Tophe</p>
-                <p class="text-gray-700 mb-4">Cette application a été conçue pour vous aider à calculer et à planifier vos apports nutritionnels quotidiens.</p>
-                
-                <h4 class="font-semibold mb-2 text-lg">Conseils d'utilisation :</h4>
-                <ul class="list-disc pl-5 mb-4 text-gray-700 space-y-1">
-                    <li>Utilisez le générateur de menu pour créer rapidement un plan alimentaire équilibré</li>
-                    <li>Ajoutez manuellement des aliments pour personnaliser vos repas</li>
-                    <li>Modifiez les quantités pour ajuster votre apport calorique</li>
-                    <li>Consultez le résumé journalier pour voir votre apport total</li>
-                    <li>Exportez votre menu en PDF pour l'imprimer ou le conserver</li>
-                </ul>
-                
-                <div class="bg-yellow-100 p-4 rounded-lg text-yellow-800 mb-4">
-                    <p class="font-semibold">Important :</p>
-                    <p>Cet outil est fourni uniquement à titre indicatif et pour vous donner des exemples de menus. Il ne remplace en aucun cas les conseils personnalisés d'un diététicien, nutritionniste ou autre professionnel de santé. Les besoins nutritionnels varient considérablement d'une personne à l'autre en fonction de nombreux facteurs tels que l'âge, le sexe, le poids, l'activité physique et l'état de santé.</p>
-                </div>
-            </div>
-            
-            <div class="text-center">
-                <button id="closeInfoBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
+</div>
+</div>
+</div>
+</div>
+ Boîte de dialogue de modification 
+<div class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-10" id="modifyDialog">
+<div class="bg-white p-4 rounded-lg shadow-lg w-96">
+<h3 class="text-lg font-semibold mb-3">Modifier l'aliment</h3>
+<!-- Champ pour modifier la quantité -->
+<div class="mb-4">
+<label class="block text-sm font-medium text-gray-700 mb-1" for="modifyQuantity">Quantité (g)</label>
+<input class="w-full p-2 border border-gray-300 rounded-md" id="modifyQuantity" min="1" type="number"/>
+</div>
+<!-- Détails nutritionnels de l'aliment sélectionné -->
+<div class="mb-4 bg-blue-50 p-3 rounded text-sm" id="modifyNutritionPreview">
+<!-- Détails nutritionnels mis à jour dynamiquement -->
+</div>
+<div class="flex justify-end space-x-2">
+<button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded" id="cancelModify">Annuler</button>
+<button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded" id="saveModify">Enregistrer</button>
+</div>
+</div>
+</div>
+ Modal d'exportation PDF 
+<div class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-10" id="exportModal">
+<div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+<h3 class="text-xl font-semibold mb-4">Exporter en PDF</h3>
+<div class="mb-4">
+<label class="block text-sm font-medium text-gray-700 mb-1" for="exportDate">Date du menu</label>
+<input class="w-full p-2 border border-gray-300 rounded-md" id="exportDate" type="date"/>
+</div>
+<div class="mb-6">
+<label class="block text-sm font-medium text-gray-700 mb-1" for="exportTitle">Titre personnalisé (optionnel)</label>
+<input class="w-full p-2 border border-gray-300 rounded-md" id="exportTitle" placeholder="Mon plan alimentaire" type="text"/>
+</div>
+<div class="flex justify-end space-x-3">
+<button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded" id="cancelExport">Annuler</button>
+<button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded" id="confirmExport">Exporter</button>
+</div>
+</div>
+</div>
+ Modal d'information 
+<div class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-10" id="infoModal">
+<div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-screen overflow-y-auto">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-xl font-semibold">À propos du Calculateur de Calories</h3>
+<button class="text-gray-500 hover:text-gray-700" id="closeInfoModal">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<div class="mb-4">
+<p class="font-semibold mb-2">Application développée par Tophe</p>
+<p class="text-gray-700 mb-4">Cette application a été conçue pour vous aider à calculer et à planifier vos apports nutritionnels quotidiens.</p>
+<h4 class="font-semibold mb-2 text-lg">Conseils d'utilisation :</h4>
+<ul class="list-disc pl-5 mb-4 text-gray-700 space-y-1">
+<li>Utilisez le générateur de menu pour créer rapidement un plan alimentaire équilibré</li>
+<li>Ajoutez manuellement des aliments pour personnaliser vos repas</li>
+<li>Modifiez les quantités pour ajuster votre apport calorique</li>
+<li>Consultez le résumé journalier pour voir votre apport total</li>
+<li>Exportez votre menu en PDF pour l'imprimer ou le conserver</li>
+</ul>
+<div class="bg-yellow-100 p-4 rounded-lg text-yellow-800 mb-4">
+<p class="font-semibold">Important :</p>
+<p>Cet outil est fourni uniquement à titre indicatif et pour vous donner des exemples de menus. Il ne remplace en aucun cas les conseils personnalisés d'un diététicien, nutritionniste ou autre professionnel de santé. Les besoins nutritionnels varient considérablement d'une personne à l'autre en fonction de nombreux facteurs tels que l'âge, le sexe, le poids, l'activité physique et l'état de santé.</p>
+</div>
+</div>
+<div class="text-center">
+<button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded" id="closeInfoBtn">
                     Fermer
                 </button>
-            </div>
-        </div>
+</div>
+</div>
+</div>
+
+
     </div>
 
-    <script>
-        // Base de données d'aliments
-        const foodDatabase = {
-            legumes: {
-                "Carotte": { calories: 41, proteins: 0.9, carbs: 10, fats: 0.2, micronutrients: { "Vitamine A": "835 µg", "Vitamine C": "5.9 mg", "Potassium": "320 mg", "Fibres": "2.8 g" } },
-                "Brocoli": { calories: 34, proteins: 2.8, carbs: 7, fats: 0.4, micronutrients: { "Vitamine C": "89.2 mg", "Vitamine K": "101.6 µg", "Folate": "63 µg", "Fibres": "2.6 g" } },
-                "Tomate": { calories: 18, proteins: 0.9, carbs: 3.9, fats: 0.2, micronutrients: { "Vitamine C": "13.7 mg", "Vitamine A": "42 µg", "Potassium": "237 mg", "Lycopène": "2.5 mg" } },
-                "Épinard": { calories: 23, proteins: 2.9, carbs: 3.6, fats: 0.4, micronutrients: { "Vitamine A": "469 µg", "Vitamine C": "28 mg", "Fer": "2.7 mg", "Calcium": "99 mg" } },
-                "Poivron": { calories: 31, proteins: 1, carbs: 6, fats: 0.3, micronutrients: { "Vitamine C": "128 mg", "Vitamine A": "157 µg", "Vitamine B6": "0.3 mg", "Fibres": "2.1 g" } },
-                "Courgette": { calories: 17, proteins: 1.2, carbs: 3.1, fats: 0.3, micronutrients: { "Vitamine C": "17.9 mg", "Potassium": "261 mg", "Folate": "24 µg", "Fibres": "1 g" } },
-                "Aubergine": { calories: 25, proteins: 1, carbs: 6, fats: 0.2, micronutrients: { "Potassium": "229 mg", "Manganèse": "0.3 mg", "Vitamine B6": "0.1 mg", "Fibres": "3 g" } },
-                "Champignon": { calories: 22, proteins: 3.1, carbs: 3.3, fats: 0.3, micronutrients: { "Vitamine D": "0.2 µg", "Sélénium": "9.3 µg", "Potassium": "318 mg", "Niacine": "3.6 mg" } },
-                "Chou-fleur": { calories: 25, proteins: 1.9, carbs: 5, fats: 0.3, micronutrients: { "Vitamine C": "48.2 mg", "Vitamine K": "16 µg", "Folate": "57 µg", "Fibres": "2 g" } },
-                "Oignon": { calories: 40, proteins: 1.1, carbs: 9.3, fats: 0.1, micronutrients: { "Vitamine C": "7.4 mg", "Vitamine B6": "0.1 mg", "Folate": "19 µg", "Fibres": "1.7 g" } }
-            },
-            fruits: {
-                "Pomme": { calories: 52, proteins: 0.3, carbs: 14, fats: 0.2, micronutrients: { "Vitamine C": "4.6 mg", "Potassium": "107 mg", "Fibres": "2.4 g" } },
-                "Banane": { calories: 89, proteins: 1.1, carbs: 23, fats: 0.3, micronutrients: { "Potassium": "358 mg", "Vitamine B6": "0.4 mg", "Vitamine C": "8.7 mg", "Fibres": "2.6 g" } },
-                "Orange": { calories: 47, proteins: 0.9, carbs: 12, fats: 0.1, micronutrients: { "Vitamine C": "53.2 mg", "Folate": "30 µg", "Potassium": "181 mg", "Fibres": "2.4 g" } },
-                "Fraise": { calories: 32, proteins: 0.7, carbs: 7.7, fats: 0.3, micronutrients: { "Vitamine C": "58.8 mg", "Manganèse": "0.4 mg", "Folate": "24 µg", "Fibres": "2 g" } },
-                "Raisin": { calories: 69, proteins: 0.6, carbs: 18, fats: 0.2, micronutrients: { "Vitamine K": "14.6 µg", "Potassium": "191 mg", "Vitamine C": "3.2 mg", "Fibres": "0.9 g" } },
-                "Poire": { calories: 57, proteins: 0.4, carbs: 15, fats: 0.1, micronutrients: { "Vitamine C": "4.3 mg", "Cuivre": "0.1 mg", "Potassium": "119 mg", "Fibres": "3.1 g" } },
-                "Pêche": { calories: 39, proteins: 0.9, carbs: 9.5, fats: 0.3, micronutrients: { "Vitamine C": "6.6 mg", "Vitamine A": "16 µg", "Potassium": "190 mg", "Fibres": "1.5 g" } },
-                "Ananas": { calories: 50, proteins: 0.5, carbs: 13, fats: 0.1, micronutrients: { "Vitamine C": "47.8 mg", "Manganèse": "0.9 mg", "Vitamine B6": "0.1 mg", "Fibres": "1.4 g" } },
-                "Kiwi": { calories: 61, proteins: 1.1, carbs: 15, fats: 0.5, micronutrients: { "Vitamine C": "92.7 mg", "Vitamine K": "40.3 µg", "Potassium": "312 mg", "Fibres": "3 g" } },
-                "Mangue": { calories: 60, proteins: 0.8, carbs: 15, fats: 0.4, micronutrients: { "Vitamine C": "36.4 mg", "Vitamine A": "54 µg", "Potassium": "168 mg", "Fibres": "1.6 g" } },
-                "Fruits secs (mélange)": { calories: 340, proteins: 3.7, carbs: 75, fats: 4, micronutrients: { "Fer": "1.2 mg", "Potassium": "750 mg", "Magnésium": "68 mg", "Fibres": "8.5 g" } },
-                "Abricots secs": { calories: 241, proteins: 3.4, carbs: 63, fats: 0.5, micronutrients: { "Vitamine A": "180 µg", "Potassium": "1162 mg", "Fer": "2.7 mg", "Fibres": "7.3 g" } },
-                "Raisins secs": { calories: 299, proteins: 3.1, carbs: 79, fats: 0.5, micronutrients: { "Potassium": "749 mg", "Fer": "1.9 mg", "Vitamine B6": "0.2 mg", "Fibres": "3.7 g" } }
-            },
-            viandes: {
-                "Poulet (blanc)": { calories: 165, proteins: 31, carbs: 0, fats: 3.6, micronutrients: { "Vitamine B6": "0.6 mg", "Niacine": "13.7 mg", "Phosphore": "196 mg", "Sélénium": "27.6 µg" } },
-                "Bœuf (steak)": { calories: 250, proteins: 26, carbs: 0, fats: 17, micronutrients: { "Fer": "2.7 mg", "Zinc": "5.4 mg", "Vitamine B12": "2.6 µg", "Niacine": "6.2 mg" } },
-                "Porc (côtelette)": { calories: 231, proteins: 25, carbs: 0, fats: 14, micronutrients: { "Thiamine": "0.8 mg", "Vitamine B6": "0.4 mg", "Phosphore": "216 mg", "Zinc": "2.4 mg" } },
-                "Agneau": { calories: 294, proteins: 25, carbs: 0, fats: 21, micronutrients: { "Fer": "1.9 mg", "Zinc": "4.5 mg", "Vitamine B12": "2.3 µg", "Niacine": "7.5 mg" } },
-                "Dinde": { calories: 189, proteins: 29, carbs: 0, fats: 7, micronutrients: { "Vitamine B6": "0.5 mg", "Niacine": "7.1 mg", "Phosphore": "210 mg", "Sélénium": "31.2 µg" } },
-                "Veau": { calories: 172, proteins: 24, carbs: 0, fats: 8, micronutrients: { "Fer": "1.2 mg", "Zinc": "3.1 mg", "Vitamine B12": "1.8 µg", "Niacine": "9.7 mg" } },
-                "Bœuf haché (15% MG)": { calories: 215, proteins: 22, carbs: 0, fats: 15, micronutrients: { "Fer": "2.4 mg", "Zinc": "4.8 mg", "Vitamine B12": "2.3 µg", "Niacine": "5.8 mg" } },
-                "Jambon": { calories: 145, proteins: 21, carbs: 0.5, fats: 6, micronutrients: { "Thiamine": "0.7 mg", "Vitamine B6": "0.3 mg", "Phosphore": "210 mg", "Zinc": "2.1 mg" } },
-                "Poulet (cuisse)": { calories: 209, proteins: 26, carbs: 0, fats: 11, micronutrients: { "Vitamine B6": "0.4 mg", "Niacine": "8.2 mg", "Phosphore": "184 mg", "Sélénium": "22.4 µg" } },
-                "Lapin": { calories: 173, proteins: 33, carbs: 0, fats: 3.5, micronutrients: { "Vitamine B12": "8.3 µg", "Phosphore": "240 mg", "Potassium": "330 mg", "Sélénium": "13.5 µg" } }
-            },
-            poissons: {
-                "Saumon": { calories: 208, proteins: 20, carbs: 0, fats: 13, micronutrients: { "Vitamine D": "11.2 µg", "Vitamine B12": "2.8 µg", "Oméga-3": "2.3 g", "Sélénium": "34.6 µg" } },
-                "Thon": { calories: 184, proteins: 39, carbs: 0, fats: 1, micronutrients: { "Vitamine B12": "10.9 µg", "Niacine": "11.3 mg", "Sélénium": "65.7 µg", "Potassium": "484 mg" } },
-                "Cabillaud": { calories: 82, proteins: 18, carbs: 0, fats: 0.7, micronutrients: { "Vitamine B12": "0.9 µg", "Sélénium": "33.1 µg", "Phosphore": "203 mg", "Potassium": "439 mg" } },
-                "Sardine": { calories: 208, proteins: 24, carbs: 0, fats: 11, micronutrients: { "Vitamine D": "4.8 µg", "Vitamine B12": "8.9 µg", "Calcium": "382 mg", "Oméga-3": "1.5 g" } },
-                "Truite": { calories: 141, proteins: 20, carbs: 0, fats: 6, micronutrients: { "Vitamine D": "7.5 µg", "Vitamine B12": "4.2 µg", "Potassium": "442 mg", "Phosphore": "226 mg" } },
-                "Dorade": { calories: 120, proteins: 20, carbs: 0, fats: 3.5, micronutrients: { "Vitamine D": "5.2 µg", "Vitamine B12": "3.1 µg", "Sélénium": "37.4 µg", "Phosphore": "257 mg" } },
-                "Lieu noir": { calories: 90, proteins: 20, carbs: 0, fats: 0.8, micronutrients: { "Vitamine B12": "1.9 µg", "Sélénium": "28.5 µg", "Potassium": "340 mg", "Phosphore": "190 mg" } },
-                "Maquereau": { calories: 205, proteins: 19, carbs: 0, fats: 14, micronutrients: { "Vitamine D": "16.1 µg", "Vitamine B12": "16.7 µg", "Oméga-3": "2.5 g", "Sélénium": "44 µg" } },
-                "Crevettes": { calories: 99, proteins: 24, carbs: 0, fats: 0.3, micronutrients: { "Vitamine B12": "1.3 µg", "Zinc": "1.5 mg", "Sélénium": "38.2 µg", "Cuivre": "0.3 mg" } },
-                "Saint-Jacques": { calories: 87, proteins: 16, carbs: 2.4, fats: 0.8, micronutrients: { "Vitamine B12": "1.8 µg", "Zinc": "2.3 mg", "Magnésium": "42 mg", "Potassium": "268 mg" } }
-            },
-            cereales: {
-                "Flocons d'avoine": { calories: 379, proteins: 13.2, carbs: 68, fats: 6.5, micronutrients: { "Manganèse": "3.6 mg", "Phosphore": "410 mg", "Magnésium": "138 mg", "Zinc": "3.2 mg" } },
-                "Muesli": { calories: 340, proteins: 10, carbs: 66, fats: 7, micronutrients: { "Fer": "3.5 mg", "Magnésium": "110 mg", "Fibres": "8.5 g", "Zinc": "2.5 mg" } },
-                "Granola": { calories: 471, proteins: 9.7, carbs: 64, fats: 20.3, micronutrients: { "Fer": "3.3 mg", "Zinc": "2.7 mg", "Fibres": "7.5 g", "Magnésium": "132 mg" } },
-                "Corn flakes": { calories: 357, proteins: 7.5, carbs: 84, fats: 0.4, micronutrients: { "Fer": "8.1 mg", "Thiamine": "1.2 mg", "Riboflavine": "1.3 mg", "Niacine": "15 mg" } },
-                "Blé soufflé": { calories: 370, proteins: 11, carbs: 75, fats: 1.5, micronutrients: { "Fer": "7.5 mg", "Thiamine": "1.1 mg", "Riboflavine": "1.2 mg", "Niacine": "13 mg" } },
-                "Céréales chocolatées": { calories: 375, proteins: 7, carbs: 82, fats: 3.2, micronutrients: { "Fer": "7.9 mg", "Calcium": "10 mg", "Vitamine B12": "1.8 µg", "Folate": "400 µg" } },
-                "Boulgour": { calories: 342, proteins: 12.3, carbs: 75.9, fats: 1.3, micronutrients: { "Fer": "2 mg", "Magnésium": "164 mg", "Phosphore": "300 mg", "Fibres": "8.2 g" } },
-                "Quinoa": { calories: 368, proteins: 14.1, carbs: 64.2, fats: 6.1, micronutrients: { "Magnésium": "197 mg", "Phosphore": "457 mg", "Fer": "4.6 mg", "Zinc": "3.1 mg" } },
-                "Sarrasin": { calories: 343, proteins: 13.3, carbs: 71.5, fats: 3.4, micronutrients: { "Magnésium": "251 mg", "Phosphore": "347 mg", "Fer": "2.2 mg", "Zinc": "2.4 mg" } },
-                "Millet": { calories: 378, proteins: 11, carbs: 73, fats: 4.2, micronutrients: { "Magnésium": "114 mg", "Phosphore": "285 mg", "Fer": "3 mg", "Zinc": "1.7 mg" } }
-            },
-            feculents: {
-                "Riz blanc": { calories: 130, proteins: 2.7, carbs: 28, fats: 0.3, micronutrients: { "Fer": "0.2 mg", "Phosphore": "43 mg", "Magnésium": "12 mg", "Zinc": "0.5 mg" } },
-                "Riz complet": { calories: 111, proteins: 2.6, carbs: 23, fats: 0.9, micronutrients: { "Fer": "0.5 mg", "Phosphore": "83 mg", "Magnésium": "43 mg", "Zinc": "0.6 mg" } },
-                "Pâtes": { calories: 158, proteins: 5.8, carbs: 31, fats: 0.9, micronutrients: { "Fer": "1.3 mg", "Phosphore": "69 mg", "Sélénium": "33.5 µg", "Thiamine": "0.1 mg" } },
-                "Pâtes complètes": { calories: 174, proteins: 7.5, carbs: 37, fats: 0.8, micronutrients: { "Fer": "1.7 mg", "Phosphore": "128 mg", "Magnésium": "42 mg", "Zinc": "1.1 mg" } },
-                "Pomme de terre": { calories: 77, proteins: 2, carbs: 17, fats: 0.1, micronutrients: { "Vitamine C": "19.7 mg", "Potassium": "421 mg", "Vitamine B6": "0.3 mg", "Magnésium": "23 mg" } },
-                "Patate douce": { calories: 86, proteins: 1.6, carbs: 20, fats: 0.1, micronutrients: { "Vitamine A": "709 µg", "Vitamine C": "2.4 mg", "Potassium": "337 mg", "Fibres": "3 g" } },
-                "Lentilles": { calories: 116, proteins: 9, carbs: 20, fats: 0.4, micronutrients: { "Fer": "3.3 mg", "Folate": "181 µg", "Magnésium": "36 mg", "Zinc": "1.3 mg" } },
-                "Pois chiches": { calories: 164, proteins: 8.9, carbs: 27, fats: 2.6, micronutrients: { "Fer": "2.9 mg", "Folate": "172 µg", "Magnésium": "48 mg", "Zinc": "1.5 mg" } },
-                "Haricots rouges": { calories: 127, proteins: 8.7, carbs: 22.8, fats: 0.5, micronutrients: { "Fer": "2.9 mg", "Folate": "130 µg", "Magnésium": "45 mg", "Zinc": "1.1 mg" } },
-                "Semoule": { calories: 360, proteins: 12.7, carbs: 73, fats: 1, micronutrients: { "Fer": "1.2 mg", "Magnésium": "42 mg", "Phosphore": "85 mg", "Zinc": "1.1 mg" } }
-            },
-            produits_laitiers: {
-                "Lait entier": { calories: 61, proteins: 3.2, carbs: 4.8, fats: 3.3, micronutrients: { "Calcium": "113 mg", "Vitamine D": "1.2 µg", "Vitamine B12": "0.5 µg", "Phosphore": "84 mg" } },
-                "Yaourt nature": { calories: 59, proteins: 3.5, carbs: 4.7, fats: 3.3, micronutrients: { "Calcium": "121 mg", "Vitamine B12": "0.4 µg", "Phosphore": "95 mg", "Potassium": "141 mg" } },
-                "Fromage blanc": { calories: 98, proteins: 11, carbs: 3.5, fats: 4.3, micronutrients: { "Calcium": "120 mg", "Phosphore": "158 mg", "Potassium": "104 mg", "Vitamine B12": "0.3 µg" } },
-                "Fromage cheddar": { calories: 402, proteins: 25, carbs: 1.3, fats: 33, micronutrients: { "Calcium": "721 mg", "Phosphore": "512 mg", "Zinc": "3.1 mg", "Vitamine A": "330 µg" } },
-                "Fromage frais": { calories: 74, proteins: 4.8, carbs: 2.7, fats: 5, micronutrients: { "Calcium": "40 mg", "Phosphore": "60 mg", "Vitamine A": "150 µg", "Vitamine B2": "0.2 mg" } },
-                "Lait demi-écrémé": { calories: 46, proteins: 3.3, carbs: 4.8, fats: 1.5, micronutrients: { "Calcium": "120 mg", "Vitamine D": "1.2 µg", "Vitamine B12": "0.4 µg", "Phosphore": "90 mg" } },
-                "Lait écrémé": { calories: 34, proteins: 3.4, carbs: 4.9, fats: 0.1, micronutrients: { "Calcium": "122 mg", "Vitamine D": "1.2 µg", "Vitamine B12": "0.4 µg", "Phosphore": "95 mg" } },
-                "Yaourt grec": { calories: 97, proteins: 9, carbs: 3.6, fats: 5, micronutrients: { "Calcium": "115 mg", "Vitamine B12": "0.3 µg", "Phosphore": "135 mg", "Zinc": "0.7 mg" } },
-                "Comté": { calories: 412, proteins: 27, carbs: 0.5, fats: 32, micronutrients: { "Calcium": "700 mg", "Phosphore": "500 mg", "Zinc": "2.7 mg", "Vitamine A": "315 µg" } },
-                "Brie": { calories: 334, proteins: 20.7, carbs: 0.5, fats: 27.7, micronutrients: { "Calcium": "540 mg", "Phosphore": "380 mg", "Vitamine A": "207 µg", "Vitamine B12": "1.6 µg" } }
-            },
-            boissons: {
-                "Café noir": { calories: 2, proteins: 0.1, carbs: 0, fats: 0, micronutrients: { "Potassium": "116 mg", "Magnésium": "7 mg", "Niacine": "0.5 mg", "Manganèse": "0.1 mg" } },
-                "Thé vert": { calories: 2, proteins: 0, carbs: 0.5, fats: 0, micronutrients: { "Fluorure": "0.3 mg", "Manganèse": "0.3 mg", "Potassium": "20 mg", "Catéchines": "50 mg" } },
-                "Chocolat chaud": { calories: 89, proteins: 3.4, carbs: 12, fats: 3.7, micronutrients: { "Calcium": "103 mg", "Potassium": "185 mg", "Magnésium": "27 mg", "Sodium": "74 mg" } },
-                "Jus d'orange": { calories: 45, proteins: 0.7, carbs: 10.4, fats: 0.2, micronutrients: { "Vitamine C": "50 mg", "Folate": "30 µg", "Potassium": "200 mg", "Thiamine": "0.1 mg" } },
-                "Eau": { calories: 0, proteins: 0, carbs: 0, fats: 0, micronutrients: { "Calcium": "0 mg", "Magnésium": "0 mg", "Sodium": "0 mg", "Potassium": "0 mg" } },
-                "Café au lait": { calories: 13, proteins: 0.6, carbs: 1, fats: 0.5, micronutrients: { "Calcium": "24 mg", "Potassium": "126 mg", "Magnésium": "8 mg", "Vitamine B12": "0.1 µg" } },
-                "Thé noir": { calories: 2, proteins: 0, carbs: 0.5, fats: 0, micronutrients: { "Fluorure": "0.2 mg", "Manganèse": "0.2 mg", "Potassium": "25 mg", "Théaflavines": "15 mg" } },
-                "Jus de pomme": { calories: 46, proteins: 0.1, carbs: 11.3, fats: 0.1, micronutrients: { "Potassium": "120 mg", "Vitamine C": "2.2 mg", "Vitamine B6": "0.04 mg", "Folate": "0.1 µg" } },
-                "Smoothie aux fruits": { calories: 58, proteins: 1, carbs: 13.5, fats: 0.3, micronutrients: { "Vitamine C": "20 mg", "Potassium": "250 mg", "Folate": "25 µg", "Magnésium": "15 mg" } },
-                "Lait d'amande": { calories: 13, proteins: 0.5, carbs: 0.6, fats: 1.1, micronutrients: { "Calcium": "125 mg", "Vitamine E": "2.4 mg", "Potassium": "30 mg", "Magnésium": "10 mg" } }
-            }
-        };
-        
-        // Références aux éléments du DOM
-        const categorySelect = document.getElementById('categorySelect');
-        const foodSelect = document.getElementById('foodSelect');
-        const quantityInput = document.getElementById('quantity');
-        const addFoodBtn = document.getElementById('addFoodBtn');
-        const nutritionDetails = {
-            calories: document.getElementById('calories'),
-            proteins: document.getElementById('proteins'),
-            carbs: document.getElementById('carbs'),
-            fats: document.getElementById('fats'),
-            micronutrients: document.getElementById('micronutriments')
-        };
-        
-        // Éléments pour la modification
-        const modifyDialog = document.getElementById('modifyDialog');
-        const modifyQuantityInput = document.getElementById('modifyQuantity');
-        const modifyNutritionPreview = document.getElementById('modifyNutritionPreview');
-        const cancelModifyBtn = document.getElementById('cancelModify');
-        const saveModifyBtn = document.getElementById('saveModify');
-        const resetAllBtn = document.getElementById('resetAllBtn');
-        
-        // Éléments pour l'exportation PDF
-        const exportPdfBtn = document.getElementById('exportPdfBtn');
-        const exportModal = document.getElementById('exportModal');
-        const exportDate = document.getElementById('exportDate');
-        const exportTitle = document.getElementById('exportTitle');
-        const cancelExport = document.getElementById('cancelExport');
-        const confirmExport = document.getElementById('confirmExport');
-        
-        // Éléments pour le modal d'information
-        const infoBtn = document.getElementById('infoBtn');
-        const infoModal = document.getElementById('infoModal');
-        const closeInfoBtn = document.getElementById('closeInfoBtn');
-        const closeInfoModal = document.getElementById('closeInfoModal');
-        
-        // Éléments pour la génération de menu
-        const targetCaloriesInput = document.getElementById('targetCalories');
-        const generateMenuBtn = document.getElementById('generateMenuBtn');
-        const menuGeneratorHeader = document.getElementById('menuGeneratorHeader');
-        const menuGeneratorChevron = document.getElementById('menuGeneratorChevron');
-        const menuGeneratorContent = document.getElementById('menuGeneratorContent');
-        const generationStatus = document.getElementById('generationStatus');
-        const generationResult = document.getElementById('generationResult');
-        const objectiveDisplay = document.getElementById('objectiveDisplay');
-        
-        // Éléments pour la section de sélection d'aliments
-        const foodSelectionHeader = document.getElementById('foodSelectionHeader');
-        const foodSelectionChevron = document.getElementById('foodSelectionChevron');
-        const foodSelectionContent = document.getElementById('foodSelectionContent');
-        
-        // Variables globales pour le suivi des aliments et des valeurs nutritionnelles
-        let selectedFood = null;
-        let currentModifyIndex = -1;
-        let currentMeal = 'breakfast'; // Repas actif par défaut
-        
-        // Structure pour stocker les aliments par repas
-        const meals = {
-            breakfast: { items: [], totals: { calories: 0, proteins: 0, carbs: 0, fats: 0 } },
-            lunch: { items: [], totals: { calories: 0, proteins: 0, carbs: 0, fats: 0 } },
-            dinner: { items: [], totals: { calories: 0, proteins: 0, carbs: 0, fats: 0 } },
-            snack: { items: [], totals: { calories: 0, proteins: 0, carbs: 0, fats: 0 } }
-        };
-        
-        // Variable pour stocker les cibles caloriques pour chaque repas
-        const mealCalorieTargets = {
-            breakfast: 0,
-            lunch: 0,
-            dinner: 0,
-            snack: 0
-        };
-        
-        // Initialiser la date du jour pour l'exportation
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        exportDate.value = `${year}-${month}-${day}`;
-        
-        // Gestionnaire d'événement pour les onglets de repas
-        document.querySelectorAll('.meal-tab').forEach(tab => {
-            tab.addEventListener('click', function(e) {
-                e.preventDefault();
-                const meal = this.dataset.meal;
-                switchToMeal(meal);
-            });
-        });
-        
-        // Fonction pour changer de repas actif
-        function switchToMeal(meal) {
-            // Mettre à jour la classe active sur les onglets
-            document.querySelectorAll('.meal-tab').forEach(tab => {
-                if (tab.dataset.meal === meal) {
-                    tab.classList.add('active-tab');
-                } else {
-                    tab.classList.remove('active-tab');
-                }
-            });
-            
-            // Mettre à jour le contenu affiché
-            document.querySelectorAll('.meal-content').forEach(content => {
-                if (content.dataset.meal === meal) {
-                    content.classList.remove('hidden');
-                    content.classList.add('active');
-                } else {
-                    content.classList.add('hidden');
-                    content.classList.remove('active');
-                }
-            });
-            
-            // Mettre à jour le repas actif
-            currentMeal = meal;
-        }
-        
-        // Gestionnaire d'événement pour la sélection de catégorie
-        categorySelect.addEventListener('change', function() {
-            const category = this.value;
-            console.log("Catégorie sélectionnée:", category);
-            
-            // Vider et désactiver la liste des aliments si aucune catégorie n'est sélectionnée
-            if (!category) {
-                foodSelect.innerHTML = '<option value="">Veuillez sélectionner une catégorie</option>';
-                resetNutritionDetails(); // Réinitialiser les détails nutritionnels
-                return;
-            }
-            
-            // Récupérer les aliments de la catégorie sélectionnée
-            const foods = foodDatabase[category];
-            
-            // Mettre à jour la liste des aliments
-            foodSelect.innerHTML = '<option value="">Choisir un aliment</option>';
-            for (const foodName in foods) {
-                const option = document.createElement('option');
-                option.value = foodName;
-                option.textContent = foodName;
-                foodSelect.appendChild(option);
-            }
-            
-            // Réinitialiser les détails nutritionnels car l'utilisateur a changé de catégorie
-            resetNutritionDetails();
-            
-            console.log("Liste d'aliments mise à jour avec", Object.keys(foods).length, "options");
-        });
-        
-        // Gestionnaire d'événement pour la sélection d'aliment
-        foodSelect.addEventListener('change', function() {
-            const category = categorySelect.value;
-            const foodName = this.value;
-            console.log("Aliment sélectionné:", foodName, "dans la catégorie:", category);
-            
-            if (!category || !foodName) {
-                resetNutritionDetails();
-                return;
-            }
-            
-            // Récupérer les détails de l'aliment sélectionné
-            selectedFood = {
-                name: foodName,
-                category: category,
-                ...foodDatabase[category][foodName]
-            };
-            
-            // Mettre à jour les détails nutritionnels
-            updateNutritionDetails(selectedFood);
-            
-            console.log("Détails nutritionnels mis à jour pour", foodName);
-        });
-        
-        // Gestionnaire d'événement pour le bouton d'ajout
-        addFoodBtn.addEventListener('click', function() {
-            console.log("Clic sur le bouton Ajouter à mon repas");
-            
-            if (!selectedFood) {
-                console.log("Aucun aliment sélectionné, impossible d'ajouter au repas");
-                alert("Veuillez sélectionner un aliment avant d'ajouter au repas");
-                return;
-            }
-            
-            const quantity = parseInt(quantityInput.value) || 100;
-            console.log("Tentative d'ajout de", quantity, "g de", selectedFood.name, "au repas", currentMeal);
-            
-            // Créer un nouvel élément pour le repas
-            const mealItem = {
-                ...selectedFood,
-                quantity: quantity,
-                adjustedValues: {
-                    calories: (selectedFood.calories * quantity / 100).toFixed(1),
-                    proteins: (selectedFood.proteins * quantity / 100).toFixed(1),
-                    carbs: (selectedFood.carbs * quantity / 100).toFixed(1),
-                    fats: (selectedFood.fats * quantity / 100).toFixed(1)
-                }
-            };
-            
-            // Ajouter l'élément au repas actif
-            const meal = meals[currentMeal];
-            meal.items.push(mealItem);
-            
-            // Mettre à jour les totaux du repas
-            meal.totals.calories += parseFloat(mealItem.adjustedValues.calories);
-            meal.totals.proteins += parseFloat(mealItem.adjustedValues.proteins);
-            meal.totals.carbs += parseFloat(mealItem.adjustedValues.carbs);
-            meal.totals.fats += parseFloat(mealItem.adjustedValues.fats);
-            
-            // Mettre à jour l'affichage du repas et le résumé journalier
-            updateMealDisplay(currentMeal);
-            updateDailySummary();
-            
-            // Réinitialiser la quantité
-            quantityInput.value = 100;
-            
-            console.log("Aliment ajouté avec succès au repas", currentMeal);
-        });
-        
-        // Gestionnaire d'événement pour le bouton de génération de menu
-        generateMenuBtn.addEventListener('click', function() {
-            console.log("Clic sur le bouton Générer le Menu");
-            
-            // Récupérer les valeurs saisies
-            const targetCalories = parseInt(targetCaloriesInput.value) || 2000;
-            const objective = document.querySelector('input[name="objective"]:checked').value || 'maintenance';
-            
-            // Afficher l'objectif sélectionné
-            objectiveDisplay.textContent = objective === 'loss' ? 'Perte de poids' : 
-                                          (objective === 'gain' ? 'Prise de muscle' : 'Maintien du poids');
-            
-            // Afficher l'indicateur de génération en cours
-            generationStatus.classList.remove('hidden');
-            generationResult.classList.add('hidden');
-            
-            // Effacer les repas existants
-            resetAllMeals();
-            
-            // Générer un nouveau menu après un court délai (pour permettre l'affichage de l'indicateur)
-            setTimeout(() => {
-                generateMenu(targetCalories, objective);
-                
-                // Masquer l'indicateur de génération et afficher le résultat
-                generationStatus.classList.add('hidden');
-                generationResult.classList.remove('hidden');
-                
-                // Mettre à jour l'affichage de tous les repas et le résumé journalier
-                updateAllMealsDisplay();
-                updateDailySummary();
-                
-                // Mettre à jour les indicateurs de progression du menu
-                updateMenuProgressIndicators();
-            }, 500);
-        });
-        
-        // Fonction pour mettre à jour les indicateurs de progression du menu
-        function updateMenuProgressIndicators() {
-            const mealTypes = ['breakfast', 'lunch', 'dinner', 'snack'];
-            
-            mealTypes.forEach(mealType => {
-                const actualCalories = meals[mealType].totals.calories;
-                const targetCalories = mealCalorieTargets[mealType];
-                
-                if (targetCalories > 0) {
-                    const percent = Math.min(100, Math.round((actualCalories / targetCalories) * 100));
-                    
-                    document.getElementById(`${mealType}-actual-calories`).textContent = Math.round(actualCalories);
-                    document.getElementById(`${mealType}-target-calories`).textContent = Math.round(targetCalories);
-                    document.getElementById(`${mealType}-percent`).textContent = percent;
-                    document.getElementById(`${mealType}-progress`).style.width = `${percent}%`;
-                    
-                    // Ajuster la couleur en fonction du pourcentage atteint
-                    const progressBar = document.getElementById(`${mealType}-progress`);
-                    if (percent < 80) {
-                        progressBar.classList.remove('bg-green-600', 'bg-red-600');
-                        progressBar.classList.add('bg-blue-600');
-                    } else if (percent <= 105) {
-                        progressBar.classList.remove('bg-blue-600', 'bg-red-600');
-                        progressBar.classList.add('bg-green-600');
-                    } else {
-                        progressBar.classList.remove('bg-blue-600', 'bg-green-600');
-                        progressBar.classList.add('bg-red-600');
-                    }
-                }
-            });
-        }
-        
-        // Fonction pour générer un menu complet
-        function generateMenu(targetCalories, objective) {
-            console.log("Génération d'un menu pour", targetCalories, "calories avec objectif:", objective);
-            
-            // Répartition exacte des calories par repas selon les pourcentages demandés
-            mealCalorieTargets.breakfast = targetCalories * 0.3;  // 30%
-            mealCalorieTargets.lunch = targetCalories * 0.35;     // 35%
-            mealCalorieTargets.dinner = targetCalories * 0.3;     // 30%
-            mealCalorieTargets.snack = targetCalories * 0.05;     // 5%
-            
-            console.log("Répartition calorique cible :", 
-                        "Petit-déjeuner:", mealCalorieTargets.breakfast,
-                        "Déjeuner:", mealCalorieTargets.lunch,
-                        "Dîner:", mealCalorieTargets.dinner,
-                        "Collation:", mealCalorieTargets.snack);
-            
-            // Distribution des macronutriments selon l'objectif
-            let macroDistribution;
-            if (objective === 'loss') {
-                // Perte de poids : Plus de protéines, moins de glucides
-                macroDistribution = { proteins: 0.35, carbs: 0.35, fats: 0.3 };
-            } else if (objective === 'gain') {
-                // Prise de muscle : Plus de protéines et calories globales
-                macroDistribution = { proteins: 0.3, carbs: 0.45, fats: 0.25 };
-            } else {
-                // Maintien du poids : Équilibré
-                macroDistribution = { proteins: 0.25, carbs: 0.5, fats: 0.25 };
-            }
-            
-            // Générer chaque repas avec sa cible calorique précise
-            generateBreakfast(mealCalorieTargets.breakfast, macroDistribution);
-            generateLunchOrDinner('lunch', mealCalorieTargets.lunch, macroDistribution);
-            generateLunchOrDinner('dinner', mealCalorieTargets.dinner, macroDistribution);
-            generateSnack(mealCalorieTargets.snack);
-            
-            console.log("Menu généré avec succès");
-        }
-        
-        // Fonction pour générer le petit-déjeuner
-        function generateBreakfast(targetCalories, macroDistribution) {
-            console.log("Génération du petit-déjeuner pour", targetCalories, "calories");
-            
-            // 1. Ajouter du café (400g) - systématiquement
-            addFoodToMeal('breakfast', 'boissons', 'Café noir', 400);
-            
-            // Calories restantes après le café
-            let remainingCalories = targetCalories - (foodDatabase.boissons['Café noir'].calories * 4);
-            
-            // 2. Ajouter un produit laitier (yaourt, fromage blanc, etc.)
-            const dairyOptions = Object.keys(foodDatabase.produits_laitiers);
-            const randomDairy = dairyOptions[Math.floor(Math.random() * dairyOptions.length)];
-            const dairyQuantity = Math.min(200, calculateQuantityForCalories('produits_laitiers', randomDairy, remainingCalories * 0.3));
-            addFoodToMeal('breakfast', 'produits_laitiers', randomDairy, dairyQuantity);
-            
-            // Mettre à jour les calories restantes
-            remainingCalories -= (foodDatabase.produits_laitiers[randomDairy].calories * dairyQuantity / 100);
-            
-            // 3. Ajouter soit un fruit, soit une céréale (50/50)
-            if (Math.random() > 0.5 && remainingCalories > 100) {
-                // Ajouter un fruit
-                const fruitOptions = Object.keys(foodDatabase.fruits).filter(f => !f.includes('secs')); // Exclure les fruits secs
-                const randomFruit = fruitOptions[Math.floor(Math.random() * fruitOptions.length)];
-                const fruitQuantity = Math.min(200, calculateQuantityForCalories('fruits', randomFruit, remainingCalories * 0.7));
-                addFoodToMeal('breakfast', 'fruits', randomFruit, fruitQuantity);
-            } else if (remainingCalories > 100) {
-                // Ajouter une céréale
-                const cerealOptions = Object.keys(foodDatabase.cereales);
-                const randomCereal = cerealOptions[Math.floor(Math.random() * cerealOptions.length)];
-                const cerealQuantity = Math.min(80, calculateQuantityForCalories('cereales', randomCereal, remainingCalories * 0.7));
-                addFoodToMeal('breakfast', 'cereales', randomCereal, cerealQuantity);
-            }
-            
-            // 4. Optimisation : ajuster si nécessaire pour se rapprocher de la cible calorique
-            optimizeMealCalories('breakfast', targetCalories);
-            
-            console.log("Petit-déjeuner généré avec succès");
-        }
-        
-        // Fonction pour générer le déjeuner ou le dîner
-        function generateLunchOrDinner(mealType, targetCalories, macroDistribution) {
-            console.log(`Génération du ${mealType === 'lunch' ? 'déjeuner' : 'dîner'} pour`, targetCalories, "calories");
-            
-            // Répartition approximative des calories
-            const portionSizes = {
-                vegetables: 0.15, // 15% des calories pour les légumes
-                starch: 0.35,     // 35% des calories pour les féculents
-                protein: 0.5      // 50% des calories pour la protéine (viande ou poisson)
-            };
-            
-            // 1. Ajouter un légume
-            const vegOptions = Object.keys(foodDatabase.legumes);
-            const randomVeg = vegOptions[Math.floor(Math.random() * vegOptions.length)];
-            const vegQuantity = Math.min(300, calculateQuantityForCalories('legumes', randomVeg, targetCalories * portionSizes.vegetables));
-            addFoodToMeal(mealType, 'legumes', randomVeg, vegQuantity);
-            
-            // 2. Ajouter un féculent
-            const starchOptions = Object.keys(foodDatabase.feculents);
-            const randomStarch = starchOptions[Math.floor(Math.random() * starchOptions.length)];
-            const starchQuantity = Math.min(250, calculateQuantityForCalories('feculents', randomStarch, targetCalories * portionSizes.starch));
-            addFoodToMeal(mealType, 'feculents', randomStarch, starchQuantity);
-            
-            // 3. Ajouter une protéine (viande OU poisson)
-            if (Math.random() > 0.5 || (mealType === 'lunch' && meals.dinner.items.some(item => item.category === 'poissons'))) {
-                // Ajouter une viande
-                const meatOptions = Object.keys(foodDatabase.viandes);
-                const randomMeat = meatOptions[Math.floor(Math.random() * meatOptions.length)];
-                const meatQuantity = Math.min(200, calculateQuantityForCalories('viandes', randomMeat, targetCalories * portionSizes.protein));
-                addFoodToMeal(mealType, 'viandes', randomMeat, meatQuantity);
-            } else {
-                // Ajouter un poisson
-                const fishOptions = Object.keys(foodDatabase.poissons);
-                const randomFish = fishOptions[Math.floor(Math.random() * fishOptions.length)];
-                const fishQuantity = Math.min(200, calculateQuantityForCalories('poissons', randomFish, targetCalories * portionSizes.protein));
-                addFoodToMeal(mealType, 'poissons', randomFish, fishQuantity);
-            }
-            
-            // 4. Optimisation : ajuster si nécessaire pour se rapprocher de la cible calorique
-            optimizeMealCalories(mealType, targetCalories);
-            
-            console.log(`${mealType === 'lunch' ? 'Déjeuner' : 'Dîner'} généré avec succès`);
-        }
-        
-        // Fonction pour générer la collation
-        function generateSnack(targetCalories) {
-            console.log("Génération de la collation pour", targetCalories, "calories");
-            
-            // Choisir entre fruit, fruits secs ou jus de fruit
-            const snackType = Math.random();
-            
-            if (snackType < 0.6) {
-                // Ajouter un fruit
-                const fruitOptions = Object.keys(foodDatabase.fruits).filter(f => !f.includes('secs'));
-                const randomFruit = fruitOptions[Math.floor(Math.random() * fruitOptions.length)];
-                const fruitQuantity = Math.min(200, calculateQuantityForCalories('fruits', randomFruit, targetCalories));
-                addFoodToMeal('snack', 'fruits', randomFruit, fruitQuantity);
-            } else if (snackType < 0.8) {
-                // Ajouter des fruits secs
-                const driedFruitOptions = Object.keys(foodDatabase.fruits).filter(f => f.includes('secs'));
-                if (driedFruitOptions.length > 0) {
-                    const randomDriedFruit = driedFruitOptions[Math.floor(Math.random() * driedFruitOptions.length)];
-                    const driedFruitQuantity = Math.min(50, calculateQuantityForCalories('fruits', randomDriedFruit, targetCalories));
-                    addFoodToMeal('snack', 'fruits', randomDriedFruit, driedFruitQuantity);
-                } else {
-                    // Fallback si pas de fruits secs dans la base de données
-                    addFoodToMeal('snack', 'fruits', "Banane", 100);
-                }
-            } else {
-                // Ajouter un jus de fruit
-                const juiceOptions = ["Jus d'orange", "Jus de pomme", "Smoothie aux fruits"];
-                const randomJuice = juiceOptions[Math.floor(Math.random() * juiceOptions.length)];
-                if (foodDatabase.boissons[randomJuice]) {
-                    const juiceQuantity = Math.min(300, calculateQuantityForCalories('boissons', randomJuice, targetCalories));
-                    addFoodToMeal('snack', 'boissons', randomJuice, juiceQuantity);
-                } else {
-                    // Fallback si jus non trouvé
-                    addFoodToMeal('snack', 'boissons', "Jus d'orange", 200);
-                }
-            }
-            
-            // Optimisation : ajuster si nécessaire pour se rapprocher de la cible calorique
-            optimizeMealCalories('snack', targetCalories);
-            
-            console.log("Collation générée avec succès");
-        }
-        
-        // Fonction pour optimiser les calories d'un repas pour atteindre la cible
-        function optimizeMealCalories(mealType, targetCalories) {
-            const meal = meals[mealType];
-            const currentCalories = meal.totals.calories;
-            const caloriesDiff = Math.abs(targetCalories - currentCalories);
-            
-            // Si on est déjà proche de la cible (à 10% près), ne rien faire
-            if (caloriesDiff <= targetCalories * 0.1) {
-                console.log(`Repas ${mealType} déjà proche de la cible (${currentCalories.toFixed(0)}/${targetCalories.toFixed(0)} cal)`);
-                return;
-            }
-            
-            console.log(`Optimisation du repas ${mealType}: ${currentCalories.toFixed(0)} cal vs cible ${targetCalories.toFixed(0)} cal`);
-            
-            if (currentCalories < targetCalories) {
-                // Besoin d'augmenter les calories - augmenter la quantité d'un aliment existant
-                const itemToAdjust = meal.items[Math.floor(Math.random() * meal.items.length)];
-                if (itemToAdjust) {
-                    const oldQuantity = itemToAdjust.quantity;
-                    const caloriesPer100g = itemToAdjust.calories;
-                    const additionalCaloriesNeeded = targetCalories - currentCalories;
-                    const additionalGrams = Math.min(100, Math.round((additionalCaloriesNeeded / caloriesPer100g) * 100));
-                    
-                    if (additionalGrams > 5) {  // Éviter des ajustements trop petits
-                        // Supprimer l'ancien item
-                        removeItemFromMeal(mealType, meal.items.indexOf(itemToAdjust));
-                        
-                        // Ajouter l'item avec la nouvelle quantité
-                        addFoodToMeal(mealType, itemToAdjust.category, itemToAdjust.name, oldQuantity + additionalGrams);
-                        
-                        console.log(`Augmenté ${itemToAdjust.name} de ${oldQuantity}g à ${oldQuantity + additionalGrams}g pour ajouter ~${additionalCaloriesNeeded.toFixed(0)} calories`);
-                    }
-                }
-            } else {
-                // Besoin de réduire les calories - réduire la quantité d'un aliment existant
-                // Exclure le café au petit-déjeuner (qu'on veut garder à 400g)
-                let itemsToConsider = meal.items;
-                if (mealType === 'breakfast') {
-                    itemsToConsider = meal.items.filter(item => !(item.category === 'boissons' && item.name === 'Café noir'));
-                }
-                
-                if (itemsToConsider.length > 0) {
-                    const itemToAdjust = itemsToConsider[Math.floor(Math.random() * itemsToConsider.length)];
-                    const oldQuantity = itemToAdjust.quantity;
-                    const caloriesPer100g = itemToAdjust.calories;
-                    const excessCalories = currentCalories - targetCalories;
-                    const gramsToReduce = Math.min(oldQuantity - 30, Math.round((excessCalories / caloriesPer100g) * 100));
-                    
-                    if (gramsToReduce > 5 && (oldQuantity - gramsToReduce) >= 30) {  // Garder au moins 30g
-                        // Supprimer l'ancien item
-                        removeItemFromMeal(mealType, meal.items.indexOf(itemToAdjust));
-                        
-                        // Ajouter l'item avec la nouvelle quantité
-                        addFoodToMeal(mealType, itemToAdjust.category, itemToAdjust.name, oldQuantity - gramsToReduce);
-                        
-                        console.log(`Réduit ${itemToAdjust.name} de ${oldQuantity}g à ${oldQuantity - gramsToReduce}g pour réduire ~${excessCalories.toFixed(0)} calories`);
-                    }
-                }
-            }
-        }
-        
-        // Fonction pour calculer la quantité nécessaire pour atteindre un nombre de calories
-        function calculateQuantityForCalories(category, foodName, targetCalories) {
-            if (!foodDatabase[category] || !foodDatabase[category][foodName]) return 100;
-            
-            const caloriesPer100g = foodDatabase[category][foodName].calories;
-            if (caloriesPer100g <= 0) return 100;
-            
-            // Calculer la quantité nécessaire pour atteindre les calories cibles
-            const quantity = Math.round((targetCalories / caloriesPer100g) * 100);
-            
-            // Limiter à un minimum de 30g et au maximum spécifié
-            return Math.max(30, quantity);
-        }
-        
-        // Fonction pour ajouter un aliment à un repas (utilisée par le générateur de menu)
-        function addFoodToMeal(mealType, category, foodName, quantity) {
-            console.log(`Ajout de ${quantity}g de ${foodName} (${category}) au ${mealType}`);
-            
-            if (!foodDatabase[category] || !foodDatabase[category][foodName]) {
-                console.log(`Aliment non trouvé: ${foodName} dans ${category}`);
-                return;
-            }
-            
-            const food = foodDatabase[category][foodName];
-            const meal = meals[mealType];
-            
-            // Créer l'élément de repas
-            const mealItem = {
-                name: foodName,
-                category: category,
-                ...food,
-                quantity: quantity,
-                adjustedValues: {
-                    calories: (food.calories * quantity / 100).toFixed(1),
-                    proteins: (food.proteins * quantity / 100).toFixed(1),
-                    carbs: (food.carbs * quantity / 100).toFixed(1),
-                    fats: (food.fats * quantity / 100).toFixed(1)
-                }
-            };
-            
-            // Ajouter l'élément au repas
-            meal.items.push(mealItem);
-            
-            // Mettre à jour les totaux du repas
-            meal.totals.calories += parseFloat(mealItem.adjustedValues.calories);
-            meal.totals.proteins += parseFloat(mealItem.adjustedValues.proteins);
-            meal.totals.carbs += parseFloat(mealItem.adjustedValues.carbs);
-            meal.totals.fats += parseFloat(mealItem.adjustedValues.fats);
-        }
-        
-        // Fonction pour réinitialiser tous les repas
-        function resetAllMeals() {
-            console.log("Réinitialisation de tous les repas");
-            
-            for (const mealType in meals) {
-                meals[mealType].items = [];
-                meals[mealType].totals = { calories: 0, proteins: 0, carbs: 0, fats: 0 };
-            }
-        }
-        
-        // Fonction pour mettre à jour l'affichage de tous les repas
-        function updateAllMealsDisplay() {
-            console.log("Mise à jour de l'affichage de tous les repas");
-            
-            for (const mealType in meals) {
-                updateMealDisplay(mealType);
-            }
-        }
-        
-        // Fonction pour mettre à jour les détails nutritionnels
-        function updateNutritionDetails(food) {
-            if (!food) {
-                resetNutritionDetails();
-                return;
-            }
-            
-            nutritionDetails.calories.textContent = `${food.calories} kcal`;
-            nutritionDetails.proteins.textContent = `${food.proteins} g`;
-            nutritionDetails.carbs.textContent = `${food.carbs} g`;
-            nutritionDetails.fats.textContent = `${food.fats} g`;
-            
-            // Afficher les micronutriments
-            const microHTML = Object.entries(food.micronutriments).map(([name, value]) => 
-                `<div class="p-1"><span class="font-medium">${name}:</span> ${value}</div>`
-            ).join('');
-            
-            nutritionDetails.micronutrients.innerHTML = microHTML;
-        }
-        
-        // Fonction pour réinitialiser les détails nutritionnels
-        function resetNutritionDetails() {
-            nutritionDetails.calories.textContent = '-';
-            nutritionDetails.proteins.textContent = '-';
-            nutritionDetails.carbs.textContent = '-';
-            nutritionDetails.fats.textContent = '-';
-            nutritionDetails.micronutrients.innerHTML = '<p class="text-gray-600">Sélectionnez un aliment pour voir ses détails</p>';
-            selectedFood = null;
-        }
-        
-        // Fonction pour mettre à jour l'affichage d'un repas spécifique
-        function updateMealDisplay(mealType) {
-            console.log("Mise à jour de l'affichage du repas", mealType);
-            const meal = meals[mealType];
-            const mealContent = document.querySelector(`.meal-content[data-meal="${mealType}"]`);
-            
-            const mealEmpty = mealContent.querySelector('.meal-empty');
-            const mealItems = mealContent.querySelector('.meal-items');
-            const mealSummary = mealContent.querySelector('.meal-summary');
-            const totalCalories = mealContent.querySelector('.meal-total-calories');
-            const totalProteins = mealContent.querySelector('.meal-total-proteins');
-            const totalCarbs = mealContent.querySelector('.meal-total-carbs');
-            const totalFats = mealContent.querySelector('.meal-total-fats');
-            
-            if (meal.items.length === 0) {
-                mealEmpty.classList.remove('hidden');
-                mealSummary.classList.add('hidden');
-                mealItems.innerHTML = '';
-                return;
-            }
-            
-            mealEmpty.classList.add('hidden');
-            mealSummary.classList.remove('hidden');
-            
-            // Mettre à jour la liste des aliments
-            mealItems.innerHTML = '';
-            meal.items.forEach((item, index) => {
-                const li = document.createElement('li');
-                li.className = 'p-2 bg-blue-50 rounded flex justify-between items-center';
-                li.innerHTML = `
-                    <div>
-                        <span class="font-medium">${item.name}</span> (${item.quantity}g)
-                        <div class="text-sm text-gray-600">
-                            ${item.adjustedValues.calories} kcal | Protéines: ${item.adjustedValues.proteins}g | 
-                            Glucides: ${item.adjustedValues.carbs}g | Lipides: ${item.adjustedValues.fats}g
-                        </div>
-                    </div>
-                    <div class="flex space-x-2">
-                        <button class="modify-btn bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1 px-2 rounded text-sm" data-meal="${mealType}" data-index="${index}">
-                            Modifier
-                        </button>
-                        <button class="remove-btn bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-2 rounded text-sm" data-meal="${mealType}" data-index="${index}">
-                            Supprimer
-                        </button>
-                    </div>
-                `;
-                mealItems.appendChild(li);
-                
-                // Ajouter un gestionnaire d'événement pour le bouton de suppression
-                li.querySelector('.remove-btn').addEventListener('click', function() {
-                    const mealType = this.dataset.meal;
-                    const idx = parseInt(this.dataset.index);
-                    removeItemFromMeal(mealType, idx);
-                });
+    <div id="modals">
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-10" id="infoModal">
+<div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-screen overflow-y-auto">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-xl font-semibold">À propos du Calculateur de Calories</h3>
+<button class="text-gray-500 hover:text-gray-700" id="closeInfoModal">
+<i class="fas fa-times"></i>
+</button>
+</div>
+<div class="mb-4">
+<p class="font-semibold mb-2">Application développée par Tophe</p>
+<p class="text-gray-700 mb-4">Cette application a été conçue pour vous aider à calculer et à planifier vos apports nutritionnels quotidiens.</p>
+<h4 class="font-semibold mb-2 text-lg">Conseils d'utilisation :</h4>
+<ul class="list-disc pl-5 mb-4 text-gray-700 space-y-1">
+<li>Utilisez le générateur de menu pour créer rapidement un plan alimentaire équilibré</li>
+<li>Ajoutez manuellement des aliments pour personnaliser vos repas</li>
+<li>Modifiez les quantités pour ajuster votre apport calorique</li>
+<li>Consultez le résumé journalier pour voir votre apport total</li>
+<li>Exportez votre menu en PDF pour l'imprimer ou le conserver</li>
+</ul>
+<div class="bg-yellow-100 p-4 rounded-lg text-yellow-800 mb-4">
+<p class="font-semibold">Important :</p>
+<p>Cet outil est fourni uniquement à titre indicatif et pour vous donner des exemples de menus. Il ne remplace en aucun cas les conseils personnalisés d'un diététicien, nutritionniste ou autre professionnel de santé. Les besoins nutritionnels varient considérablement d'une personne à l'autre en fonction de nombreux facteurs tels que l'âge, le sexe, le poids, l'activité physique et l'état de santé.</p>
+</div>
+</div>
+<div class="text-center">
+<button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded" id="closeInfoBtn">
+                    Fermer
+                </button>
+</div>
+</div>
+</div><div class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-10" id="exportModal">
+<div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+<h3 class="text-xl font-semibold mb-4">Exporter en PDF</h3>
+<div class="mb-4">
+<label class="block text-sm font-medium text-gray-700 mb-1" for="exportDate">Date du menu</label>
+<input class="w-full p-2 border border-gray-300 rounded-md" id="exportDate" type="date"/>
+</div>
+<div class="mb-6">
+<label class="block text-sm font-medium text-gray-700 mb-1" for="exportTitle">Titre personnalisé (optionnel)</label>
+<input class="w-full p-2 border border-gray-300 rounded-md" id="exportTitle" placeholder="Mon plan alimentaire" type="text"/>
+</div>
+<div class="flex justify-end space-x-3">
+<button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded" id="cancelExport">Annuler</button>
+<button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded" id="confirmExport">Exporter</button>
+</div>
+</div>
+</div><div class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-10" id="modifyDialog">
+<div class="bg-white p-4 rounded-lg shadow-lg w-96">
+<h3 class="text-lg font-semibold mb-3">Modifier l'aliment</h3>
+<!-- Champ pour modifier la quantité -->
+<div class="mb-4">
+<label class="block text-sm font-medium text-gray-700 mb-1" for="modifyQuantity">Quantité (g)</label>
+<input class="w-full p-2 border border-gray-300 rounded-md" id="modifyQuantity" min="1" type="number"/>
+</div>
+<!-- Détails nutritionnels de l'aliment sélectionné -->
+<div class="mb-4 bg-blue-50 p-3 rounded text-sm" id="modifyNutritionPreview">
+<!-- Détails nutritionnels mis à jour dynamiquement -->
+</div>
+<div class="flex justify-end space-x-2">
+<button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded" id="cancelModify">Annuler</button>
+<button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded" id="saveModify">Enregistrer</button>
+</div>
+</div>
+</div>
+    </div>
 
-                // Ajouter un gestionnaire d'événement pour le bouton de modification
-                li.querySelector('.modify-btn').addEventListener('click', function() {
-                    const mealType = this.dataset.meal;
-                    const idx = parseInt(this.dataset.index);
-                    showModifyDialog(mealType, idx);
-                });
-            });
-            
-            // Mettre à jour les totaux du repas
-            totalCalories.textContent = `${meal.totals.calories.toFixed(1)} kcal`;
-            totalProteins.textContent = `${meal.totals.proteins.toFixed(1)} g`;
-            totalCarbs.textContent = `${meal.totals.carbs.toFixed(1)} g`;
-            totalFats.textContent = `${meal.totals.fats.toFixed(1)} g`;
-        }
-        
-        // Fonction pour mettre à jour le résumé journalier
-        function updateDailySummary() {
-            console.log("Mise à jour du résumé journalier");
-            // Calculer les totaux journaliers
-            let dailyTotals = { calories: 0, proteins: 0, carbs: 0, fats: 0 };
-            
-            for (const mealType in meals) {
-                const meal = meals[mealType];
-                dailyTotals.calories += meal.totals.calories;
-                dailyTotals.proteins += meal.totals.proteins;
-                dailyTotals.carbs += meal.totals.carbs;
-                dailyTotals.fats += meal.totals.fats;
-                
-                // Mettre à jour le tableau détaillé par repas
-                document.getElementById(`${mealType}-calories`).textContent = `${meal.totals.calories.toFixed(1)} kcal`;
-                document.getElementById(`${mealType}-proteins`).textContent = `${meal.totals.proteins.toFixed(1)} g`;
-                document.getElementById(`${mealType}-carbs`).textContent = `${meal.totals.carbs.toFixed(1)} g`;
-                document.getElementById(`${mealType}-fats`).textContent = `${meal.totals.fats.toFixed(1)} g`;
-            }
-            
-            // Mettre à jour les totaux journaliers
-            document.getElementById('dailyTotalCalories').textContent = `${dailyTotals.calories.toFixed(1)} kcal`;
-            document.getElementById('dailyTotalProteins').textContent = `${dailyTotals.proteins.toFixed(1)} g`;
-            document.getElementById('dailyTotalCarbs').textContent = `${dailyTotals.carbs.toFixed(1)} g`;
-            document.getElementById('dailyTotalFats').textContent = `${dailyTotals.fats.toFixed(1)} g`;
-            
-            // Mettre à jour la ligne TOTAL du tableau
-            document.getElementById('total-calories').textContent = `${dailyTotals.calories.toFixed(1)} kcal`;
-            document.getElementById('total-proteins').textContent = `${dailyTotals.proteins.toFixed(1)} g`;
-            document.getElementById('total-carbs').textContent = `${dailyTotals.carbs.toFixed(1)} g`;
-            document.getElementById('total-fats').textContent = `${dailyTotals.fats.toFixed(1)} g`;
-            
-            // Mettre à jour les indicateurs de progression du menu si les cibles caloriques sont définies
-            if (generationResult.classList.contains('hidden') === false) {
-                updateMenuProgressIndicators();
-            }
-        }
-        
-        // Fonction pour supprimer un élément d'un repas spécifique
-        function removeItemFromMeal(mealType, index) {
-            console.log("Suppression de l'élément", index, "du repas", mealType);
-            const meal = meals[mealType];
-            
-            if (index < 0 || index >= meal.items.length) return;
-            
-            const item = meal.items[index];
-            
-            // Soustraire des totaux du repas
-            meal.totals.calories -= parseFloat(item.adjustedValues.calories);
-            meal.totals.proteins -= parseFloat(item.adjustedValues.proteins);
-            meal.totals.carbs -= parseFloat(item.adjustedValues.carbs);
-            meal.totals.fats -= parseFloat(item.adjustedValues.fats);
-            
-            // Supprimer l'élément du repas
-            meal.items.splice(index, 1);
-            
-            // Mettre à jour l'affichage du repas et le résumé journalier
-            updateMealDisplay(mealType);
-            updateDailySummary();
-        }
-
-        // Fonction pour afficher la boîte de dialogue de modification
-        function showModifyDialog(mealType, index) {
-            console.log("Affichage de la boîte de dialogue de modification pour l'élément", index, "du repas", mealType);
-            const meal = meals[mealType];
-            
-            if (index < 0 || index >= meal.items.length) return;
-            
-            const item = meal.items[index];
-            currentModifyIndex = index;
-            
-            // Stocker le type de repas dans un attribut data
-            modifyDialog.dataset.meal = mealType;
-            
-            // Préremplir le champ de quantité avec la valeur actuelle
-            modifyQuantityInput.value = item.quantity;
-            
-            // Afficher un aperçu nutritionnel de l'aliment sélectionné
-            updateModifyNutritionPreview(item.category, item.name, item.quantity);
-            
-            // Ajouter un événement de changement au champ de quantité
-            modifyQuantityInput.oninput = function() {
-                const category = item.category;
-                const foodName = item.name;
-                const quantity = parseInt(this.value) || 100;
-                updateModifyNutritionPreview(category, foodName, quantity);
-            };
-            
-            // Afficher la boîte de dialogue
-            modifyDialog.classList.remove('hidden');
-        }
-        
-        // Fonction pour mettre à jour l'aperçu nutritionnel dans la boîte de dialogue de modification
-        function updateModifyNutritionPreview(category, foodName, quantity) {
-            if (!foodDatabase[category] || !foodDatabase[category][foodName]) return;
-            
-            const food = foodDatabase[category][foodName];
-            const adjustedValues = {
-                calories: (food.calories * quantity / 100).toFixed(1),
-                proteins: (food.proteins * quantity / 100).toFixed(1),
-                carbs: (food.carbs * quantity / 100).toFixed(1),
-                fats: (food.fats * quantity / 100).toFixed(1)
-            };
-            
-            modifyNutritionPreview.innerHTML = `
-                <p class="font-semibold mb-1">Valeurs nutritionnelles pour ${quantity}g :</p>
-                <p>Calories: ${adjustedValues.calories} kcal</p>
-                <p>Protéines: ${adjustedValues.proteins} g</p>
-                <p>Glucides: ${adjustedValues.carbs} g</p>
-                <p>Lipides: ${adjustedValues.fats} g</p>
-            `;
-        }
-
-        // Gestionnaire d'événement pour le bouton Annuler
-        cancelModifyBtn.addEventListener('click', function() {
-            modifyDialog.classList.add('hidden');
-            currentModifyIndex = -1;
-        });
-
-        // Gestionnaire d'événement pour le bouton Enregistrer
-        saveModifyBtn.addEventListener('click', function() {
-            const mealType = modifyDialog.dataset.meal;
-            const meal = meals[mealType];
-            
-            if (currentModifyIndex < 0 || currentModifyIndex >= meal.items.length) return;
-            
-            const newQuantity = parseInt(modifyQuantityInput.value) || 100;
-            const currentItem = meal.items[currentModifyIndex];
-            const category = currentItem.category;
-            const foodName = currentItem.name;
-            
-            modifyItem(mealType, currentModifyIndex, category, foodName, newQuantity);
-            
-            // Cacher la boîte de dialogue
-            modifyDialog.classList.add('hidden');
-            currentModifyIndex = -1;
-        });
-
-        // Fonction pour modifier un élément (aliment et/ou quantité) dans un repas spécifique
-        function modifyItem(mealType, index, category, foodName, newQuantity) {
-            console.log("Modification de l'élément", index, "du repas", mealType, "avec", foodName, "et quantité", newQuantity);
-            const meal = meals[mealType];
-            
-            if (index < 0 || index >= meal.items.length) return;
-            
-            const item = meal.items[index];
-            
-            // Soustraire les anciennes valeurs des totaux du repas
-            meal.totals.calories -= parseFloat(item.adjustedValues.calories);
-            meal.totals.proteins -= parseFloat(item.adjustedValues.proteins);
-            meal.totals.carbs -= parseFloat(item.adjustedValues.carbs);
-            meal.totals.fats -= parseFloat(item.adjustedValues.fats);
-            
-            // Mettre à jour la quantité et recalculer les valeurs nutritionnelles
-            item.quantity = newQuantity;
-            item.adjustedValues = {
-                calories: (item.calories * newQuantity / 100).toFixed(1),
-                proteins: (item.proteins * newQuantity / 100).toFixed(1),
-                carbs: (item.carbs * newQuantity / 100).toFixed(1),
-                fats: (item.fats * newQuantity / 100).toFixed(1)
-            };
-            
-            // Ajouter les nouvelles valeurs aux totaux du repas
-            meal.totals.calories += parseFloat(item.adjustedValues.calories);
-            meal.totals.proteins += parseFloat(item.adjustedValues.proteins);
-            meal.totals.carbs += parseFloat(item.adjustedValues.carbs);
-            meal.totals.fats += parseFloat(item.adjustedValues.fats);
-            
-            // Mettre à jour l'affichage du repas et le résumé journalier
-            updateMealDisplay(mealType);
-            updateDailySummary();
-        }
-        
-        // Gestionnaire d'événement pour le bouton de réinitialisation
-        resetAllBtn.addEventListener('click', function() {
-            if (confirm('Êtes-vous sûr de vouloir réinitialiser tous les repas de la journée ?')) {
-                console.log("Réinitialisation de tous les repas");
-                resetAllMeals();
-                updateAllMealsDisplay();
-                updateDailySummary();
-            }
-        });
-        
-        // Gestionnaires d'événement pour les sections pliables
-        menuGeneratorHeader.addEventListener('click', function() {
-            menuGeneratorContent.classList.toggle('hidden');
-            menuGeneratorChevron.classList.toggle('fa-chevron-down');
-            menuGeneratorChevron.classList.toggle('fa-chevron-up');
-        });
-        
-        foodSelectionHeader.addEventListener('click', function() {
-            foodSelectionContent.classList.toggle('hidden');
-            foodSelectionChevron.classList.toggle('fa-chevron-down');
-            foodSelectionChevron.classList.toggle('fa-chevron-up');
-        });
-        
-        // Gestionnaires d'événement pour le modal d'exportation PDF
-        exportPdfBtn.addEventListener('click', function() {
-            exportModal.classList.remove('hidden');
-        });
-        
-        cancelExport.addEventListener('click', function() {
-            exportModal.classList.add('hidden');
-        });
-        
-        confirmExport.addEventListener('click', function() {
-            const date = exportDate.value;
-            const title = exportTitle.value || 'Plan alimentaire';
-            
-            generatePDF(date, title);
-            exportModal.classList.add('hidden');
-        });
-        
-        // Gestionnaires d'événement pour le modal d'information
-        infoBtn.addEventListener('click', function() {
-            infoModal.classList.remove('hidden');
-        });
-        
-        closeInfoBtn.addEventListener('click', function() {
-            infoModal.classList.add('hidden');
-        });
-        
-        closeInfoModal.addEventListener('click', function() {
-            infoModal.classList.add('hidden');
-        });
-        
-        // Fonction pour générer un PDF
-        function generatePDF(date, title) {
-            // Créer un élément temporaire pour le contenu du PDF
-            const pdfContainer = document.createElement('div');
-            pdfContainer.className = 'bg-white p-8';
-            
-            // Formater la date
-            const dateObj = new Date(date);
-            const formattedDate = `${dateObj.toLocaleDateString('fr-FR')}`;
-            
-            // Créer l'en-tête
-            const header = document.createElement('div');
-            header.innerHTML = `
-                <div class="text-center mb-6">
-                    <h1 class="text-2xl font-bold">${title}</h1>
-                    <p class="text-gray-600">Menu du ${formattedDate}</p>
-                    <p class="mt-2">Calories journalières: ${document.getElementById('dailyTotalCalories').textContent}</p>
-                </div>
-            `;
-            pdfContainer.appendChild(header);
-            
-            // Créer les sections de repas
-            const mealsContainer = document.createElement('div');
-            mealsContainer.className = 'grid grid-cols-2 gap-4 mb-6';
-            
-            // Ajouter petit-déjeuner et déjeuner côte à côte
-            const breakfastLunchRow = document.createElement('div');
-            breakfastLunchRow.className = 'col-span-2 grid grid-cols-2 gap-4 mb-4';
-            
-            breakfastLunchRow.innerHTML = `
-                <div class="bg-blue-50 p-4 rounded">
-                    <h2 class="font-bold text-lg mb-2">Petit-déjeuner</h2>
-                    <ul>
-                        ${generateMealItemsHTML('breakfast')}
-                    </ul>
-                    <div class="mt-2">
-                        <p><strong>Calories:</strong> ${document.getElementById('breakfast-calories').textContent}</p>
-                    </div>
-                </div>
-                <div class="bg-green-50 p-4 rounded">
-                    <h2 class="font-bold text-lg mb-2">Déjeuner</h2>
-                    <ul>
-                        ${generateMealItemsHTML('lunch')}
-                    </ul>
-                    <div class="mt-2">
-                        <p><strong>Calories:</strong> ${document.getElementById('lunch-calories').textContent}</p>
-                    </div>
-                </div>
-            `;
-            
-            // Ajouter collation et dîner côte à côte
-            const snackDinnerRow = document.createElement('div');
-            snackDinnerRow.className = 'col-span-2 grid grid-cols-2 gap-4';
-            
-            snackDinnerRow.innerHTML = `
-                <div class="bg-yellow-50 p-4 rounded">
-                    <h2 class="font-bold text-lg mb-2">Collation</h2>
-                    <ul>
-                        ${generateMealItemsHTML('snack')}
-                    </ul>
-                    <div class="mt-2">
-                        <p><strong>Calories:</strong> ${document.getElementById('snack-calories').textContent}</p>
-                    </div>
-                </div>
-                <div class="bg-red-50 p-4 rounded">
-                    <h2 class="font-bold text-lg mb-2">Dîner</h2>
-                    <ul>
-                        ${generateMealItemsHTML('dinner')}
-                    </ul>
-                    <div class="mt-2">
-                        <p><strong>Calories:</strong> ${document.getElementById('dinner-calories').textContent}</p>
-                    </div>
-                </div>
-            `;
-            
-            mealsContainer.appendChild(breakfastLunchRow);
-            mealsContainer.appendChild(snackDinnerRow);
-            pdfContainer.appendChild(mealsContainer);
-            
-            // Ajouter le résumé nutritionnel
-            const summary = document.createElement('div');
-            summary.className = 'mt-6 border-t pt-4';
-            summary.innerHTML = `
-                <h2 class="font-bold text-lg mb-3">Résumé Nutritionnel</h2>
-                <div class="grid grid-cols-4 gap-2">
-                    <div class="bg-blue-100 p-2 rounded text-center">
-                        <p class="font-bold">${document.getElementById('dailyTotalCalories').textContent}</p>
-                        <p class="text-sm">Calories</p>
-                    </div>
-                    <div class="bg-green-100 p-2 rounded text-center">
-                        <p class="font-bold">${document.getElementById('dailyTotalProteins').textContent}</p>
-                        <p class="text-sm">Protéines</p>
-                    </div>
-                    <div class="bg-yellow-100 p-2 rounded text-center">
-                        <p class="font-bold">${document.getElementById('dailyTotalCarbs').textContent}</p>
-                        <p class="text-sm">Glucides</p>
-                    </div>
-                    <div class="bg-red-100 p-2 rounded text-center">
-                        <p class="font-bold">${document.getElementById('dailyTotalFats').textContent}</p>
-                        <p class="text-sm">Lipides</p>
-                    </div>
-                </div>
-            `;
-            pdfContainer.appendChild(summary);
-            
-            // Ajouter le pied de page
-            const footer = document.createElement('div');
-            footer.className = 'mt-6 border-t pt-4 text-sm text-gray-600';
-            footer.innerHTML = `
-                <p class="text-center">Ce menu est fourni à titre indicatif et ne remplace pas les conseils d'un professionnel de santé.</p>
-                <p class="text-center mt-1">Application développée par Tophe</p>
-            `;
-            pdfContainer.appendChild(footer);
-            
-            // Générer le PDF
-            html2pdf()
-                .set({
-                    margin: 10,
-                    filename: `menu_${date}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                })
-                .from(pdfContainer)
-                .save();
-        }
-        
-        // Fonction pour générer le HTML des items d'un repas pour le PDF
-        function generateMealItemsHTML(mealType) {
-            if (meals[mealType].items.length === 0) return '<li class="italic text-gray-500">Aucun aliment</li>';
-            
-            return meals[mealType].items.map(item => `
-                <li class="mb-1">${item.name} (${item.quantity}g) - ${item.adjustedValues.calories} kcal</li>
-            `).join('');
-        }
-        
-        // Initialisation
-        console.log("Initialisation de l'application");
-        updateMealDisplay('breakfast');
-        updateMealDisplay('lunch');
-        updateMealDisplay('dinner');
-        updateMealDisplay('snack');
-        updateDailySummary();
-    </script>
+    <script src="script.js" defer></script>
 </body>
 </html>
