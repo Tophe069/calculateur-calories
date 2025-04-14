@@ -5,6 +5,12 @@
       "proteines": 0.3,
       "glucides": 14,
       "lipides": 0.2
+    },
+    "Banane": {
+      "calories": 89,
+      "proteines": 1.1,
+      "glucides": 23,
+      "lipides": 0.3
     }
   },
   "Légumes": {
@@ -23,8 +29,12 @@
       "lipides": 6.5
     }
   },
-  "Viandes": {},
-  "Poissons": {},
-  "Laitages": {},
-  "Autres": {}
+  "Viandes": {
+    "Poulet": {
+      "calories": 165,
+      "proteines": 31,
+      "glucides": 0,
+      "lipides": 3.6
+    }
+  }
 }
