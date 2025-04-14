@@ -5,7 +5,23 @@ fetch("aliments.json")
   .then(res => res.json())
   .then(data => alimentsData = data);
 
+
+window.addEventListener("DOMContentLoaded", () => {
+  const champs = ["sexe", "age", "poids", "taille", "activite", "objectif"];
+  champs.forEach(id => {
+    if (localStorage.getItem(id)) {
+      document.getElementById(id).value = localStorage.getItem(id);
+    }
+  });
+});
+
 function calculerBesoins() {
+  const champs = ["sexe", "age", "poids", "taille", "activite", "objectif"];
+  champs.forEach(id => {
+    const value = document.getElementById(id).value;
+    localStorage.setItem(id, value);
+  });
+
   const sexe = document.getElementById("sexe").value;
   const age = parseFloat(document.getElementById("age").value);
   const poids = parseFloat(document.getElementById("poids").value);
@@ -86,14 +102,29 @@ function afficherMenuRepas(menu, totals) {
     "Petit-déjeuner": "🥐",
     "Déjeuner": "🍛",
     "Dîner": "🍲",
-    "Collation": "🍪"
+    "Collation": "🥤"
   };
 
   for (const repas in menu) {
     const bloc = document.createElement("div");
     bloc.className = "mb-4 p-4 border rounded bg-gray-50";
 
-    bloc.innerHTML = `<h3 class="text-lg font-semibold mb-2">${emojis[repas]} ${repas} — ${totals[repas].toFixed(0)} kcal</h3>
+    
+let totalMacros = { kcal: 0, proteines: 0, glucides: 0, lipides: 0 };
+menu[repas].forEach(item => {
+  totalMacros.kcal += item.calories;
+  totalMacros.proteines += item.proteines;
+  totalMacros.glucides += item.glucides;
+  totalMacros.lipides += item.lipides;
+});
+bloc.innerHTML = `<h3 class="text-lg font-semibold mb-2">${emojis[repas]} ${repas} — ${totalMacros.kcal.toFixed(0)} kcal</h3>
+<ul class="list-disc list-inside text-sm mb-2">
+  ${menu[repas].map(item => `<li>${item.nom} (${item.calories} kcal)</li>`).join("")}
+</ul>
+<p class="text-xs text-gray-600 italic">
+  Protéines : ${totalMacros.proteines.toFixed(1)} g • Glucides : ${totalMacros.glucides.toFixed(1)} g • Lipides : ${totalMacros.lipides.toFixed(1)} g
+</p>`;
+
       <ul class="list-disc list-inside text-sm">
         ${menu[repas].map(item => `<li>${item.nom} (${item.calories} kcal)</li>`).join("")}
       </ul>`;
