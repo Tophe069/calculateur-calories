@@ -107,7 +107,7 @@ function afficherMenuRepas(menu, totals) {
 
   for (const repas in menu) {
     const bloc = document.createElement("div");
-    bloc.className = "mb-4 p-4 border rounded bg-gray-50";
+    bloc.className = "mb-4 p-4 border rounded shadow bg-gradient-to-br from-white to-blue-50";
 
     
 let totalMacros = { kcal: 0, proteines: 0, glucides: 0, lipides: 0 };
@@ -121,7 +121,7 @@ bloc.innerHTML = `<h3 class="text-lg font-semibold mb-2">${emojis[repas]} ${repa
 <ul class="list-disc list-inside text-sm mb-2">
   ${menu[repas].map(item => `<li>${item.nom} (${item.calories} kcal)</li>`).join("")}
 </ul>
-<p class="text-xs text-gray-600 italic">
+<p class="text-sm font-medium text-gray-700 bg-yellow-50 border border-yellow-100 rounded p-2 mt-2">
   Protéines : ${totalMacros.proteines.toFixed(1)} g • Glucides : ${totalMacros.glucides.toFixed(1)} g • Lipides : ${totalMacros.lipides.toFixed(1)} g
 </p>`;
 
