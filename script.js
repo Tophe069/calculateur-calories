@@ -1,25 +1,26 @@
-// === Données ===
 let alimentsData = {};
 let menuActuel = [];
 
-// === Chargement des données ===
 fetch('aliments.json')
   .then(response => response.json())
   .then(data => {
     alimentsData = data;
     afficherCategories();
+    remplirCategoriesSelect();
   })
   .catch(error => {
     console.error("Erreur de chargement :", error);
     document.getElementById("app").innerHTML = `<p class="text-red-500">Erreur de chargement des données alimentaires.</p>`;
   });
 
-// === Affichage des catégories ===
 function afficherCategories() {
   const app = document.getElementById("app");
-  app.innerHTML = '<h2 class="text-xl font-bold mb-4">Sélectionne une catégorie</h2><div id="categories" class="grid grid-cols-2 gap-4"></div>';
+  const existingForm = app.querySelector('div.p-4.bg-blue-50');
+  app.innerHTML = '';
+  if (existingForm) app.appendChild(existingForm);
 
-  const categoriesContainer = document.getElementById("categories");
+  const categoriesContainer = document.createElement("div");
+  categoriesContainer.className = "grid grid-cols-2 gap-4 mb-4";
 
   for (const categorie in alimentsData) {
     const btn = document.createElement("button");
@@ -29,50 +30,26 @@ function afficherCategories() {
     categoriesContainer.appendChild(btn);
   }
 
-  function afficherResumeMenu() {
-  if (menuActuel.length === 0) return;
-
-  const app = document.getElementById("app");
-  const resume = document.createElement("div");
-  resume.className = "mt-6 p-4 bg-gray-100 rounded";
-
-  let total = { calories: 0, proteines: 0, glucides: 0, lipides: 0 };
-
-  resume.innerHTML = `
-    <h2 class="text-lg font-bold mb-2">Résumé du menu</h2>
-    <ul class="mb-2 space-y-1">
-      ${menuActuel.map((item, index) => {
-        total.calories += item.calories;
-        total.proteines += item.proteines;
-        total.glucides += item.glucides;
-        total.lipides += item.lipides;
-        return `
-          <li class="flex justify-between items-center bg-white p-2 rounded shadow">
-            <span>${item.nom} (${item.calories} kcal)</span>
-            <button onclick="supprimerAliment(${index})" class="text-red-500 hover:text-red-700 font-bold">X</button>
-          </li>
-        `;
-      }).join('')}
-    </ul>
-    <p><strong>Total :</strong></p>
-    <p>Calories : ${total.calories.toFixed(0)} kcal</p>
-    <p>Protéines : ${total.proteines.toFixed(1)} g</p>
-    <p>Glucides : ${total.glucides.toFixed(1)} g</p>
-    <p>Lipides : ${total.lipides.toFixed(1)} g</p>
-  `;
-
-  app.appendChild(resume);
+  app.appendChild(categoriesContainer);
+  afficherResumeMenu();
 }
 
-
-// === Affichage des aliments d'une catégorie ===
 function afficherAliments(categorie) {
   const app = document.getElementById("app");
+  const existingForm = app.querySelector('div.p-4.bg-blue-50');
+  app.innerHTML = '';
+  if (existingForm) app.appendChild(existingForm);
+
   const aliments = alimentsData[categorie];
 
-  app.innerHTML = `<h2 class="text-xl font-bold mb-4">${categorie}</h2><div id="listeAliments" class="grid grid-cols-1 gap-2"></div><button class="mt-4 text-sm text-blue-500" onclick="afficherCategories()">← Retour</button>`;
+  const titre = document.createElement("h2");
+  titre.className = "text-xl font-bold mb-4";
+  titre.textContent = categorie;
+  app.appendChild(titre);
 
-  const liste = document.getElementById("listeAliments");
+  const liste = document.createElement("div");
+  liste.className = "grid grid-cols-1 gap-2";
+  app.appendChild(liste);
 
   for (const nom in aliments) {
     const aliment = aliments[nom];
@@ -94,16 +71,20 @@ function afficherAliments(categorie) {
     div.innerHTML = infos + bouton;
     liste.appendChild(div);
   }
+
+  const retour = document.createElement("button");
+  retour.textContent = "← Retour";
+  retour.className = "mt-4 text-sm text-blue-500";
+  retour.onclick = afficherCategories;
+  app.appendChild(retour);
 }
 
-// === Ajouter un aliment au menu ===
 function ajouterAliment(categorie, nom) {
   const aliment = alimentsData[categorie][nom];
   menuActuel.push({ nom, ...aliment });
-  afficherCategories(); // Recharge avec résumé mis à jour
+  afficherCategories();
 }
 
-// === Affichage du résumé nutritionnel ===
 function afficherResumeMenu() {
   if (menuActuel.length === 0) return;
 
@@ -113,17 +94,21 @@ function afficherResumeMenu() {
 
   let total = { calories: 0, proteines: 0, glucides: 0, lipides: 0 };
 
-  menuActuel.forEach(item => {
-    total.calories += item.calories;
-    total.proteines += item.proteines;
-    total.glucides += item.glucides;
-    total.lipides += item.lipides;
-  });
-
   resume.innerHTML = `
     <h2 class="text-lg font-bold mb-2">Résumé du menu</h2>
-    <ul class="mb-2 list-disc list-inside">
-      ${menuActuel.map(item => `<li>${item.nom} (${item.calories} kcal)</li>`).join('')}
+    <ul class="mb-2 space-y-1">
+      ${menuActuel.map((item, index) => {
+        total.calories += item.calories;
+        total.proteines += item.proteines;
+        total.glucides += item.glucides;
+        total.lipides += item.lipides;
+        return `
+          <li class="flex justify-between items-center bg-white p-2 rounded shadow">
+            <span>${item.nom} (${item.calories.toFixed(0)} kcal)</span>
+            <button onclick="supprimerAliment(${index})" class="text-red-500 hover:text-red-700 font-bold">X</button>
+          </li>
+        `;
+      }).join('')}
     </ul>
     <p><strong>Total :</strong></p>
     <p>Calories : ${total.calories.toFixed(0)} kcal</p>
@@ -134,7 +119,61 @@ function afficherResumeMenu() {
 
   app.appendChild(resume);
 }
+
 function supprimerAliment(index) {
-  menuActuel.splice(index, 1); // Retire l'aliment du tableau
-  afficherCategories(); // Recharge les catégories + résumé mis à jour
+  menuActuel.splice(index, 1);
+  afficherCategories();
+}
+
+function remplirCategoriesSelect() {
+  const select = document.getElementById("categorieSelect");
+  if (!select) return;
+  select.innerHTML = '<option value="">-- Choisir une catégorie --</option>';
+  for (const cat in alimentsData) {
+    const opt = document.createElement("option");
+    opt.value = cat;
+    opt.textContent = cat;
+    select.appendChild(opt);
+  }
+}
+
+function remplirAlimentsSelect() {
+  const cat = document.getElementById("categorieSelect").value;
+  const select = document.getElementById("alimentSelect");
+  if (!cat || !alimentsData[cat]) {
+    select.innerHTML = '<option value="">Veuillez sélectionner une catégorie</option>';
+    return;
+  }
+  const aliments = alimentsData[cat];
+  select.innerHTML = '';
+  for (const nom in aliments) {
+    const opt = document.createElement("option");
+    opt.value = nom;
+    opt.textContent = nom;
+    select.appendChild(opt);
+  }
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const catSelect = document.getElementById("categorieSelect");
+  if (catSelect) catSelect.addEventListener("change", remplirAlimentsSelect);
+});
+
+function ajouterAlimentFormulaire() {
+  const cat = document.getElementById("categorieSelect").value;
+  const nom = document.getElementById("alimentSelect").value;
+  const qte = parseFloat(document.getElementById("quantiteInput").value);
+
+  if (!cat || !nom || isNaN(qte) || qte <= 0) return alert("Remplis tous les champs correctement");
+
+  const aliment = alimentsData[cat][nom];
+  const alimentAjoute = {
+    nom: nom,
+    calories: (aliment.calories * qte) / 100,
+    proteines: (aliment.proteines * qte) / 100,
+    glucides: (aliment.glucides * qte) / 100,
+    lipides: (aliment.lipides * qte) / 100
+  };
+
+  menuActuel.push(alimentAjoute);
+  afficherCategories();
 }

@@ -4,27 +4,23 @@
       "calories": 52,
       "proteines": 0.3,
       "glucides": 14,
-      "lipides": 0.2,
-      "micronutriments": {
-        "Vitamine C": "4.6 mg",
-        "Potassium": "107 mg",
-        "Fibres": "2.4 g"
-      }
+      "lipides": 0.2
     }
   },
-  "Légumes": {},
+  "Légumes": {
+    "Carotte": {
+      "calories": 41,
+      "proteines": 0.9,
+      "glucides": 10,
+      "lipides": 0.2
+    }
+  },
   "Produits céréaliers": {
     "Flocons d'avoine": {
       "calories": 379,
       "proteines": 13.2,
       "glucides": 68,
-      "lipides": 6.5,
-      "micronutriments": {
-        "Manganèse": "3.6 mg",
-        "Phosphore": "410 mg",
-        "Magnésium": "138 mg",
-        "Zinc": "3.2 mg"
-      }
+      "lipides": 6.5
     }
   },
   "Viandes": {},
