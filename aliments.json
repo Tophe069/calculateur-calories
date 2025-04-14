@@ -11,6 +11,12 @@
       "proteines": 1.1,
       "glucides": 23,
       "lipides": 0.3
+    },
+    "Orange": {
+      "calories": 47,
+      "proteines": 0.9,
+      "glucides": 12,
+      "lipides": 0.1
     }
   },
   "Légumes": {
@@ -19,6 +25,18 @@
       "proteines": 0.9,
       "glucides": 10,
       "lipides": 0.2
+    },
+    "Brocoli": {
+      "calories": 34,
+      "proteines": 2.8,
+      "glucides": 7,
+      "lipides": 0.4
+    },
+    "Courgette": {
+      "calories": 17,
+      "proteines": 1.2,
+      "glucides": 3.1,
+      "lipides": 0.3
     }
   },
   "Produits céréaliers": {
@@ -27,6 +45,38 @@
       "proteines": 13.2,
       "glucides": 68,
       "lipides": 6.5
+    },
+    "Pain complet": {
+      "calories": 250,
+      "proteines": 8,
+      "glucides": 45,
+      "lipides": 3
+    },
+    "Riz basmati": {
+      "calories": 356,
+      "proteines": 7.8,
+      "glucides": 77,
+      "lipides": 0.6
+    }
+  },
+  "Laitages": {
+    "Yaourt nature": {
+      "calories": 60,
+      "proteines": 3.5,
+      "glucides": 4.7,
+      "lipides": 3.3
+    },
+    "Lait écrémé": {
+      "calories": 35,
+      "proteines": 3.4,
+      "glucides": 5,
+      "lipides": 0.1
+    },
+    "Fromage blanc": {
+      "calories": 82,
+      "proteines": 8,
+      "glucides": 4,
+      "lipides": 4
     }
   },
   "Viandes": {
@@ -35,6 +85,58 @@
       "proteines": 31,
       "glucides": 0,
       "lipides": 3.6
+    },
+    "Dinde": {
+      "calories": 104,
+      "proteines": 24,
+      "glucides": 0,
+      "lipides": 1
+    },
+    "Jambon blanc": {
+      "calories": 116,
+      "proteines": 20,
+      "glucides": 1.2,
+      "lipides": 3.5
+    }
+  },
+  "Poissons": {
+    "Saumon": {
+      "calories": 208,
+      "proteines": 20,
+      "glucides": 0,
+      "lipides": 13
+    },
+    "Thon": {
+      "calories": 132,
+      "proteines": 28,
+      "glucides": 0,
+      "lipides": 1
+    },
+    "Cabillaud": {
+      "calories": 82,
+      "proteines": 18,
+      "glucides": 0,
+      "lipides": 0.7
+    }
+  },
+  "Autres": {
+    "Amandes": {
+      "calories": 579,
+      "proteines": 21,
+      "glucides": 22,
+      "lipides": 50
+    },
+    "Œuf dur": {
+      "calories": 155,
+      "proteines": 13,
+      "glucides": 1.1,
+      "lipides": 11
+    },
+    "Huile d'olive": {
+      "calories": 884,
+      "proteines": 0,
+      "glucides": 0,
+      "lipides": 100
     }
   }
 }
