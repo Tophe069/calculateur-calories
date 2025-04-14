@@ -50,28 +50,32 @@ function genererMenu(besoinTotal) {
     "Collation": 0
   };
 
-  const categories = Object.keys(alimentsData);
-  let catIndex = 0;
-
-  for (const repas in objectifs) {
-    while (totalParRepas[repas] < objectifs[repas] && catIndex < categories.length) {
-      const cat = categories[catIndex];
-      for (const nom in alimentsData[cat]) {
-        const a = alimentsData[cat][nom];
-        if (totalParRepas[repas] + a.calories <= objectifs[repas]) {
-          totalParRepas[repas] += a.calories;
-          menu[repas].push(`${nom} (${a.calories} kcal)`);
-        }
-        if (totalParRepas[repas] >= objectifs[repas]) break;
-      }
-      catIndex++;
+  const alimentsFlat = [];
+  for (const cat in alimentsData) {
+    for (const nom in alimentsData[cat]) {
+      alimentsFlat.push({ nom, ...alimentsData[cat][nom] });
     }
   }
 
-  afficherMenuRepas(menu);
+  let used = new Set();
+
+  for (const repas in objectifs) {
+    for (let i = 0; i < alimentsFlat.length; i++) {
+      const item = alimentsFlat[i];
+      if (used.has(item.nom)) continue;
+      if (totalParRepas[repas] + item.calories <= objectifs[repas]) {
+        totalParRepas[repas] += item.calories;
+        menu[repas].push(item);
+        used.add(item.nom);
+      }
+      if (totalParRepas[repas] >= objectifs[repas]) break;
+    }
+  }
+
+  afficherMenuRepas(menu, totalParRepas);
 }
 
-function afficherMenuRepas(menu) {
+function afficherMenuRepas(menu, totals) {
   const section = document.getElementById("generationMenu");
   section.classList.remove("hidden");
 
@@ -89,9 +93,9 @@ function afficherMenuRepas(menu) {
     const bloc = document.createElement("div");
     bloc.className = "mb-4 p-4 border rounded bg-gray-50";
 
-    bloc.innerHTML = `<h3 class="text-lg font-semibold mb-2">${emojis[repas]} ${repas}</h3>
+    bloc.innerHTML = `<h3 class="text-lg font-semibold mb-2">${emojis[repas]} ${repas} — ${totals[repas].toFixed(0)} kcal</h3>
       <ul class="list-disc list-inside text-sm">
-        ${menu[repas].map(item => `<li>${item}</li>`).join("")}
+        ${menu[repas].map(item => `<li>${item.nom} (${item.calories} kcal)</li>`).join("")}
       </ul>`;
 
     container.appendChild(bloc);
