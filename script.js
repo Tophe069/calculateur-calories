@@ -29,8 +29,41 @@ function afficherCategories() {
     categoriesContainer.appendChild(btn);
   }
 
-  afficherResumeMenu();
+  function afficherResumeMenu() {
+  if (menuActuel.length === 0) return;
+
+  const app = document.getElementById("app");
+  const resume = document.createElement("div");
+  resume.className = "mt-6 p-4 bg-gray-100 rounded";
+
+  let total = { calories: 0, proteines: 0, glucides: 0, lipides: 0 };
+
+  resume.innerHTML = `
+    <h2 class="text-lg font-bold mb-2">Résumé du menu</h2>
+    <ul class="mb-2 space-y-1">
+      ${menuActuel.map((item, index) => {
+        total.calories += item.calories;
+        total.proteines += item.proteines;
+        total.glucides += item.glucides;
+        total.lipides += item.lipides;
+        return `
+          <li class="flex justify-between items-center bg-white p-2 rounded shadow">
+            <span>${item.nom} (${item.calories} kcal)</span>
+            <button onclick="supprimerAliment(${index})" class="text-red-500 hover:text-red-700 font-bold">X</button>
+          </li>
+        `;
+      }).join('')}
+    </ul>
+    <p><strong>Total :</strong></p>
+    <p>Calories : ${total.calories.toFixed(0)} kcal</p>
+    <p>Protéines : ${total.proteines.toFixed(1)} g</p>
+    <p>Glucides : ${total.glucides.toFixed(1)} g</p>
+    <p>Lipides : ${total.lipides.toFixed(1)} g</p>
+  `;
+
+  app.appendChild(resume);
 }
+
 
 // === Affichage des aliments d'une catégorie ===
 function afficherAliments(categorie) {
@@ -100,4 +133,8 @@ function afficherResumeMenu() {
   `;
 
   app.appendChild(resume);
+}
+function supprimerAliment(index) {
+  menuActuel.splice(index, 1); // Retire l'aliment du tableau
+  afficherCategories(); // Recharge les catégories + résumé mis à jour
 }
