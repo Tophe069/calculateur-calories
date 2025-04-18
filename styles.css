@@ -1,121 +1,459 @@
-/* Styles généraux */
-body {
-    background-color: #f8f9fa;
+/* Styles généraux */ 
+body { 
+    background-color: #f8f9fa; 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
 }
 
-/* Styles des cartes de repas */
-.meal-card {
-    transition: all 0.2s ease-in-out;
-    border-left: 4px solid transparent;
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px 40px;
 }
 
-.meal-card:hover {
+h1, h2, h3, h4, h5, h6 {
+    color: #444;
+    margin-top: 0;
+}
+
+/* Header et bannière */
+.header-banner {
+    background-image: url('bandeau.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 220px;
+    position: relative;
+    margin-bottom: 30px;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.banner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+    border-radius: 0 0 10px 10px;
+}
+
+.banner-overlay h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.banner-overlay .subtitle {
+    margin: 10px 0 0;
+    font-size: 1.2rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Cartes et composants */
+.card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
-/* Coloration des cartes par type de repas */
-.petit-dejeuner {
-    border-left-color: #FF9F43;
+.header-card {
+    background-color: #007bff;
+    color: white;
+    padding: 15px;
+    border-radius: 8px 8px 0 0;
+    margin: -20px -20px 20px;
+    font-weight: 500;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px;
+}
+
+.col {
+    flex: 1;
+    padding: 0 15px;
+    min-width: 300px;
+}
+
+/* Formulaire */
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0,123,255,0.2);
+}
+
+button:hover {
+    background-color: #0069d9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0,123,255,0.25);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0,123,255,0.2);
+}
+
+.generate-button {
+    margin-top: 20px;
+}
+
+/* Cartes de repas */
+.meal-card { 
+    transition: all 0.3s ease-in-out; 
+    border-left: 4px solid transparent; 
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    padding: 15px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.meal-card:hover { 
+    transform: translateY(-5px); 
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15); 
+}
+
+.meal-card:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    background-size: 30px;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.05;
+    z-index: 0;
+}
+
+/* Coloration des cartes par type de repas */ 
+.petit-dejeuner { 
+    border-left-color: #FF9F43; 
+}
+
+.petit-dejeuner:before { 
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 32c-88.4 0-160 71.6-160 160v144c0 22.1 17.9 40 40 40h240c22.1 0 40-17.9 40-40V192c0-88.4-71.6-160-160-160zm0 304c-53 0-96-43-96-96s43-96 96-96 96 43 96 96-43 96-96 96z"/></svg>');
 }
 
 .dejeuner {
     border-left-color: #1E88E5;
 }
 
+.dejeuner:before { 
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M344 144c-3.92 52.87-44 96-88 96s-84.15-43.12-88-96c-4-55 35-96 88-96s92 42 88 96z"/><path d="M256 304c-87 0-175.3 43.2-191.64 124.74C62.39 453.52 68.57 464 80 464h352c11.44 0 17.62-10.48 15.65-35.26C431.3 347.2 343 304 256 304z"/></svg>');
+}
+
 .diner {
     border-left-color: #7367F0;
+}
+
+.diner:before { 
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M100.18 241.19a15.93 15.93 0 0013.37-13.25C118 199.9 184 128 256 128s138 71.9 142.45 99.94a15.93 15.93 0 0013.37 13.25C430.06 243.2 448 264.74 448 288c0 31.3-27.49 57-64 62.35V480H128V350.35c-36.51-5.35-64-31.05-64-62.35 0-23.26 17.94-44.8 36.18-46.81z"/></svg>');
 }
 
 .collation {
     border-left-color: #28C76F;
 }
 
-/* Styles pour les boutons de remplacement */
-.replace-button {
-    cursor: pointer;
-    color: #6c757d;
-    transition: color 0.2s;
+.collation:before { 
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M393.87 190.81l-143.78-22.38L193.69 35.13a16.66 16.66 0 00-15.63-10.93 16.44 16.44 0 00-15.41 11.15L116 181.05l-143.3 24.12a16.51 16.51 0 00-13.79 17.6c.62 5.75 5.41 12.47 11.14 13.95l98.28 38.71 39.55 98.9a16.65 16.65 0 0015.63 10.25c7.1 0 12.5-4.72 14.3-10.06l38.83-97.33L379.25 220a16.56 16.56 0 0014.6-18.4c-.96-5.67-5.96-10.11-9.98-10.79z"/></svg>');
+}
+
+.meal-card h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.meal-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    align-items: center;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.meal-calories {
+    font-weight: 500;
+    color: #555;
+    margin-right: 10px;
+}
+
+/* Boutons de remplacement */ 
+.replace-button { 
+    cursor: pointer; 
+    color: #6c757d; 
+    transition: color 0.2s; 
+    font-size: 1.2rem;
 }
 
 .replace-button:hover {
     color: #007bff;
 }
 
-/* Styles pour les barres de progression nutritionnelles */
-.nutrition-progress {
-    height: 8px;
-    border-radius: 4px;
+/* Écran d'accueil */
+.icon-container {
+    text-align: center;
+    margin: 40px 0;
 }
 
-.nutrition-item {
-    margin-bottom: 10px;
+.food-icon {
+    font-size: 4rem;
+    color: #333;
 }
 
-/* Styles pour les éléments d'aliment */
-.food-item {
+.info-text {
+    text-align: center;
+    color: #666;
+}
+
+/* Résumé nutritionnel et graphiques */
+.nutrition-summary {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.nutrition-charts {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.chart-container {
+    flex: 1;
+    min-width: 300px;
+    height: 300px;
     padding: 10px;
-    border-bottom: 1px solid #eee;
+}
+
+.nutrition-gauges {
+    flex: 1;
+    min-width: 300px;
+    padding: 10px;
+}
+
+.gauge-item {
+    margin-bottom: 15px;
+}
+
+.gauge-item h4 {
+    margin: 0 0 5px 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.gauge-container {
+    width: 100%;
+}
+
+.gauge-bar {
+    background-color: #f0f0f0;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.gauge-fill {
+    height: 100%;
+    border-radius: 10px;
+    background-color: #007bff;
+    transition: width 0.5s ease-in-out;
+}
+
+.gauge-label {
     display: flex;
     justify-content: space-between;
+    margin-top: 5px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Couleurs spécifiques pour chaque type de nutriment */
+.gauge-item:nth-child(1) .gauge-fill { background-color: #FF6384; }
+.gauge-item:nth-child(2) .gauge-fill { background-color: #36A2EB; }
+.gauge-item:nth-child(3) .gauge-fill { background-color: #FFCE56; }
+.gauge-item:nth-child(4) .gauge-fill { background-color: #4BC0C0; }
+
+/* Fenêtre modale */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
     align-items: center;
 }
 
-.food-item:last-child {
-    border-bottom: none;
+.modal.show {
+    display: flex;
 }
 
-.food-item:hover {
-    background-color: #f5f5f5;
+.modal-content {
+    background-color: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+    animation: modalFadeIn 0.3s;
 }
 
-/* Styles pour le modal de remplacement */
-.alternative-item {
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.alternative-item:hover {
-    background-color: #f0f7ff;
-}
-
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-.meal-container {
-    animation: fadeIn 0.4s ease-out;
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
 }
 
-/* Styles pour le résumé nutritionnel */
-.nutrients-summary {
-    border-left: 4px solid #4285F4;
+.modal-header h2 {
+    margin: 0;
 }
 
-.nutrition-badge {
-    display: inline-block;
-    padding: 0.35em 0.65em;
-    font-size: 0.75em;
-    font-weight: 700;
-    line-height: 1;
-    color: #fff;
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+    width: auto;
+    box-shadow: none;
+}
+
+.close-button:hover {
+    color: #000;
+    background-color: transparent;
+    transform: none;
+    box-shadow: none;
+}
+
+.modal-body {
+    margin-bottom: 20px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+#replacement-select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+#confirm-replacement {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    width: auto;
+}
+
+/* Pied de page */
+footer {
     text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-    border-radius: 0.25rem;
+    margin-top: 30px;
+    padding: 20px;
+    color: #666;
+    font-size: 0.9rem;
 }
 
-.nutrition-badge-good {
-    background-color: #4CAF50;
-}
-
-.nutrition-badge-average {
-    background-color: #FFC107;
-}
-
-.nutrition-badge-poor {
-    background-color: #F44336;
+/* Responsive design */
+@media (max-width: 768px) {
+    .row {
+        flex-direction: column;
+    }
+    
+    .col {
+        width: 100%;
+        padding: 0;
+    }
+    
+    .header-banner {
+        height: 180px;
+    }
+    
+    .banner-overlay h1 {
+        font-size: 2rem;
+    }
+    
+    .nutrition-charts {
+        flex-direction: column;
+    }
+    
+    .chart-container, .nutrition-gauges {
+        min-width: 100%;
+    }
 }

@@ -565,7 +565,6 @@ function genererRepas() {
     afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeuner, suggestionsDiner, suggestionsCollation);
 }
 
-
 // Fonction pour afficher le menu généré
 function afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeuner, suggestionsDiner, suggestionsCollation) {
     console.log("Affichage du menu...");
@@ -580,16 +579,72 @@ function afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeune
     const menuContainer = document.getElementById('menu-container');
     menuContainer.innerHTML = ''; // Effacer le contenu précédent
     
-    // Créer la section résumé nutritionnel
+    // Calculer les totaux nutritionnels
+    const tousLesAliments = [...suggestionsPetitDej, ...suggestionsDejeuner, ...suggestionsDiner, ...suggestionsCollation];
+    const totalProteines = tousLesAliments.reduce((total, sugg) => total + sugg.aliment.valeurs.prot * sugg.portion, 0);
+    const totalGlucides = tousLesAliments.reduce((total, sugg) => total + sugg.aliment.valeurs.gluc * sugg.portion, 0);
+    const totalLipides = tousLesAliments.reduce((total, sugg) => total + sugg.aliment.valeurs.lip * sugg.portion, 0);
+    const totalFibres = tousLesAliments.reduce((total, sugg) => total + sugg.aliment.valeurs.fibres * sugg.portion, 0);
+    
+    // Créer la section résumé nutritionnel avec graphiques
     const resumeSection = document.createElement('div');
     resumeSection.className = 'card nutrition-summary';
     resumeSection.innerHTML = `
         <h2>Résumé nutritionnel journalier</h2>
         <p>Besoins caloriques quotidiens: <strong>${besoinsCaloriques} calories</strong></p>
+        
+        <div class="nutrition-charts">
+            <div class="chart-container">
+                <h3>Répartition des macronutriments</h3>
+                <canvas id="macroChart" width="300" height="300"></canvas>
+            </div>
+            
+            <div class="nutrition-gauges">
+                <div class="gauge-item">
+                    <h4>Protéines</h4>
+                    <div class="gauge-container">
+                        <div class="gauge-bar">
+                            <div class="gauge-fill" style="width: ${Math.min(100, (totalProteines / (besoinsCaloriques * 0.2)) * 100)}%"></div>
+                        </div>
+                        <div class="gauge-label">${Math.round(totalProteines)}g / ${Math.round(besoinsCaloriques * 0.2 / 4)}g</div>
+                    </div>
+                </div>
+                
+                <div class="gauge-item">
+                    <h4>Glucides</h4>
+                    <div class="gauge-container">
+                        <div class="gauge-bar">
+                            <div class="gauge-fill" style="width: ${Math.min(100, (totalGlucides / (besoinsCaloriques * 0.5)) * 100)}%"></div>
+                        </div>
+                        <div class="gauge-label">${Math.round(totalGlucides)}g / ${Math.round(besoinsCaloriques * 0.5 / 4)}g</div>
+                    </div>
+                </div>
+                
+                <div class="gauge-item">
+                    <h4>Lipides</h4>
+                    <div class="gauge-container">
+                        <div class="gauge-bar">
+                            <div class="gauge-fill" style="width: ${Math.min(100, (totalLipides / (besoinsCaloriques * 0.3)) * 100)}%"></div>
+                        </div>
+                        <div class="gauge-label">${Math.round(totalLipides)}g / ${Math.round(besoinsCaloriques * 0.3 / 9)}g</div>
+                    </div>
+                </div>
+                
+                <div class="gauge-item">
+                    <h4>Fibres</h4>
+                    <div class="gauge-container">
+                        <div class="gauge-bar">
+                            <div class="gauge-fill" style="width: ${Math.min(100, (totalFibres / 25) * 100)}%"></div>
+                        </div>
+                        <div class="gauge-label">${Math.round(totalFibres)}g / 25g</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     `;
     menuContainer.appendChild(resumeSection);
     
-    // Fonction pour créer une carte de repas
+    // Créer les cartes de repas
     function creerCarteRepas(titre, suggestions, classeCSS) {
         const totalCalories = suggestions.reduce((total, sugg) => total + sugg.calories, 0);
         
@@ -637,115 +692,49 @@ function afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeune
     menuContainer.appendChild(creerCarteRepas('Déjeuner', suggestionsDejeuner, 'dejeuner'));
     menuContainer.appendChild(creerCarteRepas('Dîner', suggestionsDiner, 'diner'));
     
-   // Ajouter la carte de collation seulement si des collations sont prévues
-if (suggestionsCollation.length > 0 && document.getElementById('collation').value > 0) {
-    menuContainer.appendChild(creerCarteRepas('Collation', suggestionsCollation, 'collation'));
-}
-}
-
-// Fonction pour ouvrir la fenêtre modale de remplacement d'aliment
-function ouvrirModalRemplacement(typeRepas, index) {
-    console.log(`Ouverture du modal pour remplacer ${typeRepas} #${index}`);
-    typeRepasActuel = typeRepas;
-    indexAlimentActuel = index;
-    
-    const modal = document.getElementById('replacement-modal');
-    const select = document.getElementById('replacement-select');
-    
-    // Effacer les options précédentes
-    select.innerHTML = '';
-    
-    // Déterminer les catégories appropriées pour ce type de repas
-    let categories;
-    switch (typeRepas) {
-        case 'petit-dejeuner':
-            categories = ['fruit', 'laitage', 'féculent'];
-            break;
-        case 'dejeuner':
-            categories = ['protéine', 'légume', 'féculent'];
-            break;
-        case 'diner':
-            categories = ['protéine', 'légume', 'féculent'];
-            break;
-        case 'collation':
-            categories = ['fruit', 'laitage', 'collation'];
-            break;
-        default:
-            categories = ['fruit', 'légume', 'protéine', 'féculent', 'laitage'];
+    // Ajouter la carte de collation seulement si des collations sont prévues et si le pourcentage est > 0
+    if (suggestionsCollation.length > 0 && document.getElementById('collation').value > 0) {
+        menuContainer.appendChild(creerCarteRepas('Collation', suggestionsCollation, 'collation'));
     }
     
-    // Filtrer les aliments par catégories
-    const alimentsFiltre = filtrerAlimentsParCategorie(categories);
-    
-    // Ajouter les options au select
-    alimentsFiltre.forEach(aliment => {
-        const option = document.createElement('option');
-        option.value = aliment.nom;
-        option.textContent = `${aliment.nom} (${aliment.valeurs.kcal} cal)`;
-        select.appendChild(option);
-    });
-    
-    // Afficher la fenêtre modale
-    modal.classList.add('show');
-}
-
-// Fonction pour fermer la fenêtre modale
-function fermerModal() {
-    document.getElementById('replacement-modal').classList.remove('show');
-}
-
-// Fonction pour confirmer le remplacement d'un aliment
-function confirmerRemplacement() {
-    console.log("Confirmation du remplacement...");
-    const select = document.getElementById('replacement-select');
-    const nouvelAlimentNom = select.value;
-    
-    // Trouver le nouvel aliment
-    const nouvelAliment = alimentsDatabase.find(aliment => aliment.nom === nouvelAlimentNom);
-    
-    if (!nouvelAliment) {
-        alert('Aliment non trouvé.');
-        return;
-    }
-    
-    // Déterminer quel tableau de suggestions modifier
-    let suggestions;
-    switch (typeRepasActuel) {
-        case 'petit-dejeuner':
-            suggestions = suggestionsPetitDej;
-            break;
-        case 'dejeuner':
-            suggestions = suggestionsDejeuner;
-            break;
-        case 'diner':
-            suggestions = suggestionsDiner;
-            break;
-        case 'collation':
-            suggestions = suggestionsCollation;
-            break;
-        default:
-            suggestions = [];
-    }
-    
-    // Vérifier si l'index est valide
-    if (indexAlimentActuel >= 0 && indexAlimentActuel < suggestions.length) {
-        // Calculer les calories pour le nouvel aliment
-        const anciennesCalories = suggestions[indexAlimentActuel].calories;
-        const portion = Math.min(1, anciennesCalories / nouvelAliment.valeurs.kcal);
-        const caloriesNouvelAliment = Math.round(nouvelAliment.valeurs.kcal * portion);
+    // Créer le graphique circulaire des macronutriments
+    setTimeout(() => {
+        const ctx = document.getElementById('macroChart').getContext('2d');
+        const caloriesProteines = totalProteines * 4; // 4 calories par gramme de protéines
+        const caloriesGlucides = totalGlucides * 4; // 4 calories par gramme de glucides
+        const caloriesLipides = totalLipides * 9; // 9 calories par gramme de lipides
         
-        // Remplacer l'aliment dans les suggestions
-        suggestions[indexAlimentActuel] = {
-            nom: nouvelAliment.nom,
-            portion: portion,
-            calories: caloriesNouvelAliment,
-            aliment: nouvelAliment
-        };
-        
-        // Mettre à jour l'affichage
-        afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeuner, suggestionsDiner, suggestionsCollation);
-    }
-    
-    // Fermer la fenêtre modale
-    fermerModal();
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Protéines', 'Glucides', 'Lipides'],
+                datasets: [{
+                    data: [caloriesProteines, caloriesGlucides, caloriesLipides],
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                    hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const percent = Math.round((value / (caloriesProteines + caloriesGlucides + caloriesLipides)) * 100);
+                                return `${label}: ${Math.round(value)} cal (${percent}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }, 100);
 }
+
+// Fonction pour ouvrir la fenêtre
