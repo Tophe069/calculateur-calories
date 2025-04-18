@@ -59,6 +59,31 @@ h1, h2, h3, h4, h5, h6 {
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
 
+/* Disposition en 3 colonnes */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px;
+}
+
+.col-form {
+    flex: 0 0 25%;
+    padding: 0 15px;
+    min-width: 300px;
+}
+
+.col-menu {
+    flex: 0 0 40%;
+    padding: 0 15px;
+    min-width: 350px;
+}
+
+.col-charts {
+    flex: 0 0 35%;
+    padding: 0 15px;
+    min-width: 300px;
+}
+
 /* Cartes et composants */
 .card {
     background-color: white;
@@ -81,18 +106,6 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 8px 8px 0 0;
     margin: -20px -20px 20px;
     font-weight: 500;
-}
-
-.row {
-    display: flex;
-    flex-wrap: wrap;
-    margin: 0 -15px;
-}
-
-.col {
-    flex: 1;
-    padding: 0 15px;
-    min-width: 300px;
 }
 
 /* Formulaire */
@@ -333,6 +346,41 @@ button:active {
 .gauge-item:nth-child(3) .gauge-fill { background-color: #FFCE56; }
 .gauge-item:nth-child(4) .gauge-fill { background-color: #4BC0C0; }
 
+/* Bouton d'exportation */
+.export-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.action-button {
+    display: flex;
+    align-items: center;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    width: auto;
+    box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
+}
+
+.action-button:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(40, 167, 69, 0.25);
+}
+
+.button-icon {
+    margin-right: 8px;
+    font-size: 1.2rem;
+}
+
 /* Fenêtre modale */
 .modal {
     display: none;
@@ -403,7 +451,7 @@ button:active {
     justify-content: flex-end;
 }
 
-#replacement-select {
+#replacement-select, .date-input {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
@@ -411,7 +459,7 @@ button:active {
     border: 1px solid #ddd;
 }
 
-#confirm-replacement {
+#confirm-replacement, #confirm-export {
     background-color: #007bff;
     color: white;
     border: none;
@@ -419,6 +467,80 @@ button:active {
     border-radius: 50px;
     cursor: pointer;
     width: auto;
+}
+
+/* Styles pour le PDF */
+.pdf-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    color: #333;
+}
+
+.pdf-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #007bff;
+}
+
+.pdf-header h1 {
+    margin: 0 0 10px 0;
+    color: #007bff;
+}
+
+.pdf-macro-section {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.pdf-macro-grid {
+    display: flex;
+    justify-content: space-between;
+}
+
+.pdf-macro-item {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+}
+
+.pdf-macro-item h3 {
+    margin-top: 0;
+    color: #555;
+}
+
+.pdf-meal-section {
+    margin: 20px 0;
+    padding: 15px;
+    border-left: 4px solid #007bff;
+    background-color: #f9f9f9;
+    border-radius: 0 8px 8px 0;
+}
+
+.pdf-meal-section h2 {
+    margin-top: 0;
+    color: #007bff;
+}
+
+.pdf-food-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.pdf-food-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.pdf-footer {
+    margin-top: 30px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #777;
 }
 
 /* Pied de page */
@@ -431,14 +553,23 @@ footer {
 }
 
 /* Responsive design */
-@media (max-width: 768px) {
-    .row {
-        flex-direction: column;
+@media (max-width: 1200px) {
+    .col-form, .col-menu, .col-charts {
+        flex: 0 0 50%;
     }
     
-    .col {
-        width: 100%;
-        padding: 0;
+    .col-charts {
+        order: 3; /* Déplace les graphiques à la fin sur les écrans moyens */
+    }
+}
+
+@media (max-width: 768px) {
+    .col-form, .col-menu, .col-charts {
+        flex: 0 0 100%;
+    }
+    
+    .col-charts {
+        order: 3; /* Maintient les graphiques à la fin sur petits écrans */
     }
     
     .header-banner {

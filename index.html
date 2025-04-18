@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Générateur de Repas Équilibrés</title>
+    <!-- Inclure Chart.js pour les graphiques -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Inclure html2pdf.js pour l'exportation PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -17,7 +20,8 @@
 
     <div class="container">
         <div class="row">
-            <div class="col">
+            <!-- Colonne 1: Formulaire -->
+            <div class="col-form">
                 <div class="card">
                     <h2 class="header-card">Vos Informations</h2>
                     <form id="meal-form" onsubmit="return false">
@@ -92,7 +96,8 @@
                 </div>
             </div>
             
-            <div class="col">
+            <!-- Colonne 2: Menu généré -->
+            <div class="col-menu">
                 <div class="card" id="default-info">
                     <div class="icon-container">
                         <span class="food-icon">🍴</span>
@@ -100,8 +105,14 @@
                     <p class="info-text">Remplissez le formulaire et cliquez sur "Générer Repas" pour obtenir des suggestions adaptées à vos besoins.</p>
                 </div>
                 
-                <!-- Cette section sera remplie par JavaScript après génération -->
-                <div id="menu-container"></div>
+                <!-- Cette section sera remplie par JavaScript - cartes de repas -->
+                <div id="repas-container"></div>
+            </div>
+            
+            <!-- Colonne 3: Graphiques et informations nutritionnelles -->
+            <div class="col-charts">
+                <!-- Cette section sera remplie par JavaScript - résumé nutritionnel -->
+                <div id="nutrition-container"></div>
             </div>
         </div>
     </div>
@@ -119,6 +130,30 @@
             </div>
             <div class="modal-footer">
                 <button id="confirm-replacement">Confirmer</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Fenêtre modale pour l'exportation PDF -->
+    <div id="export-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exportation PDF</h2>
+                <button class="close-button">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Veuillez sélectionner la date à laquelle ce plan de repas s'applique :</p>
+                <div class="form-group">
+                    <label for="export-date">Date</label>
+                    <input type="date" id="export-date" class="date-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="export-title">Titre (optionnel)</label>
+                    <input type="text" id="export-title" placeholder="Mon plan repas personnalisé">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-export">Exporter</button>
             </div>
         </div>
     </div>

@@ -319,6 +319,10 @@ let besoinsCaloriques = 0;
 let typeRepasActuel = '';
 let indexAlimentActuel = -1;
 
+// Variables globales pour l'exportation
+let exportDate = "";
+let exportTitle = "";
+
 // Initialisation au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM chargé');
@@ -329,8 +333,8 @@ document.addEventListener('DOMContentLoaded', function() {
         confirmButton.addEventListener('click', confirmerRemplacement);
     }
     
-    // Gestionnaire pour fermer la fenêtre modale
-    const closeButton = document.querySelector('.close-button');
+    // Gestionnaire pour fermer la fenêtre modale de remplacement
+    const closeButton = document.querySelector('#replacement-modal .close-button');
     if (closeButton) {
         closeButton.addEventListener('click', fermerModal);
     }
@@ -340,6 +344,31 @@ document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('replacement-modal');
         if (event.target === modal) {
             fermerModal();
+        }
+    });
+    
+    // Écouteurs pour l'exportation PDF
+    document.body.addEventListener('click', function(e) {
+        if (e.target && e.target.id === 'export-pdf-btn') {
+            ouvrirModalExportation();
+        }
+        
+        if (e.target && e.target.id === 'confirm-export') {
+            confirmerExportation();
+        }
+    });
+    
+    // Gestionnaire pour fermer la modale d'exportation
+    const closeExportButton = document.querySelector('#export-modal .close-button');
+    if (closeExportButton) {
+        closeExportButton.addEventListener('click', fermerModalExportation);
+    }
+    
+    // Fermer la modale d'exportation si on clique en dehors
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('export-modal');
+        if (event.target === modal) {
+            fermerModalExportation();
         }
     });
 });
@@ -575,9 +604,13 @@ function afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeune
         defaultInfo.style.display = 'none';
     }
     
-    // Créer le conteneur pour le menu
-    const menuContainer = document.getElementById('menu-container');
-    menuContainer.innerHTML = ''; // Effacer le contenu précédent
+    // Créer le conteneur pour le menu des repas
+    const repasContainer = document.getElementById('repas-container');
+    repasContainer.innerHTML = ''; // Effacer le contenu précédent
+    
+    // Créer le conteneur pour les informations nutritionnelles
+    const nutritionContainer = document.getElementById('nutrition-container');
+    nutritionContainer.innerHTML = ''; // Effacer le contenu précédent
     
     // Calculer les totaux nutritionnels
     const tousLesAliments = [...suggestionsPetitDej, ...suggestionsDejeuner, ...suggestionsDiner, ...suggestionsCollation];
@@ -641,8 +674,14 @@ function afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeune
                 </div>
             </div>
         </div>
+        
+        <div class="export-actions">
+            <button id="export-pdf-btn" class="action-button">
+                <span class="button-icon">📄</span> Exporter en PDF
+            </button>
+        </div>
     `;
-    menuContainer.appendChild(resumeSection);
+    nutritionContainer.appendChild(resumeSection);
     
     // Créer les cartes de repas
     function creerCarteRepas(titre, suggestions, classeCSS) {
@@ -687,54 +726,17 @@ function afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeune
         return card;
     }
     
-    // Ajouter les cartes de repas
-    menuContainer.appendChild(creerCarteRepas('Petit-déjeuner', suggestionsPetitDej, 'petit-dejeuner'));
-    menuContainer.appendChild(creerCarteRepas('Déjeuner', suggestionsDejeuner, 'dejeuner'));
-    menuContainer.appendChild(creerCarteRepas('Dîner', suggestionsDiner, 'diner'));
+    // Ajouter les cartes de repas au conteneur de repas
+    repasContainer.appendChild(creerCarteRepas('Petit-déjeuner', suggestionsPetitDej, 'petit-dejeuner'));
+    repasContainer.appendChild(creerCarteRepas('Déjeuner', suggestionsDejeuner, 'dejeuner'));
+    repasContainer.appendChild(creerCarteRepas('Dîner', suggestionsDiner, 'diner'));
     
     // Ajouter la carte de collation seulement si des collations sont prévues et si le pourcentage est > 0
     if (suggestionsCollation.length > 0 && document.getElementById('collation').value > 0) {
-        menuContainer.appendChild(creerCarteRepas('Collation', suggestionsCollation, 'collation'));
+        repasContainer.appendChild(creerCarteRepas('Collation', suggestionsCollation, 'collation'));
     }
     
     // Créer le graphique circulaire des macronutriments
     setTimeout(() => {
         const ctx = document.getElementById('macroChart').getContext('2d');
-        const caloriesProteines = totalProteines * 4; // 4 calories par gramme de protéines
-        const caloriesGlucides = totalGlucides * 4; // 4 calories par gramme de glucides
-        const caloriesLipides = totalLipides * 9; // 9 calories par gramme de lipides
-        
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Protéines', 'Glucides', 'Lipides'],
-                datasets: [{
-                    data: [caloriesProteines, caloriesGlucides, caloriesLipides],
-                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-                    hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.raw || 0;
-                                const percent = Math.round((value / (caloriesProteines + caloriesGlucides + caloriesLipides)) * 100);
-                                return `${label}: ${Math.round(value)} cal (${percent}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }, 100);
-}
-
-// Fonction pour ouvrir la fenêtre
+        const caloriesProteines = totalProteines * 4;
