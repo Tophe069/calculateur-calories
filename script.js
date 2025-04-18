@@ -521,11 +521,18 @@ function genererRepas() {
     suggestionsPetitDej = genererSuggestionsAliments('petit-dejeuner', caloriesPetitDej);
     suggestionsDejeuner = genererSuggestionsAliments('dejeuner', caloriesDejeuner);
     suggestionsDiner = genererSuggestionsAliments('diner', caloriesDiner);
-    suggestionsCollation = genererSuggestionsAliments('collation', caloriesCollation);
+    
+    // Seulement générer des collations si le pourcentage est supérieur à 0
+    if (collationPct > 0) {
+        suggestionsCollation = genererSuggestionsAliments('collation', caloriesCollation);
+    } else {
+        suggestionsCollation = []; // Tableau vide si 0%
+    }
     
     // Afficher les résultats
     afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeuner, suggestionsDiner, suggestionsCollation);
 }
+
 
 // Fonction pour afficher le menu généré
 function afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeuner, suggestionsDiner, suggestionsCollation) {
@@ -598,10 +605,10 @@ function afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeune
     menuContainer.appendChild(creerCarteRepas('Déjeuner', suggestionsDejeuner, 'dejeuner'));
     menuContainer.appendChild(creerCarteRepas('Dîner', suggestionsDiner, 'diner'));
     
-    // Ajouter la carte de collation seulement si des collations sont prévues
-    if (suggestionsCollation.length > 0) {
-        menuContainer.appendChild(creerCarteRepas('Collation', suggestionsCollation, 'collation'));
-    }
+   // Ajouter la carte de collation seulement si des collations sont prévues
+if (suggestionsCollation.length > 0 && document.getElementById('collation').value > 0) {
+    menuContainer.appendChild(creerCarteRepas('Collation', suggestionsCollation, 'collation'));
+}
 }
 
 // Fonction pour ouvrir la fenêtre modale de remplacement d'aliment
