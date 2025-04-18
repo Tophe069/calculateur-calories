@@ -1,5 +1,4 @@
-// Chargement de la base de données des aliments depuis un JSON
-
+// Base de données des aliments
 let alimentsDatabase = [
     {
         "nom": "Pomme",
@@ -320,6 +319,49 @@ let besoinsCaloriques = 0;
 let typeRepasActuel = '';
 let indexAlimentActuel = -1;
 
+// Attendre que le DOM soit chargé avant d'ajouter les écouteurs d'événements
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM chargé');
+    
+    // Référence au formulaire
+    const form = document.getElementById('meal-form');
+    
+    // Ajouter un écouteur d'événement pour la soumission du formulaire
+    if (form) {
+        console.log('Formulaire trouvé, ajout de l\'écouteur d\'événements');
+        form.addEventListener('submit', function(event) {
+            // IMPORTANT: Empêcher la soumission standard du formulaire
+            event.preventDefault();
+            console.log('Formulaire soumis, calcul des repas...');
+            
+            // Appeler la fonction de génération des repas
+            genererRepas();
+        });
+    } else {
+        console.error('Formulaire non trouvé dans le document');
+    }
+    
+    // Gestionnaire pour le bouton de confirmation de remplacement
+    const confirmButton = document.getElementById('confirm-replacement');
+    if (confirmButton) {
+        confirmButton.addEventListener('click', confirmerRemplacement);
+    }
+    
+    // Gestionnaire pour fermer la fenêtre modale
+    const closeButton = document.querySelector('.close-button');
+    if (closeButton) {
+        closeButton.addEventListener('click', fermerModal);
+    }
+    
+    // Fermer la modale si on clique en dehors
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('replacement-modal');
+        if (event.target === modal) {
+            fermerModal();
+        }
+    });
+});
+
 // Fonction pour calculer les besoins caloriques quotidiens
 function calculerBesoinsCaloriques(sexe, age, poids, taille, niveauActivite, objectif) {
     let tmb; // Taux métabolique de base
@@ -412,9 +454,9 @@ function genererSuggestionsAliments(typeRepas, calories) {
         // Récupérer les aliments de cette catégorie
         const alimentsCategorie = filtrerAlimentsParCategorie(categorie);
         
-        // Si pas d'aliments dans cette catégorie, essayer une catégorie plus générale
+        // Si pas d'aliments dans cette catégorie, essayer une autre catégorie
         if (alimentsCategorie.length === 0) {
-            console.log(`Aucun aliment trouvé dans la catégorie ${categorie}, utilisation d'une catégorie alternative`);
+            console.log(`Aucun aliment trouvé dans la catégorie ${categorie}, essai d'une autre catégorie`);
             continue;
         }
         
@@ -446,8 +488,9 @@ function genererSuggestionsAliments(typeRepas, calories) {
         caloriesRestantes -= caloriesAliment;
     }
     
-    // Si aucune suggestion n'a été trouvée, ajouter au moins un aliment
+    // Si aucune suggestion n'a été trouvée, ajouter au moins un aliment aléatoire
     if (suggestions.length === 0) {
+        console.log("Aucune suggestion trouvée, ajout d'un aliment aléatoire");
         const aleatoire = alimentsDatabase[Math.floor(Math.random() * alimentsDatabase.length)];
         ajouterAlimentAuxSuggestions(aleatoire);
     }
@@ -457,6 +500,8 @@ function genererSuggestionsAliments(typeRepas, calories) {
 
 // Fonction principale pour générer les repas
 function genererRepas() {
+    console.log("Génération des repas...");
+    
     // Récupérer les valeurs du formulaire
     const sexe = document.getElementById('sexe').value;
     const age = parseInt(document.getElementById('age').value);
@@ -479,4 +524,190 @@ function genererRepas() {
     }
     
     // Calculer les besoins caloriques quotidiens
-    besoinsCaloriques = calculerBesoinsCaloriques(sexe, age, poids, taille, niveauActivite
+    besoinsCaloriques = calculerBesoinsCaloriques(sexe, age, poids, taille, niveauActivite, objectif);
+    console.log(`Besoins caloriques: ${besoinsCaloriques} calories`);
+    
+    // Répartir les calories entre les repas
+    const caloriesPetitDej = Math.round((besoinsCaloriques * petitDejeunerPct) / 100);
+    const caloriesDejeuner = Math.round((besoinsCaloriques * dejeunerPct) / 100);
+    const caloriesDiner = Math.round((besoinsCaloriques * dinerPct) / 100);
+    const caloriesCollation = Math.round((besoinsCaloriques * collationPct) / 100);
+    
+    console.log(`Calories par repas: Petit-déj ${caloriesPetitDej}, Déjeuner ${caloriesDejeuner}, Dîner ${caloriesDiner}, Collation ${caloriesCollation}`);
+    
+    // Générer les suggestions de repas
+    suggestionsPetitDej = genererSuggestionsAliments('petit-dejeuner', caloriesPetitDej);
+    suggestionsDejeuner = genererSuggestionsAliments('dejeuner', caloriesDejeuner);
+    suggestionsDiner = genererSuggestionsAliments('diner', caloriesDiner);
+    suggestionsCollation = genererSuggestionsAliments('collation', caloriesCollation);
+    
+    // Afficher les résultats
+    afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeuner, suggestionsDiner, suggestionsCollation);
+}
+
+// Fonction pour afficher le menu généré
+function afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeuner, suggestionsDiner, suggestionsCollation) {
+    console.log("Affichage du menu...");
+    
+    // Masquer la carte d'information par défaut
+    const defaultInfo = document.getElementById('default-info');
+    if (defaultInfo) {
+        defaultInfo.style.display = 'none';
+    }
+    
+    // Créer le conteneur pour le menu
+    const menuContainer = document.getElementById('menu-container');
+    menuContainer.innerHTML = ''; // Effacer le contenu précédent
+    
+    // Créer la section résumé nutritionnel
+    const resumeSection = document.createElement('div');
+    resumeSection.className = 'card nutrition-summary';
+    resumeSection.innerHTML = `
+        <h2>Résumé nutritionnel journalier</h2>
+        <p>Besoins caloriques quotidiens: <strong>${besoinsCaloriques} calories</strong></p>
+    `;
+    menuContainer.appendChild(resumeSection);
+    
+    // Fonction pour créer une carte de repas
+    function creerCarteRepas(titre, suggestions, classeCSS) {
+        const totalCalories = suggestions.reduce((total, sugg) => total + sugg.calories, 0);
+        
+        const card = document.createElement('div');
+        card.className = `meal-card ${classeCSS}`;
+        
+        let suggestionHTML = '';
+        suggestions.forEach((sugg, index) => {
+            suggestionHTML += `
+                <div class="meal-item" data-index="${index}" data-type="${classeCSS}">
+                    <span>${sugg.nom}</span>
+                    <span class="meal-calories">${sugg.calories} cal</span>
+                    <span class="replace-button" onclick="ouvrirModalRemplacement('${classeCSS}', ${index})">🔄</span>
+                </div>
+            `;
+        });
+        
+        card.innerHTML = `
+            <h3>${titre} (${totalCalories} calories)</h3>
+            ${suggestionHTML}
+        `;
+        
+        return card;
+    }
+    
+    // Ajouter les cartes de repas
+    menuContainer.appendChild(creerCarteRepas('Petit-déjeuner', suggestionsPetitDej, 'petit-dejeuner'));
+    menuContainer.appendChild(creerCarteRepas('Déjeuner', suggestionsDejeuner, 'dejeuner'));
+    menuContainer.appendChild(creerCarteRepas('Dîner', suggestionsDiner, 'diner'));
+    
+    // Ajouter la carte de collation seulement si des collations sont prévues
+    if (suggestionsCollation.length > 0) {
+        menuContainer.appendChild(creerCarteRepas('Collation', suggestionsCollation, 'collation'));
+    }
+}
+
+// Fonction pour ouvrir la fenêtre modale de remplacement d'aliment
+function ouvrirModalRemplacement(typeRepas, index) {
+    console.log(`Ouverture du modal pour remplacer ${typeRepas} #${index}`);
+    typeRepasActuel = typeRepas;
+    indexAlimentActuel = index;
+    
+    const modal = document.getElementById('replacement-modal');
+    const select = document.getElementById('replacement-select');
+    
+    // Effacer les options précédentes
+    select.innerHTML = '';
+    
+    // Déterminer les catégories appropriées pour ce type de repas
+    let categories;
+    switch (typeRepas) {
+        case 'petit-dejeuner':
+            categories = ['fruit', 'laitage', 'féculent'];
+            break;
+        case 'dejeuner':
+            categories = ['protéine', 'légume', 'féculent'];
+            break;
+        case 'diner':
+            categories = ['protéine', 'légume', 'féculent'];
+            break;
+        case 'collation':
+            categories = ['fruit', 'laitage', 'collation'];
+            break;
+        default:
+            categories = ['fruit', 'légume', 'protéine', 'féculent', 'laitage'];
+    }
+    
+    // Filtrer les aliments par catégories
+    const alimentsFiltre = filtrerAlimentsParCategorie(categories);
+    
+    // Ajouter les options au select
+    alimentsFiltre.forEach(aliment => {
+        const option = document.createElement('option');
+        option.value = aliment.nom;
+        option.textContent = `${aliment.nom} (${aliment.valeurs.kcal} cal)`;
+        select.appendChild(option);
+    });
+    
+    // Afficher la fenêtre modale
+    modal.classList.add('show');
+}
+
+// Fonction pour fermer la fenêtre modale
+function fermerModal() {
+    document.getElementById('replacement-modal').classList.remove('show');
+}
+
+// Fonction pour confirmer le remplacement d'un aliment
+function confirmerRemplacement() {
+    console.log("Confirmation du remplacement...");
+    const select = document.getElementById('replacement-select');
+    const nouvelAlimentNom = select.value;
+    
+    // Trouver le nouvel aliment
+    const nouvelAliment = alimentsDatabase.find(aliment => aliment.nom === nouvelAlimentNom);
+    
+    if (!nouvelAliment) {
+        alert('Aliment non trouvé.');
+        return;
+    }
+    
+    // Déterminer quel tableau de suggestions modifier
+    let suggestions;
+    switch (typeRepasActuel) {
+        case 'petit-dejeuner':
+            suggestions = suggestionsPetitDej;
+            break;
+        case 'dejeuner':
+            suggestions = suggestionsDejeuner;
+            break;
+        case 'diner':
+            suggestions = suggestionsDiner;
+            break;
+        case 'collation':
+            suggestions = suggestionsCollation;
+            break;
+        default:
+            suggestions = [];
+    }
+    
+    // Vérifier si l'index est valide
+    if (indexAlimentActuel >= 0 && indexAlimentActuel < suggestions.length) {
+        // Calculer les calories pour le nouvel aliment
+        const anciennesCalories = suggestions[indexAlimentActuel].calories;
+        const portion = Math.min(1, anciennesCalories / nouvelAliment.valeurs.kcal);
+        const caloriesNouvelAliment = Math.round(nouvelAliment.valeurs.kcal * portion);
+        
+        // Remplacer l'aliment dans les suggestions
+        suggestions[indexAlimentActuel] = {
+            nom: nouvelAliment.nom,
+            portion: portion,
+            calories: caloriesNouvelAliment,
+            aliment: nouvelAliment
+        };
+        
+        // Mettre à jour l'affichage
+        afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeuner, suggestionsDiner, suggestionsCollation);
+    }
+    
+    // Fermer la fenêtre modale
+    fermerModal();
+}
