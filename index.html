@@ -6,7 +6,123 @@
     <title>Générateur de Repas Équilibrés</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="style.css">
+    <style>
+	/* Styles des cartes de repas */
+.meal-card {
+    transition: all 0.2s ease-in-out;
+    border-left: 4px solid transparent;
+}
+
+.meal-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+}
+
+/* Coloration des cartes par type de repas */
+.petit-dejeuner {
+    border-left-color: #FF9F43;
+}
+
+.dejeuner {
+    border-left-color: #1E88E5;
+}
+
+.diner {
+    border-left-color: #7367F0;
+}
+
+.collation {
+    border-left-color: #28C76F;
+}
+
+/* Styles pour les boutons de remplacement */
+.replace-button {
+    cursor: pointer;
+    color: #6c757d;
+    transition: color 0.2s;
+}
+
+.replace-button:hover {
+    color: #007bff;
+}
+
+/* Styles pour les barres de progression nutritionnelles */
+.nutrition-progress {
+    height: 8px;
+    border-radius: 4px;
+}
+
+.nutrition-item {
+    margin-bottom: 10px;
+}
+
+/* Styles pour les éléments d'aliment */
+.food-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.food-item:last-child {
+    border-bottom: none;
+}
+
+.food-item:hover {
+    background-color: #f5f5f5;
+}
+
+/* Styles pour le modal de remplacement */
+.alternative-item {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.alternative-item:hover {
+    background-color: #f0f7ff;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.meal-container {
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Styles pour le résumé nutritionnel */
+.nutrients-summary {
+    border-left: 4px solid #4285F4;
+}
+
+.nutrition-badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+
+.nutrition-badge-good {
+    background-color: #4CAF50;
+}
+
+.nutrition-badge-average {
+    background-color: #FFC107;
+}
+
+.nutrition-badge-poor {
+    background-color: #F44336;
+}
+</style>
 </head>
 <body>
     <div class="container">
