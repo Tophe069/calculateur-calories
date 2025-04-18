@@ -1,12 +1,336 @@
-// Stockage global des aliments et des repas générés
-let alimentsDatabase = [];
+// Base de données des aliments (remplacez ceci par le chargement du fichier JSON)
+let alimentsDatabase = [
+  {
+    "nom": "Pomme",
+    "categorie": "fruit",
+    "valeurs": {
+      "kcal": 52,
+      "prot": 0.3,
+      "gluc": 14,
+      "lip": 0.2,
+      "fibres": 2.4,
+      "Ca": 6,
+      "Fe": 0.1,
+      "Mg": 5,
+      "vitC": 4.6,
+      "B12": 0,
+      "D": 0
+    }
+  },
+  {
+    "nom": "Banane",
+    "categorie": "fruit",
+    "valeurs": {
+      "kcal": 89,
+      "prot": 1.1,
+      "gluc": 23,
+      "lip": 0.3,
+      "fibres": 2.6,
+      "Ca": 5,
+      "Fe": 0.3,
+      "Mg": 27,
+      "vitC": 8.7,
+      "B12": 0,
+      "D": 0
+    }
+  },
+  {
+    "nom": "Orange",
+    "categorie": "fruit",
+    "valeurs": {
+      "kcal": 47,
+      "prot": 0.9,
+      "gluc": 12,
+      "lip": 0.1,
+      "fibres": 2.4,
+      "Ca": 40,
+      "Fe": 0.1,
+      "Mg": 10,
+      "vitC": 53.2,
+      "B12": 0,
+      "D": 0
+    }
+  },
+  {
+    "nom": "Lait demi-écrémé",
+    "categorie": "laitage",
+    "valeurs": {
+      "kcal": 50,
+      "prot": 3.4,
+      "gluc": 4.8,
+      "lip": 1.5,
+      "fibres": 0,
+      "Ca": 120,
+      "Fe": 0,
+      "Mg": 10,
+      "vitC": 0,
+      "B12": 0.5,
+      "D": 1
+    }
+  },
+  {
+    "nom": "Yaourt nature",
+    "categorie": "laitage",
+    "valeurs": {
+      "kcal": 61,
+      "prot": 3.5,
+      "gluc": 4.7,
+      "lip": 3.3,
+      "fibres": 0,
+      "Ca": 110,
+      "Fe": 0.1,
+      "Mg": 11,
+      "vitC": 0,
+      "B12": 0.75,
+      "D": 0.1
+    }
+  },
+  {
+    "nom": "Café noir",
+    "categorie": "boisson",
+    "valeurs": {
+      "kcal": 2,
+      "prot": 0.3,
+      "gluc": 0,
+      "lip": 0.1,
+      "fibres": 0,
+      "Ca": 5,
+      "Fe": 0.1,
+      "Mg": 7,
+      "vitC": 0,
+      "B12": 0,
+      "D": 0
+    }
+  },
+  {
+    "nom": "Thé vert",
+    "categorie": "boisson",
+    "valeurs": {
+      "kcal": 1,
+      "prot": 0,
+      "gluc": 0.2,
+      "lip": 0,
+      "fibres": 0,
+      "Ca": 3,
+      "Fe": 0.3,
+      "Mg": 1,
+      "vitC": 0.1,
+      "B12": 0,
+      "D": 0
+    }
+  },
+  {
+    "nom": "Riz blanc cuit",
+    "categorie": "féculent",
+    "valeurs": {
+      "kcal": 130,
+      "prot": 2.4,
+      "gluc": 28,
+      "lip": 0.3,
+      "fibres": 0.4,
+      "Ca": 10,
+      "Fe": 1.2,
+      "Mg": 12,
+      "vitC": 0,
+      "B12": 0,
+      "D": 0
+    }
+  },
+  {
+    "nom": "Pâtes cuites",
+    "categorie": "féculent",
+    "valeurs": {
+      "kcal": 131,
+      "prot": 5,
+      "gluc": 25,
+      "lip": 1.1,
+      "fibres": 1.3,
+      "Ca": 7,
+      "Fe": 0.6,
+      "Mg": 18,
+      "vitC": 0,
+      "B12": 0,
+      "D": 0
+    }
+  },
+  {
+    "nom": "Pain complet",
+    "categorie": "féculent",
+    "valeurs": {
+      "kcal": 247,
+      "prot": 8.3,
+      "gluc": 41,
+      "lip": 3.4,
+      "fibres": 7,
+      "Ca": 107,
+      "Fe": 2.7,
+      "Mg": 74,
+      "vitC": 0,
+      "B12": 0.2,
+      "D": 0
+    }
+  },
+  {
+    "nom": "Brocoli",
+    "categorie": "légume",
+    "valeurs": {
+      "kcal": 34,
+      "prot": 2.8,
+      "gluc": 7,
+      "lip": 0.4,
+      "fibres": 2.6,
+      "Ca": 47,
+      "Fe": 0.7,
+      "Mg": 21,
+      "vitC": 89.2,
+      "B12": 0,
+      "D": 0
+    }
+  },
+  {
+    "nom": "Épinards",
+    "categorie": "légume",
+    "valeurs": {
+      "kcal": 23,
+      "prot": 2.9,
+      "gluc": 3.6,
+      "lip": 0.4,
+      "fibres": 2.2,
+      "Ca": 99,
+      "Fe": 2.7,
+      "Mg": 79,
+      "vitC": 28.1,
+      "B12": 0,
+      "D": 0
+    }
+  },
+  {
+    "nom": "Carotte",
+    "categorie": "légume",
+    "valeurs": {
+      "kcal": 41,
+      "prot": 0.9,
+      "gluc": 10,
+      "lip": 0.2,
+      "fibres": 2.8,
+      "Ca": 33,
+      "Fe": 0.3,
+      "Mg": 12,
+      "vitC": 5.9,
+      "B12": 0,
+      "D": 0
+    }
+  },
+  {
+    "nom": "Poulet grillé",
+    "categorie": "protéine",
+    "valeurs": {
+      "kcal": 165,
+      "prot": 31,
+      "gluc": 0,
+      "lip": 3.6,
+      "fibres": 0,
+      "Ca": 15,
+      "Fe": 1,
+      "Mg": 34,
+      "vitC": 0,
+      "B12": 0.3,
+      "D": 0
+    }
+  },
+  {
+    "nom": "Saumon grillé",
+    "categorie": "protéine",
+    "valeurs": {
+      "kcal": 208,
+      "prot": 20,
+      "gluc": 0,
+      "lip": 13,
+      "fibres": 0,
+      "Ca": 9,
+      "Fe": 0.5,
+      "Mg": 29,
+      "vitC": 0,
+      "B12": 3.2,
+      "D": 11
+    }
+  },
+  {
+    "nom": "Œuf entier",
+    "categorie": "protéine",
+    "valeurs": {
+      "kcal": 155,
+      "prot": 13,
+      "gluc": 1.1,
+      "lip": 11,
+      "fibres": 0,
+      "Ca": 50,
+      "Fe": 1.2,
+      "Mg": 10,
+      "vitC": 0,
+      "B12": 1.1,
+      "D": 2
+    }
+  },
+  {
+    "nom": "Avocat",
+    "categorie": "légume",
+    "valeurs": {
+      "kcal": 160,
+      "prot": 2,
+      "gluc": 9,
+      "lip": 15,
+      "fibres": 7,
+      "Ca": 12,
+      "Fe": 0.6,
+      "Mg": 29,
+      "vitC": 10,
+      "B12": 0,
+      "D": 0
+    }
+  },
+  {
+    "nom": "Chocolat noir 70%",
+    "categorie": "collation",
+    "valeurs": {
+      "kcal": 546,
+      "prot": 4.9,
+      "gluc": 46,
+      "lip": 31,
+      "fibres": 11,
+      "Ca": 73,
+      "Fe": 11.9,
+      "Mg": 146,
+      "vitC": 0,
+      "B12": 0,
+      "D": 0
+    }
+  }
+];
+
+// Variables globales pour stocker les données générées
 let generatedMeals = {};
 let totalNutrition = {};
+let currentMealToReplace = null;
+let currentIndexToReplace = null;
+let replaceModal = null;
 
 // Attendre que le document soit chargé
 document.addEventListener('DOMContentLoaded', () => {
-    // Charger la base de données des aliments
-    fetchAliments();
+    // Essayer de charger le fichier JSON (si disponible)
+    try {
+        fetch('base_aliments_tophe.json')
+            .then(response => response.json())
+            .then(data => {
+                alimentsDatabase = data;
+                console.log('Base de données d\'aliments chargée:', alimentsDatabase.length, 'aliments trouvés');
+            })
+            .catch(error => {
+                console.warn('Utilisation de la base de données intégrée:', error);
+            });
+    } catch (error) {
+        console.warn('Utilisation de la base de données intégrée');
+    }
     
     // Validation du formulaire
     document.getElementById('userForm').addEventListener('submit', handleFormSubmit);
@@ -14,24 +338,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Validation de la répartition des calories
     const repartitionInputs = document.querySelectorAll('.repartition-input');
     repartitionInputs.forEach(input => {
-        input.addEventListener('change', validateRepartition);
+        input.addEventListener('input', validateRepartition);
     });
     
     // Initialiser le modal Bootstrap pour le remplacement d'ingrédient
-    const replaceModal = new bootstrap.Modal(document.getElementById('replaceModal'));
+    replaceModal = new bootstrap.Modal(document.getElementById('replaceModal'));
 });
-
-// Fonction pour charger la base de données des aliments depuis le fichier JSON
-async function fetchAliments() {
-    try {
-        const response = await fetch('base_aliments_tophe.json');
-        alimentsDatabase = await response.json();
-        console.log('Base de données d\'aliments chargée:', alimentsDatabase.length, 'aliments trouvés');
-    } catch (error) {
-        console.error('Erreur lors du chargement des aliments:', error);
-        alert('Impossible de charger la base de données d\'aliments. Veuillez réessayer.');
-    }
-}
 
 // Validation de la répartition des calories (somme = 100%)
 function validateRepartition() {
@@ -204,222 +516,4 @@ function generateBreakfast(calories) {
     const boissonCal = calories * 0.1;
     
     // Sélectionner les aliments aléatoirement
-    const fruit = selectRandomFood(fruits);
-    const laitage = selectRandomFood(laitages);
-    const boisson = selectRandomFood(boissons);
-    
-    // Calculer les quantités en fonction des calories
-    const fruitQty = calculateQuantity(fruit, fruitCal);
-    const laitageQty = calculateQuantity(laitage, laitageCal);
-    const boissonQty = calculateQuantity(boisson, boissonCal);
-    
-    // Ajouter les aliments au petit-déjeuner
-    breakfast.push({ aliment: fruit, quantite: fruitQty });
-    breakfast.push({ aliment: laitage, quantite: laitageQty });
-    breakfast.push({ aliment: boisson, quantite: boissonQty });
-    
-    return breakfast;
-}
-
-// Génération du déjeuner ou dîner
-function generateLunchDinner(calories) {
-    // Structure: 1 légume, 1 féculent, 1 protéine
-    const meal = [];
-    
-    // Filtrer les aliments par catégorie
-    const legumes = alimentsDatabase.filter(a => a.categorie === 'légume');
-    const feculents = alimentsDatabase.filter(a => a.categorie === 'féculent');
-    const proteines = alimentsDatabase.filter(a => a.categorie === 'protéine');
-    
-    // Répartition des calories: ~25% légume, ~40% féculent, ~35% protéine
-    const legumeCal = calories * 0.25;
-    const feculentCal = calories * 0.4;
-    const proteineCal = calories * 0.35;
-    
-    // Sélectionner les aliments aléatoirement
-    const legume = selectRandomFood(legumes);
-    const feculent = selectRandomFood(feculents);
-    const proteine = selectRandomFood(proteines);
-    
-    // Calculer les quantités en fonction des calories
-    const legumeQty = calculateQuantity(legume, legumeCal);
-    const feculentQty = calculateQuantity(feculent, feculentCal);
-    const proteineQty = calculateQuantity(proteine, proteineCal);
-    
-    // Ajouter les aliments au repas
-    meal.push({ aliment: legume, quantite: legumeQty });
-    meal.push({ aliment: feculent, quantite: feculentQty });
-    meal.push({ aliment: proteine, quantite: proteineQty });
-    
-    return meal;
-}
-
-// Génération de la collation
-function generateSnack(calories) {
-    // Structure: 1 fruit OU 1 collation
-    const snack = [];
-    
-    // Filtrer les aliments par catégorie
-    const fruits = alimentsDatabase.filter(a => a.categorie === 'fruit');
-    const collations = alimentsDatabase.filter(a => a.categorie === 'collation');
-    
-    // Sélectionner au hasard entre fruit ou collation
-    const choixType = Math.random() > 0.5 ? 'fruit' : 'collation';
-    
-    let aliment;
-    if (choixType === 'fruit') {
-        aliment = selectRandomFood(fruits);
-    } else {
-        aliment = selectRandomFood(collations);
-    }
-    
-    // Calculer la quantité en fonction des calories
-    const quantite = calculateQuantity(aliment, calories);
-    
-    // Ajouter l'aliment à la collation
-    snack.push({ aliment: aliment, quantite: quantite });
-    
-    return snack;
-}
-
-// Fonction pour sélectionner un aliment aléatoire dans une liste
-function selectRandomFood(foodList) {
-    const randomIndex = Math.floor(Math.random() * foodList.length);
-    return foodList[randomIndex];
-}
-
-// Calculer la quantité d'un aliment en fonction des calories cibles
-function calculateQuantity(food, targetCalories) {
-    // Calculer la quantité nécessaire pour atteindre les calories cibles
-    // Formule: (calories cibles / calories pour 100g) * 100
-    const quantity = (targetCalories / food.valeurs.kcal) * 100;
-    
-    // Limiter à un minimum de 10g et arrondir au 5g près
-    return Math.max(10, Math.round(quantity / 5) * 5);
-}
-
-// Afficher les repas générés dans l'interface
-function displayMeals(meals, mealCalories, dailyCalories) {
-    // Afficher les conteneurs de repas
-    document.getElementById('mealsContainer').style.display = 'block';
-    document.querySelector('.initial-message').style.display = 'none';
-    
-    // Afficher le total de calories
-    document.getElementById('caloriesTotal').textContent = `${dailyCalories} kcal/jour`;
-    
-    // Afficher chaque repas
-    displayMealSection('petitDejContainer', 'Petit-déjeuner', meals.petitDejeuner, mealCalories.petitDejeuner, 'petit-dejeuner');
-    displayMealSection('dejeunerContainer', 'Déjeuner', meals.dejeuner, mealCalories.dejeuner, 'dejeuner');
-    displayMealSection('dinerContainer', 'Dîner', meals.diner, mealCalories.diner, 'diner');
-    
-    // Afficher la collation si elle existe
-    if (meals.collation.length > 0) {
-        displayMealSection('collationContainer', 'Collation', meals.collation, mealCalories.collation, 'collation');
-    } else {
-        document.getElementById('collationContainer').innerHTML = '';
-    }
-}
-
-// Afficher une section de repas spécifique
-function displayMealSection(containerId, title, foodItems, targetCalories, mealClass) {
-    const container = document.getElementById(containerId);
-    
-    // Calculer les calories réelles du repas
-    let actualCalories = 0;
-    foodItems.forEach(item => {
-        actualCalories += (item.aliment.valeurs.kcal * item.quantite) / 100;
-    });
-    actualCalories = Math.round(actualCalories);
-    
-    // Créer le titre et l'en-tête de la section
-    let html = `
-        <div class="card shadow-sm meal-card ${mealClass}">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="h5 mb-0">${title}</h4>
-                <span class="badge bg-primary">${actualCalories} kcal</span>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Aliment</th>
-                                <th>Quantité</th>
-                                <th>Calories</th>
-                                <th>Protéines</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-    `;
-    
-    // Ajouter chaque aliment à la table
-    foodItems.forEach((item, index) => {
-        const calories = Math.round((item.aliment.valeurs.kcal * item.quantite) / 100);
-        const proteins = Math.round((item.aliment.valeurs.prot * item.quantite) / 100 * 10) / 10;
-        
-        html += `
-            <tr>
-                <td>${item.aliment.nom}</td>
-                <td>${item.quantite} g</td>
-                <td>${calories} kcal</td>
-                <td>${proteins} g</td>
-                <td>
-                    <button class="btn btn-sm btn-outline-secondary replace-btn" 
-                            data-meal="${mealClass}" 
-                            data-index="${index}">
-                        <i class="bi bi-arrow-repeat"></i> Remplacer
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
-    
-    // Fermer la table et la carte
-    html += `
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Mettre à jour le contenu du conteneur
-    container.innerHTML = html;
-    
-    // Ajouter les écouteurs d'événements pour les boutons de remplacement
-    const replaceButtons = container.querySelectorAll('.replace-btn');
-    replaceButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            const mealType = e.target.closest('.replace-btn').dataset.meal;
-            const itemIndex = e.target.closest('.replace-btn').dataset.index;
-            showReplacementOptions(mealType, itemIndex);
-        });
-    });
-}
-
-// Afficher les options de remplacement d'un aliment
-function showReplacementOptions(mealType, itemIndex) {
-    // Récupérer l'aliment actuel
-    let currentItem;
-    switch (mealType) {
-        case 'petit-dejeuner':
-            currentItem = generatedMeals.petitDejeuner[itemIndex];
-            break;
-        case 'dejeuner':
-            currentItem = generatedMeals.dejeuner[itemIndex];
-            break;
-        case 'diner':
-            currentItem = generatedMeals.diner[itemIndex];
-            break;
-        case 'collation':
-            currentItem = generatedMeals.collation[itemIndex];
-            break;
-    }
-    
-    // Si on ne trouve pas l'élément, sortir
-    if (!currentItem) return;
-    
-    // Récupérer la catégorie et les calories actuelles
-    const categorie = currentItem.aliment.categorie;
-    const currentCalories
+    const fruit = selectRandomFoo
