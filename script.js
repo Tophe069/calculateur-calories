@@ -412,23 +412,42 @@ function genererSuggestionsAliments(typeRepas, calories) {
     const suggestions = [];
     let caloriesRestantes = calories;
     
-    // Définir les catégories d'aliments appropriées pour chaque type de repas
+    // Définir les catégories et aliments spécifiques appropriés pour chaque type de repas
     let categories;
+    let alimentsPreferentielsPourTypeRepas = [];
+    
     switch (typeRepas) {
         case 'petit-dejeuner':
+            // Pour le petit-déjeuner, on privilégie certains aliments
             categories = ['fruit', 'laitage', 'féculent'];
+            alimentsPreferentielsPourTypeRepas = [
+                "Pain complet", "Banane", "Pomme", "Orange", "Yaourt nature", 
+                "Lait demi-écrémé", "Café noir", "Thé vert"
+            ];
             break;
         case 'dejeuner':
             categories = ['protéine', 'légume', 'féculent'];
+            alimentsPreferentielsPourTypeRepas = [
+                "Poulet grillé", "Saumon grillé", "Œuf entier", "Brocoli", 
+                "Carotte", "Épinards", "Riz blanc cuit", "Pâtes cuites"
+            ];
             break;
         case 'diner':
             categories = ['protéine', 'légume', 'féculent'];
+            alimentsPreferentielsPourTypeRepas = [
+                "Poulet grillé", "Saumon grillé", "Œuf entier", "Brocoli", 
+                "Carotte", "Épinards", "Riz blanc cuit", "Pâtes cuites"
+            ];
             break;
         case 'collation':
             categories = ['fruit', 'laitage', 'collation'];
+            alimentsPreferentielsPourTypeRepas = [
+                "Yaourt nature", "Pomme", "Banane", "Chocolat noir 70%", "Orange"
+            ];
             break;
         default:
             categories = ['fruit', 'légume', 'protéine', 'féculent', 'laitage'];
+            break;
     }
     
     // Pour chaque catégorie, ajouter un aliment aux suggestions
@@ -442,8 +461,21 @@ function genererSuggestionsAliments(typeRepas, calories) {
             continue;
         }
         
-        // Choisir un aliment aléatoire de cette catégorie
-        const aliment = alimentsCategorie[Math.floor(Math.random() * alimentsCategorie.length)];
+        // Filtrer les aliments préférentiels pour ce type de repas dans cette catégorie
+        let alimentsPreferentielsCategorie = alimentsCategorie.filter(
+            aliment => alimentsPreferentielsPourTypeRepas.includes(aliment.nom)
+        );
+        
+        // Si aucun aliment préférentiel n'est trouvé, utiliser tous les aliments de la catégorie
+        if (alimentsPreferentielsCategorie.length === 0) {
+            alimentsPreferentielsCategorie = alimentsCategorie;
+        }
+        
+        // Choisir un aliment aléatoire parmi les aliments préférentiels
+        const aliment = alimentsPreferentielsCategorie[
+            Math.floor(Math.random() * alimentsPreferentielsCategorie.length)
+        ];
+        
         ajouterAlimentAuxSuggestions(aliment);
     }
     
