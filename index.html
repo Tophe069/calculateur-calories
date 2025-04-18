@@ -4,277 +4,317 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Générateur de Repas Équilibrés</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- CSS intégré directement dans le HTML -->
     <style>
-	/* Styles des cartes de repas */
-.meal-card {
-    transition: all 0.2s ease-in-out;
-    border-left: 4px solid transparent;
-}
+        /* Styles généraux */ 
+        body { 
+            background-color: #f8f9fa; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
 
-.meal-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
-}
+        /* Styles des cartes de repas */ 
+        .meal-card { 
+            transition: all 0.2s ease-in-out; 
+            border-left: 4px solid transparent; 
+        }
 
-/* Coloration des cartes par type de repas */
-.petit-dejeuner {
-    border-left-color: #FF9F43;
-}
+        .meal-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15); 
+        }
 
-.dejeuner {
-    border-left-color: #1E88E5;
-}
+        /* Coloration des cartes par type de repas */ 
+        .petit-dejeuner { 
+            border-left-color: #FF9F43; 
+        }
 
-.diner {
-    border-left-color: #7367F0;
-}
+        .dejeuner {
+            border-left-color: #1E88E5;
+        }
 
-.collation {
-    border-left-color: #28C76F;
-}
+        .diner {
+            border-left-color: #7367F0;
+        }
 
-/* Styles pour les boutons de remplacement */
-.replace-button {
-    cursor: pointer;
-    color: #6c757d;
-    transition: color 0.2s;
-}
+        .collation {
+            border-left-color: #28C76F;
+        }
 
-.replace-button:hover {
-    color: #007bff;
-}
+        /* Styles pour les boutons de remplacement */ 
+        .replace-button { 
+            cursor: pointer; 
+            color: #6c757d; 
+            transition: color 0.2s; 
+        }
 
-/* Styles pour les barres de progression nutritionnelles */
-.nutrition-progress {
-    height: 8px;
-    border-radius: 4px;
-}
+        .replace-button:hover {
+            color: #007bff;
+        }
 
-.nutrition-item {
-    margin-bottom: 10px;
-}
+        /* Styles pour les barres de progression nutritionnelles */ 
+        .nutrition-progress { 
+            height: 8px; 
+            border-radius: 4px; 
+        }
 
-/* Styles pour les éléments d'aliment */
-.food-item {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+        /* Ajout de styles supplémentaires basés sur les images que vous avez partagées */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
-.food-item:last-child {
-    border-bottom: none;
-}
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #333;
+        }
 
-.food-item:hover {
-    background-color: #f5f5f5;
-}
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #444;
+        }
 
-/* Styles pour le modal de remplacement */
-.alternative-item {
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
+        p.subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #666;
+        }
 
-.alternative-item:hover {
-    background-color: #f0f7ff;
-}
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
 
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+        .header-card {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 0;
+        }
 
-.meal-container {
-    animation: fadeIn 0.4s ease-out;
-}
+        form {
+            display: block;
+            width: 100%;
+        }
 
-/* Styles pour le résumé nutritionnel */
-.nutrients-summary {
-    border-left: 4px solid #4285F4;
-}
+        .form-group {
+            margin-bottom: 15px;
+        }
 
-.nutrition-badge {
-    display: inline-block;
-    padding: 0.35em 0.65em;
-    font-size: 0.75em;
-    font-weight: 700;
-    line-height: 1;
-    color: #fff;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-    border-radius: 0.25rem;
-}
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
 
-.nutrition-badge-good {
-    background-color: #4CAF50;
-}
+        input, select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
 
-.nutrition-badge-average {
-    background-color: #FFC107;
-}
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
 
-.nutrition-badge-poor {
-    background-color: #F44336;
-}
-</style>
+        button:hover {
+            background-color: #0069d9;
+        }
+
+        .meal-section {
+            margin-top: 30px;
+        }
+
+        .nutrition-summary {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .meal-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .meal-card h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .meal-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+
+        .meal-calories {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .icon-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .food-icon {
+            font-size: 3rem;
+            color: #007bff;
+        }
+
+        .info-text {
+            text-align: center;
+            color: #666;
+        }
+
+        /* Responsive design */
+        @media (min-width: 768px) {
+            .row {
+                display: flex;
+                margin: 0 -15px;
+            }
+            
+            .col {
+                flex: 1;
+                padding: 0 15px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header class="text-center my-4">
-            <h1>Générateur de Repas Équilibrés</h1>
-            <p class="lead">Obtenez des suggestions de repas adaptées à vos besoins nutritionnels</p>
-        </header>
-
+        <h1>Générateur de Repas Équilibrés</h1>
+        <p class="subtitle">Obtenez des suggestions de repas adaptées à vos besoins nutritionnels</p>
+        
         <div class="row">
-            <!-- Formulaire de saisie -->
-            <div class="col-md-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h3 class="card-title h5 mb-0">Vos Informations</h3>
-                    </div>
-                    <div class="card-body">
-                        <form id="userForm">
-                            <!-- Informations personnelles -->
-                            <div class="mb-3">
-                                <label for="sexe" class="form-label">Sexe</label>
-                                <select id="sexe" class="form-select" required>
-                                    <option value="">Sélectionnez</option>
-                                    <option value="homme">Homme</option>
-                                    <option value="femme">Femme</option>
-                                </select>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="age" class="form-label">Âge</label>
-                                <input type="number" class="form-control" id="age" min="15" max="100" required>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="poids" class="form-label">Poids (kg)</label>
-                                <input type="number" class="form-control" id="poids" min="30" max="200" step="0.1" required>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="taille" class="form-label">Taille (cm)</label>
-                                <input type="number" class="form-control" id="taille" min="100" max="250" required>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="activite" class="form-label">Niveau d'activité</label>
-                                <select id="activite" class="form-select" required>
-                                    <option value="1.2">Sédentaire (peu ou pas d'exercice)</option>
-                                    <option value="1.375">Légèrement actif (exercice léger 1-3 jours/sem)</option>
-                                    <option value="1.55" selected>Modérément actif (exercice modéré 3-5 jours/sem)</option>
-                                    <option value="1.725">Très actif (exercice intense 6-7 jours/sem)</option>
-                                    <option value="1.9">Extrêmement actif (exercice très intense)</option>
-                                </select>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="objectif" class="form-label">Objectif</label>
-                                <select id="objectif" class="form-select" required>
-                                    <option value="perte">Perte de poids</option>
-                                    <option value="maintien" selected>Maintien</option>
-                                    <option value="sportif">Sportif (prise de masse)</option>
-                                </select>
-                            </div>
-
-                            <!-- Répartition des calories -->
-                            <h4 class="h6 mt-4 mb-3">Répartition des calories (%)</h4>
-                            
-                            <div class="mb-3">
-                                <label for="petit_dejeuner" class="form-label">Petit-déjeuner</label>
-                                <input type="number" class="form-control repartition-input" id="petit_dejeuner" value="30" min="10" max="40">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="dejeuner" class="form-label">Déjeuner</label>
-                                <input type="number" class="form-control repartition-input" id="dejeuner" value="35" min="20" max="45">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="diner" class="form-label">Dîner</label>
-                                <input type="number" class="form-control repartition-input" id="diner" value="30" min="20" max="40">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="collation" class="form-label">Collation</label>
-                                <input type="number" class="form-control repartition-input" id="collation" value="5" min="0" max="15">
-                            </div>
-                            
-                            <div class="alert alert-warning repartition-alert" style="display: none;">
-                                La somme des pourcentages doit être égale à 100%.
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100 mt-3" id="generateButton">Générer Repas</button>
-                        </form>
-                    </div>
+            <div class="col">
+                <div class="card">
+                    <h2 class="header-card">Vos Informations</h2>
+                    <form id="meal-form">
+                        <div class="form-group">
+                            <label for="sexe">Sexe</label>
+                            <select id="sexe" name="sexe" required>
+                                <option value="">Sélectionnez</option>
+                                <option value="homme">Homme</option>
+                                <option value="femme">Femme</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="age">Âge</label>
+                            <input type="number" id="age" name="age" min="1" max="120" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="poids">Poids (kg)</label>
+                            <input type="number" id="poids" name="poids" min="1" step="0.1" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="taille">Taille (cm)</label>
+                            <input type="number" id="taille" name="taille" min="1" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="niveau-activite">Niveau d'activité</label>
+                            <select id="niveau-activite" name="niveau-activite" required>
+                                <option value="sedentaire">Sédentaire (peu ou pas d'exercice)</option>
+                                <option value="leger">Légèrement actif (exercice léger 1-3 jours/sem)</option>
+                                <option value="modere" selected>Modérément actif (exercice modéré 3-5 jours/sem)</option>
+                                <option value="actif">Actif (exercice intense 6-7 jours/sem)</option>
+                                <option value="tres-actif">Très actif (exercice très intense, travail physique)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="objectif">Objectif</label>
+                            <select id="objectif" name="objectif" required>
+                                <option value="perte">Perte de poids</option>
+                                <option value="maintien" selected>Maintien du poids</option>
+                                <option value="prise">Prise de poids</option>
+                            </select>
+                        </div>
+                        
+                        <h3>Répartition des calories (%)</h3>
+                        
+                        <div class="form-group">
+                            <label for="petit-dejeuner">Petit-déjeuner</label>
+                            <input type="number" id="petit-dejeuner" name="petit-dejeuner" min="0" max="100" value="30" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="dejeuner">Déjeuner</label>
+                            <input type="number" id="dejeuner" name="dejeuner" min="0" max="100" value="35" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="diner">Dîner</label>
+                            <input type="number" id="diner" name="diner" min="0" max="100" value="30" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="collation">Collation</label>
+                            <input type="number" id="collation" name="collation" min="0" max="100" value="5" required>
+                        </div>
+                        
+                        <button type="submit">Générer Repas</button>
+                    </form>
                 </div>
             </div>
-
-            <!-- Affichage des résultats -->
-            <div class="col-md-8">
-                <div id="resultsContainer">
-                    <div class="text-center my-5 initial-message">
-                        <p>Remplissez le formulaire et cliquez sur "Générer Repas" pour obtenir des suggestions adaptées à vos besoins.</p>
+            
+            <div class="col">
+                <div class="card">
+                    <div class="icon-container">
+                        <span class="food-icon">🍴</span>
                     </div>
-                    
-                    <!-- Les résultats générés s'afficheront ici -->
-                    <div id="mealsContainer" style="display: none;">
-                        <div class="d-flex justify-content-between mb-3">
-                            <h3>Votre menu personnalisé</h3>
-                            <div>
-                                <span class="badge bg-info p-2" id="caloriesTotal"></span>
-                            </div>
-                        </div>
-                        
-                        <div class="nutrients-summary mb-4 p-3 bg-light rounded">
-                            <h4 class="h6 mb-3">Résumé nutritionnel journalier</h4>
-                            <div class="row">
-                                <div class="col-md-6" id="macroNutrients"></div>
-                                <div class="col-md-6" id="microNutrients"></div>
-                            </div>
-                            <div class="mt-2" id="nutritionScore"></div>
-                        </div>
-                        
-                        <!-- Repas générés -->
-                        <div id="petitDejContainer" class="meal-container mb-4"></div>
-                        <div id="dejeunerContainer" class="meal-container mb-4"></div>
-                        <div id="dinerContainer" class="meal-container mb-4"></div>
-                        <div id="collationContainer" class="meal-container mb-4"></div>
-                    </div>
+                    <p class="info-text">Remplissez le formulaire et cliquez sur "Générer Repas" pour obtenir des suggestions adaptées à vos besoins.</p>
                 </div>
+                
+                <!-- Cette section sera remplie par JavaScript après génération -->
+                <div id="menu-container"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Fenêtre modale pour remplacer un aliment -->
+    <div id="replacement-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Remplacer l'aliment</h2>
+            <div>
+                <label for="replacement-select">Sélectionnez un aliment de remplacement :</label>
+                <select id="replacement-select"></select>
+                <button id="confirm-replacement">Confirmer</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal pour le remplacement d'ingrédient -->
-    <div class="modal fade" id="replaceModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Remplacer l'aliment</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Sélectionnez un aliment de remplacement :</p>
-                    <div id="alternativesList" class="list-group"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <footer class="mt-5 py-3 text-center">
-        <p class="text-muted">© 2025 Générateur de Repas Équilibrés</p>
+    <footer>
+        <p>© 2025 Générateur de Repas Équilibrés</p>
     </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script src="script.js"></script>
 </body>
 </html>
