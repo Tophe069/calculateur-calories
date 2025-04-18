@@ -319,27 +319,9 @@ let besoinsCaloriques = 0;
 let typeRepasActuel = '';
 let indexAlimentActuel = -1;
 
-// Attendre que le DOM soit chargé avant d'ajouter les écouteurs d'événements
+// Initialisation au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM chargé');
-    
-    // Référence au formulaire
-    const form = document.getElementById('meal-form');
-    
-    // Ajouter un écouteur d'événement pour la soumission du formulaire
-    if (form) {
-        console.log('Formulaire trouvé, ajout de l\'écouteur d\'événements');
-        form.addEventListener('submit', function(event) {
-            // IMPORTANT: Empêcher la soumission standard du formulaire
-            event.preventDefault();
-            console.log('Formulaire soumis, calcul des repas...');
-            
-            // Appeler la fonction de génération des repas
-            genererRepas();
-        });
-    } else {
-        console.error('Formulaire non trouvé dans le document');
-    }
     
     // Gestionnaire pour le bouton de confirmation de remplacement
     const confirmButton = document.getElementById('confirm-replacement');
@@ -577,9 +559,26 @@ function afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeune
         
         let suggestionHTML = '';
         suggestions.forEach((sugg, index) => {
+            // Calculer la quantité en grammes ou ml ou unité
+            let quantite, unite;
+
+            if (sugg.aliment.categorie === "boisson") {
+                quantite = Math.round(sugg.portion * 250); // Une tasse standard fait environ 250ml
+                unite = "ml";
+            } else if (sugg.nom === "Œuf entier") {
+                quantite = Math.ceil(sugg.portion * 2); // Un œuf entier
+                unite = " unité(s)";
+            } else if (sugg.nom === "Pain complet") {
+                quantite = Math.ceil(sugg.portion * 2); // Tranches de pain
+                unite = " tranche(s)";
+            } else {
+                quantite = Math.round(sugg.portion * 100); // Par défaut en grammes
+                unite = "g";
+            }
+            
             suggestionHTML += `
                 <div class="meal-item" data-index="${index}" data-type="${classeCSS}">
-                    <span>${sugg.nom}</span>
+                    <span>${sugg.nom} (${quantite}${unite})</span>
                     <span class="meal-calories">${sugg.calories} cal</span>
                     <span class="replace-button" onclick="ouvrirModalRemplacement('${classeCSS}', ${index})">🔄</span>
                 </div>
