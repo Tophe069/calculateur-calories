@@ -1,4 +1,5 @@
-// Base de données des aliments
+// Chargement de la base de données des aliments depuis un JSON
+
 let alimentsDatabase = [
     {
         "nom": "Pomme",
@@ -67,11 +68,257 @@ let alimentsDatabase = [
             "B12": 0.5,
             "D": 1
         }
+    },
+    {
+        "nom": "Yaourt nature",
+        "categorie": "laitage",
+        "valeurs": {
+            "kcal": 61,
+            "prot": 3.5,
+            "gluc": 4.7,
+            "lip": 3.3,
+            "fibres": 0,
+            "Ca": 110,
+            "Fe": 0.1,
+            "Mg": 11,
+            "vitC": 0,
+            "B12": 0.75,
+            "D": 0.1
+        }
+    },
+    {
+        "nom": "Café noir",
+        "categorie": "boisson",
+        "valeurs": {
+            "kcal": 2,
+            "prot": 0.3,
+            "gluc": 0,
+            "lip": 0.1,
+            "fibres": 0,
+            "Ca": 5,
+            "Fe": 0.1,
+            "Mg": 7,
+            "vitC": 0,
+            "B12": 0,
+            "D": 0
+        }
+    },
+    {
+        "nom": "Thé vert",
+        "categorie": "boisson",
+        "valeurs": {
+            "kcal": 1,
+            "prot": 0,
+            "gluc": 0.2,
+            "lip": 0,
+            "fibres": 0,
+            "Ca": 3,
+            "Fe": 0.3,
+            "Mg": 1,
+            "vitC": 0.1,
+            "B12": 0,
+            "D": 0
+        }
+    },
+    {
+        "nom": "Riz blanc cuit",
+        "categorie": "féculent",
+        "valeurs": {
+            "kcal": 130,
+            "prot": 2.4,
+            "gluc": 28,
+            "lip": 0.3,
+            "fibres": 0.4,
+            "Ca": 10,
+            "Fe": 1.2,
+            "Mg": 12,
+            "vitC": 0,
+            "B12": 0,
+            "D": 0
+        }
+    },
+    {
+        "nom": "Pâtes cuites",
+        "categorie": "féculent",
+        "valeurs": {
+            "kcal": 131,
+            "prot": 5,
+            "gluc": 25,
+            "lip": 1.1,
+            "fibres": 1.3,
+            "Ca": 7,
+            "Fe": 0.6,
+            "Mg": 18,
+            "vitC": 0,
+            "B12": 0,
+            "D": 0
+        }
+    },
+    {
+        "nom": "Pain complet",
+        "categorie": "féculent",
+        "valeurs": {
+            "kcal": 247,
+            "prot": 8.3,
+            "gluc": 41,
+            "lip": 3.4,
+            "fibres": 7,
+            "Ca": 107,
+            "Fe": 2.7,
+            "Mg": 74,
+            "vitC": 0,
+            "B12": 0.2,
+            "D": 0
+        }
+    },
+    {
+        "nom": "Brocoli",
+        "categorie": "légume",
+        "valeurs": {
+            "kcal": 34,
+            "prot": 2.8,
+            "gluc": 7,
+            "lip": 0.4,
+            "fibres": 2.6,
+            "Ca": 47,
+            "Fe": 0.7,
+            "Mg": 21,
+            "vitC": 89.2,
+            "B12": 0,
+            "D": 0
+        }
+    },
+    {
+        "nom": "Épinards",
+        "categorie": "légume",
+        "valeurs": {
+            "kcal": 23,
+            "prot": 2.9,
+            "gluc": 3.6,
+            "lip": 0.4,
+            "fibres": 2.2,
+            "Ca": 99,
+            "Fe": 2.7,
+            "Mg": 79,
+            "vitC": 28.1,
+            "B12": 0,
+            "D": 0
+        }
+    },
+    {
+        "nom": "Carotte",
+        "categorie": "légume",
+        "valeurs": {
+            "kcal": 41,
+            "prot": 0.9,
+            "gluc": 10,
+            "lip": 0.2,
+            "fibres": 2.8,
+            "Ca": 33,
+            "Fe": 0.3,
+            "Mg": 12,
+            "vitC": 5.9,
+            "B12": 0,
+            "D": 0
+        }
+    },
+    {
+        "nom": "Poulet grillé",
+        "categorie": "protéine",
+        "valeurs": {
+            "kcal": 165,
+            "prot": 31,
+            "gluc": 0,
+            "lip": 3.6,
+            "fibres": 0,
+            "Ca": 15,
+            "Fe": 1,
+            "Mg": 34,
+            "vitC": 0,
+            "B12": 0.3,
+            "D": 0
+        }
+    },
+    {
+        "nom": "Saumon grillé",
+        "categorie": "protéine",
+        "valeurs": {
+            "kcal": 208,
+            "prot": 20,
+            "gluc": 0,
+            "lip": 13,
+            "fibres": 0,
+            "Ca": 9,
+            "Fe": 0.5,
+            "Mg": 29,
+            "vitC": 0,
+            "B12": 3.2,
+            "D": 11
+        }
+    },
+    {
+        "nom": "Œuf entier",
+        "categorie": "protéine",
+        "valeurs": {
+            "kcal": 155,
+            "prot": 13,
+            "gluc": 1.1,
+            "lip": 11,
+            "fibres": 0,
+            "Ca": 50,
+            "Fe": 1.2,
+            "Mg": 10,
+            "vitC": 0,
+            "B12": 1.1,
+            "D": 2
+        }
+    },
+    {
+        "nom": "Avocat",
+        "categorie": "légume",
+        "valeurs": {
+            "kcal": 160,
+            "prot": 2,
+            "gluc": 9,
+            "lip": 15,
+            "fibres": 7,
+            "Ca": 12,
+            "Fe": 0.6,
+            "Mg": 29,
+            "vitC": 10,
+            "B12": 0,
+            "D": 0
+        }
+    },
+    {
+        "nom": "Chocolat noir 70%",
+        "categorie": "collation",
+        "valeurs": {
+            "kcal": 546,
+            "prot": 4.9,
+            "gluc": 46,
+            "lip": 31,
+            "fibres": 11,
+            "Ca": 73,
+            "Fe": 11.9,
+            "Mg": 146,
+            "vitC": 0,
+            "B12": 0,
+            "D": 0
+        }
     }
-    // Ajoutez les autres aliments ici...
 ];
 
-// Maintenant, ajoutez le reste de votre code JavaScript
+// Variables globales pour stocker les données des repas
+let suggestionsPetitDej = [];
+let suggestionsDejeuner = [];
+let suggestionsDiner = [];
+let suggestionsCollation = [];
+let besoinsCaloriques = 0;
+
+// Variables globales pour le remplacement d'aliments
+let typeRepasActuel = '';
+let indexAlimentActuel = -1;
 
 // Fonction pour calculer les besoins caloriques quotidiens
 function calculerBesoinsCaloriques(sexe, age, poids, taille, niveauActivite, objectif) {
@@ -124,7 +371,16 @@ function calculerBesoinsCaloriques(sexe, age, poids, taille, niveauActivite, obj
 
 // Fonction pour filtrer les aliments par catégorie
 function filtrerAlimentsParCategorie(categorie) {
-    return alimentsDatabase.filter(aliment => aliment.categorie === categorie);
+    // Si une seule catégorie est spécifiée comme chaîne
+    if (typeof categorie === 'string') {
+        return alimentsDatabase.filter(aliment => aliment.categorie === categorie);
+    }
+    // Si un tableau de catégories est fourni
+    else if (Array.isArray(categorie)) {
+        return alimentsDatabase.filter(aliment => categorie.includes(aliment.categorie));
+    }
+    // Si rien ne correspond, retourner tous les aliments
+    return alimentsDatabase;
 }
 
 // Fonction pour générer des suggestions d'aliments en fonction des calories allouées
@@ -151,17 +407,24 @@ function genererSuggestionsAliments(typeRepas, calories) {
             categories = ['fruit', 'légume', 'protéine', 'féculent', 'laitage'];
     }
     
-    // Ajouter des aliments de chaque catégorie jusqu'à atteindre approximativement les calories cibles
+    // Pour chaque catégorie, ajouter un aliment aux suggestions
     for (const categorie of categories) {
+        // Récupérer les aliments de cette catégorie
         const alimentsCategorie = filtrerAlimentsParCategorie(categorie);
         
-        // Si pas d'aliments dans cette catégorie, passer à la suivante
-        if (alimentsCategorie.length === 0) continue;
+        // Si pas d'aliments dans cette catégorie, essayer une catégorie plus générale
+        if (alimentsCategorie.length === 0) {
+            console.log(`Aucun aliment trouvé dans la catégorie ${categorie}, utilisation d'une catégorie alternative`);
+            continue;
+        }
         
         // Choisir un aliment aléatoire de cette catégorie
-        const alimentIndex = Math.floor(Math.random() * alimentsCategorie.length);
-        const aliment = alimentsCategorie[alimentIndex];
-        
+        const aliment = alimentsCategorie[Math.floor(Math.random() * alimentsCategorie.length)];
+        ajouterAlimentAuxSuggestions(aliment);
+    }
+    
+    // Fonction locale pour ajouter un aliment aux suggestions
+    function ajouterAlimentAuxSuggestions(aliment) {
         // Déterminer la portion en fonction des calories restantes
         let portion = Math.min(1, caloriesRestantes / aliment.valeurs.kcal);
         
@@ -181,9 +444,12 @@ function genererSuggestionsAliments(typeRepas, calories) {
         
         // Mettre à jour les calories restantes
         caloriesRestantes -= caloriesAliment;
-        
-        // Si on a presque atteint l'objectif calorique, arrêter
-        if (caloriesRestantes < 50) break;
+    }
+    
+    // Si aucune suggestion n'a été trouvée, ajouter au moins un aliment
+    if (suggestions.length === 0) {
+        const aleatoire = alimentsDatabase[Math.floor(Math.random() * alimentsDatabase.length)];
+        ajouterAlimentAuxSuggestions(aleatoire);
     }
     
     return suggestions;
@@ -191,9 +457,6 @@ function genererSuggestionsAliments(typeRepas, calories) {
 
 // Fonction principale pour générer les repas
 function genererRepas() {
-    // Empêcher le comportement par défaut du formulaire
-    event.preventDefault();
-    
     // Récupérer les valeurs du formulaire
     const sexe = document.getElementById('sexe').value;
     const age = parseInt(document.getElementById('age').value);
@@ -216,167 +479,4 @@ function genererRepas() {
     }
     
     // Calculer les besoins caloriques quotidiens
-    const besoinsCaloriques = calculerBesoinsCaloriques(sexe, age, poids, taille, niveauActivite, objectif);
-    
-    // Répartir les calories entre les repas
-    const caloriesPetitDej = Math.round((besoinsCaloriques * petitDejeunerPct) / 100);
-    const caloriesDejeuner = Math.round((besoinsCaloriques * dejeunerPct) / 100);
-    const caloriesDiner = Math.round((besoinsCaloriques * dinerPct) / 100);
-    const caloriesCollation = Math.round((besoinsCaloriques * collationPct) / 100);
-    
-    // Générer les suggestions de repas
-    const suggestionsPetitDej = genererSuggestionsAliments('petit-dejeuner', caloriesPetitDej);
-    const suggestionsDejeuner = genererSuggestionsAliments('dejeuner', caloriesDejeuner);
-    const suggestionsDiner = genererSuggestionsAliments('diner', caloriesDiner);
-    const suggestionsCollation = genererSuggestionsAliments('collation', caloriesCollation);
-    
-    // Afficher les résultats
-    afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeuner, suggestionsDiner, suggestionsCollation);
-}
-
-// Fonction pour afficher le menu généré
-function afficherMenu(besoinsCaloriques, suggestionsPetitDej, suggestionsDejeuner, suggestionsDiner, suggestionsCollation) {
-    // Créer le conteneur pour le menu
-    const menuContainer = document.getElementById('menu-container');
-    menuContainer.innerHTML = ''; // Effacer le contenu précédent
-    
-    // Créer la section résumé nutritionnel
-    const resumeSection = document.createElement('div');
-    resumeSection.className = 'card nutrition-summary';
-    resumeSection.innerHTML = `
-        <h2>Résumé nutritionnel journalier</h2>
-        <p>Besoins caloriques quotidiens: <strong>${besoinsCaloriques} calories</strong></p>
-    `;
-    menuContainer.appendChild(resumeSection);
-    
-    // Fonction pour créer une carte de repas
-    function creerCarteRepas(titre, suggestions, classeCSS) {
-        const totalCalories = suggestions.reduce((total, sugg) => total + sugg.calories, 0);
-        
-        const card = document.createElement('div');
-        card.className = `meal-card ${classeCSS}`;
-        
-        let suggestionHTML = '';
-        suggestions.forEach((sugg, index) => {
-            suggestionHTML += `
-                <div class="meal-item" data-index="${index}" data-type="${classeCSS}">
-                    <span>${sugg.nom}</span>
-                    <span class="meal-calories">${sugg.calories} cal</span>
-                    <span class="replace-button" onclick="ouvrirModalRemplacement('${classeCSS}', ${index})">🔄</span>
-                </div>
-            `;
-        });
-        
-        card.innerHTML = `
-            <h3>${titre} (${totalCalories} calories)</h3>
-            ${suggestionHTML}
-        `;
-        
-        return card;
-    }
-    
-    // Ajouter les cartes de repas
-    menuContainer.appendChild(creerCarteRepas('Petit-déjeuner', suggestionsPetitDej, 'petit-dejeuner'));
-    menuContainer.appendChild(creerCarteRepas('Déjeuner', suggestionsDejeuner, 'dejeuner'));
-    menuContainer.appendChild(creerCarteRepas('Dîner', suggestionsDiner, 'diner'));
-    
-    // Ajouter la carte de collation seulement si des collations sont prévues
-    if (suggestionsCollation.length > 0) {
-        menuContainer.appendChild(creerCarteRepas('Collation', suggestionsCollation, 'collation'));
-    }
-}
-
-// Variables globales pour le remplacement d'aliments
-let typeRepasActuel = '';
-let indexAlimentActuel = -1;
-
-// Fonction pour ouvrir la fenêtre modale de remplacement d'aliment
-function ouvrirModalRemplacement(typeRepas, index) {
-    typeRepasActuel = typeRepas;
-    indexAlimentActuel = index;
-    
-    const modal = document.getElementById('replacement-modal');
-    const select = document.getElementById('replacement-select');
-    
-    // Effacer les options précédentes
-    select.innerHTML = '';
-    
-    // Déterminer la catégorie appropriée pour ce type de repas
-    let categorie;
-    switch (typeRepas) {
-        case 'petit-dejeuner':
-            categorie = 'fruit';
-            break;
-        case 'dejeuner':
-        case 'diner':
-            categorie = 'protéine';
-            break;
-        case 'collation':
-            categorie = 'collation';
-            break;
-        default:
-            categorie = 'fruit';
-    }
-    
-    // Filtrer les aliments par catégorie
-    const alimentsFiltre = filtrerAlimentsParCategorie(categorie);
-    
-    // Ajouter les options au select
-    alimentsFiltre.forEach(aliment => {
-        const option = document.createElement('option');
-        option.value = aliment.nom;
-        option.textContent = `${aliment.nom} (${aliment.valeurs.kcal} cal)`;
-        select.appendChild(option);
-    });
-    
-    // Afficher la fenêtre modale
-    modal.style.display = 'block';
-}
-
-// Fonction pour confirmer le remplacement d'un aliment
-function confirmerRemplacement() {
-    const select = document.getElementById('replacement-select');
-    const nouvelAlimentNom = select.value;
-    
-    // Trouver le nouvel aliment
-    const nouvelAliment = alimentsDatabase.find(aliment => aliment.nom === nouvelAlimentNom);
-    
-    if (!nouvelAliment) {
-        alert('Aliment non trouvé.');
-        return;
-    }
-    
-    // Mettre à jour l'aliment dans les suggestions
-    // Cette partie dépend de la structure de vos données et de votre logique d'affichage
-    
-    // Fermer la fenêtre modale
-    document.getElementById('replacement-modal').style.display = 'none';
-    
-    // Régénérer le menu (vous devrez adapter cette partie)
-    // genererRepas();
-}
-
-// Gestionnaire d'événements pour la soumission du formulaire
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('meal-form');
-    if (form) {
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-            genererRepas();
-        });
-    }
-    
-    // Gestionnaire pour le bouton de confirmation de remplacement
-    const confirmButton = document.getElementById('confirm-replacement');
-    if (confirmButton) {
-        confirmButton.addEventListener('click', confirmerRemplacement);
-    }
-    
-    // Gestionnaire pour fermer la fenêtre modale
-    const closeButton = document.querySelector('.close-button');
-    if (closeButton) {
-        closeButton.addEventListener('click', function() {
-            document.getElementById('replacement-modal').style.display = 'none';
-        });
-    }
-});
+    besoinsCaloriques = calculerBesoinsCaloriques(sexe, age, poids, taille, niveauActivite
