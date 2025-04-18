@@ -7,6 +7,7 @@
     
     <!-- CSS intégré directement dans le HTML -->
     <style>
+        /* Les mêmes styles CSS que précédemment */
         /* Styles généraux */ 
         body { 
             background-color: #f8f9fa; 
@@ -309,7 +310,8 @@
             <div class="col">
                 <div class="card">
                     <h2 class="header-card">Vos Informations</h2>
-                    <form id="meal-form">
+                    <!-- MODIFICATION: Ajout de onsubmit="return false" pour empêcher la soumission -->
+                    <form id="meal-form" onsubmit="return false">
                         <div class="form-group">
                             <label for="sexe">Sexe</label>
                             <select id="sexe" name="sexe" required>
@@ -376,7 +378,8 @@
                             <input type="number" id="collation" name="collation" min="0" max="100" value="5" required>
                         </div>
                         
-                        <button type="submit">Générer Repas</button>
+                        <!-- MODIFICATION: Changé type="submit" en type="button" et ajouté onclick -->
+                        <button type="button" onclick="genererRepas()">Générer Repas</button>
                     </form>
                 </div>
             </div>
